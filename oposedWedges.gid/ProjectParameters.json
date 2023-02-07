@@ -1,0 +1,198 @@
+{
+    "analysis_stage"   : "KratosMultiphysics.FluidDynamicsApplication.fluid_dynamics_analysis",
+    "problem_data"     : {
+        "problem_name"  : "oposedWedges",
+        "parallel_type" : "OpenMP",
+        "echo_level"    : 0,
+        "start_time"    : 0.0,
+        "end_time"      : 0.03
+    },
+    "solver_settings"  : {
+        "model_part_name"             : "FluidModelPart",
+        "domain_size"                 : 2,
+        "solver_type"                 : "CompressibleExplicit",
+        "model_import_settings"       : {
+            "input_type"     : "mdpa",
+            "input_filename" : "oposedWedges"
+        },
+        "material_import_settings"    : {
+            "materials_filename" : "FluidMaterials.json"
+        },
+        "echo_level": 0,
+        "compute_reactions": false,
+        "shock_capturing_settings": {
+            "type" : "physics_based",
+            "Parameters" : {
+                            "shock_sensor": true,
+                            "k_beta": 0.5,
+                            "thermal_sensor": true,
+                            "k_kappa": 0.0,
+                            "shear_sensor": true,
+                            "k_mu": 0.0
+                            }
+        },
+        "time_scheme" : "RK4",
+        "use_oss": false,
+        "volume_model_part_name"      : "FluidParts_Fluid",
+        "skin_parts"                  : ["VelocityConstraints2D_Inlet","NoSlip2D_Walls"],
+        "no_skin_parts"               : [],
+        "time_stepping": {
+            "automatic_time_step": true,
+            "CFL_number": 0.5
+        },
+        "reform_dofs_at_each_step"    : false
+    },
+    "processes"        : {
+        "initial_conditions_process_list"  : [
+            {
+                "kratos_module": "KratosMultiphysics",
+                "process_name": "AssignScalarVariableProcess",
+                "python_module": "assign_scalar_variable_process",
+                "Parameters":
+                {
+                    "model_part_name": "FluidModelPart",
+                    "variable_name": "DENSITY",
+                    "interval": [0.0, 0.0],
+                    "constrained": false,
+                    "value": 1.225
+                }
+            },
+            {
+                "kratos_module": "KratosMultiphysics",
+                "process_name": "AssignScalarVariableProcess",
+                "python_module": "assign_scalar_variable_process",
+                "Parameters":
+                {
+                    "model_part_name": "FluidModelPart",
+                    "variable_name": "TOTAL_ENERGY",
+                    "interval": [0.0, 0.0],
+                    "constrained": false,
+                    "value": 891737.34
+                }
+            },
+            {
+                "kratos_module": "KratosMultiphysics",
+                "process_name": "AssignScalarVariableProcess",
+                "python_module": "assign_scalar_variable_process",
+                "Parameters":
+                {
+                    "model_part_name": "FluidModelPart",
+                    "variable_name": "MOMENTUM_X",
+                    "interval": [0.0, 0.0],
+                    "constrained": false,
+                    "value": 1250.57
+                }
+        }
+        ],
+        "boundary_conditions_process_list" : [
+        {
+            "python_module" : "apply_slip_process",
+            "kratos_module" : "KratosMultiphysics.FluidDynamicsApplication",
+            "process_name"  : "ApplySlipProcess",
+            "Parameters"    : {
+                "model_part_name" : "FluidModelPart.NoSlip2D_Walls"
+            }
+        },
+            {
+                "kratos_module": "KratosMultiphysics",
+                "process_name": "AssignScalarVariableProcess",
+                "python_module": "assign_scalar_variable_process",
+                "Parameters":
+                {
+                    "model_part_name": "FluidModelPart.VelocityConstraints2D_Inlet",
+                    "variable_name": "DENSITY",
+                    "interval": [0.0,"End"],
+                    "constrained": true,
+                    "value": 1.225
+                }
+            },
+            {
+                "kratos_module": "KratosMultiphysics",
+                "process_name": "AssignScalarVariableProcess",
+                "python_module": "assign_scalar_variable_process",
+                "Parameters":
+                {
+                    "model_part_name": "FluidModelPart.VelocityConstraints2D_Inlet",
+                    "variable_name": "TOTAL_ENERGY",
+                    "interval": [0.0, "End"],
+                    "constrained": true,
+                    "value": 891737.34
+                }
+            },
+            {
+                "kratos_module": "KratosMultiphysics",
+                "process_name": "AssignScalarVariableProcess",
+                "python_module": "assign_scalar_variable_process",
+                "Parameters":
+                {
+                    "model_part_name": "FluidModelPart.VelocityConstraints2D_Inlet",
+                    "variable_name": "MOMENTUM_X",
+                    "interval": [0.0, "End"],
+                    "constrained": true,
+                    "value": 1250.57
+                }
+        },
+         {
+                "kratos_module": "KratosMultiphysics",
+                "process_name": "AssignScalarVariableProcess",
+                "python_module": "assign_scalar_variable_process",
+                "Parameters":
+                {
+                    "model_part_name": "FluidModelPart.VelocityConstraints2D_Inlet",
+                    "variable_name": "MOMENTUM_Y",
+                    "interval": [0.0, "End"],
+                    "constrained": true,
+                    "value": 0.0
+                }
+        }
+        ],
+        "auxiliar_process_list"            : []
+    },
+    "output_processes" : {
+        "gid_output" : [{
+            "python_module" : "gid_output_process",
+            "kratos_module" : "KratosMultiphysics",
+            "process_name"  : "GiDOutputProcess",
+            "Parameters"    : {
+                "model_part_name"        : "FluidModelPart.fluid_computational_model_part",
+                "postprocess_parameters" : {
+                    "result_file_configuration" : {
+                        "gidpost_flags"               : {
+                            "GiDPostMode"           : "GiD_PostBinary",
+                            "WriteDeformedMeshFlag" : "WriteDeformed",
+                            "WriteConditionsFlag"   : "WriteConditions",
+                            "MultiFileFlag"         : "SingleFile"
+                        },
+                        "file_label"                  : "time",
+                        "output_control_type"         : "step",
+                        "output_interval"             : 1,
+                            "body_output": true,
+                            "node_output": false,
+                            "skin_output": false,
+                            "plane_output": [],
+                            "nodal_results": [
+                            "MOMENTUM",
+                            "DENSITY",
+                            "TOTAL_ENERGY",
+                            "PRESSURE",
+                            "TEMPERATURE",
+                            "VELOCITY"],
+                            "gauss_point_results": [
+                            "SHOCK_SENSOR",
+                            "THERMAL_SENSOR",
+                            "SHEAR_SENSOR",
+                            "VELOCITY_DIVERGENCE"],
+                            "nodal_nonhistorical_results": [
+                            "SOUND_VELOCITY",
+                            "ARTIFICIAL_BULK_VISCOSITY",
+                            "ARTIFICIAL_DYNAMIC_VISCOSITY",
+                            "ARTIFICIAL_CONDUCTIVITY",
+                            "MACH"]
+                        },
+                    "point_data_configuration"  : []
+                },
+                "output_name"            : "gid_output/oposedWedges"
+            }
+        }]
+        }
+}

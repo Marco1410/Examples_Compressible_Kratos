@@ -1,0 +1,27 @@
+Supersonic flow past cylinder:
+
+Re = 2000   {Re = D rho V / mu} D = 0.2
+M  = 2      {M = V/a}
+
+# Boundary Conditions:
+
+Flow injected from left Uniform and constant 
+V   = 1.0     [m/s] 
+T   = 6.14e-4 [K]      {a_gas = sqrt(gamma*R*T) con gamma_aire = 1.4, R = 286.9}
+rho = 1.0     [kg/m3]
+
+# On the cylinder:
+
+* No-slip condition for Velocity
+* Adiabatic condition for Energy
+* Free conditions over the outflow
+
+# Physical properties
+
+mu     = 0.0001  [kg/(m s)]
+Lambda = 0.14338 [kJ/(m K s)]
+
+My = 0.0
+Mx = 1.0
+
+Et = 0.94

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gid version="15.0">
+  <pre>
+    <layer_to_use name="Layer0"/>
+    <groups>
+      <group id="1" name="Fluid" color="#ff00ffff" allowed_types="#74" allowed_element_types="#7fe"/>
+      <group id="2" name="Rampa" color="#008000ff" allowed_types="#72" allowed_element_types="#7fe"/>
+      <group id="3" name="Inlet" color="#ffff00ff" allowed_types="#72" allowed_element_types="#7fe"/>
+      <group id="4" name="Total" color="#00ffffff" parent_id="3" state="hidden"/>
+    </groups>
+    <entities_groups>
+      <entities_group name="lines">
+        <vector name="entity_ids" length="4" type="integer">1 2 4 5</vector>
+        <vector name="entity_num_groups" length="4" type="ushort">1 1 2 1</vector>
+        <vector name="entity_groups" length="5" type="ushort">2 2 3 4 2</vector>
+      </entities_group>
+      <entities_group name="surfaces">
+        <vector name="entity_ids" length="1" type="integer">1</vector>
+        <vector name="entity_num_groups" length="1" type="ushort">1</vector>
+        <vector name="entity_groups" length="1" type="ushort">1</vector>
+      </entities_group>
+      <entities_group name="nodes">
+        <vector name="entity_ids" length="6523" type="integer">1:6523</vector>
+        <vector name="entity_num_groups" length="6523" type="ushort">4 2 3 1 2 3 1 2 3 1 1 2 3 1x3 2 3 1x3 2 1 3 1x5 2 1 3 1x5 2 3 1x6 2 3 1x7 2 3 1x8 2 1 1 3 1x6 2 1x6 3 1x6 2 1x4 3 1x7 2 1x3 3 1x8 2 1x3 3 1x10 2 1x3 3 1x10 2 1x4 3 1x10 2 1x6 3 1x10 2 1x6 3 1x11 2 1x7 3 1x9 2 1x8 3 1x7 2 1x10 3 1x11 2 1x8 3 1x11 2 1x8 3 1x11 2 1x9 3 1x10 2 1x12 3 1x9 2 1x14 3 1x7 2 1x15 3 1x6 2 1x15 3 1x6 2 1x16 3 1x11 2 1x12 3 1x11 2 1x11 3 1x14 2 1x15 3 1x8 2 1x16 3 1x8 2 1x18 3 1x7 2 1x21 3 1x6 2 1x21 3 1x8 2 1x19 3 1x8 2 1x20 3 1x8 2 1x20 3 1x13 2 1x15 3 1x12 2 1x21 3 1x5 2 1x24 3 1x5 2 1x25 3 1x6 2 1x25 3 1x13 2 1x19 3 1x15 2 1x25 3 1x9 2 1x28 3 1x5 2 1x28 3 1x6 2 1x28 3 1x6 2 1x29 3 1x13 2 1x22 3 1x14 2 1x27 3 1x7 2 1x27 3 1x8 2 1x28 3 1x9 2 1x28 3 1x10 2 1x29 3 1x15 2 1x27 3 1x9 2 1x32 3 1x9 2 1x32 3 1x8 2 1x33 3 1x13 2 1x32 3 1x15 2 1x33 3 1x9 2 1x33 3 1x11 2 1x35 3 1x8 2 1x36 3 1x7 2 1x38 3 1x14 2 1x33 3 1x13 2 1x34 3 1x14 2 1x36 3 1x10 2 1x37 3 1x10 2 1x38 3 1x7 2 1x41 3 1x6 2 1x42 3 1 1 2 1x49 2 3 1x48 2 1x3 3 1x43 2 1x4 3 1x39 2 1x5 3 1x41 2 1x9 3 1x40 2 1x12 3 1x37 2 1x17 3 1x33 2 1x18 3 1x33 2 1x19 3 1x32 2 1x20 3 1x30 2 1x22 3 1x27 2 1x25 3 1x26 2 1x26 3 1x24 2 1x31 3 1x20 2 1x34 3 1x19 2 1x34 3 1x18 2 1x37 3 1x17 2 1x38 3 1x15 2 1x40 3 1x12 2 1x44 3 1x10 2 1x46 3 1x9 2 1x46 3 1x9 2 1x48 3 1x5 2 1x52 3 1x4 2 1x51 3 1 1 2 1x55 3 1 2 1x54 2 3 1x55 2 1 3 1x55 2 1 1 3 1x55 2 1x4 3 1x52 2 1x6 3 1x51 2 1x8 3 1x51 2 1x8 3 1x51 2 1x8 3 1x50 2 1x8 3 1x50 2 1x14 3 1x46 2 1x13 3 1x46 2 1x16 3 1x44 2 1x17 3 1x43 2 1x19 3 1x41 2 1x18 3 1x44 2 1x18 3 1x43 2 1x20 3 1x40 2 1x21 3 1x40 2 1x25 3 1x36 2 1x27 3 1x34 2 1x29 3 1x34 2 1x27 3 1x37 2 1x27 3 1x36 2 1x30 3 1x32 2 1x31 3 1x32 2 1x34 3 1x30 2 1x34 3 1x63 3 1x63 3 1x59 3 1x58 3 1x53 3 1x51 3 1x52 3 1x48 3 1x46 3 1x45 3 1x44 3 1x41 3 1x40 3 1x38 3 1x36 3 1x35 3 1x33 3 1x33 3 1x30 3 1x29 3 1x28 3 1x27 3 1x24 3 1x24 3 1x23 3 1x20 3 1x20 3 1x18 3 1x17 3 1x17 3 1x14 3 1x14 3 1x11 3 1x11 3 1x10 3 1x9 3 1x7 3 1x6 3 1x6 3 1 1 3 1x4 3 1 1 3 1 3</vector>
+        <vector name="entity_groups" length="6995" type="ushort">3 4 2 1 2 1 3 4 1 1 2 1 3 4 1 1 2 1 3 4 1x3 2 1 3 4 1x4 2 1 3 4 1x4 2 1 1 3 4 1x6 2 1 1 3 4 1x6 2 1 3 4 1x7 2 1 3 4 1x8 2 1 3 4 1x9 2 1x3 3 4 1x7 2 1x7 3 4 1x7 2 1x5 3 4 1x8 2 1x4 3 4 1x9 2 1x4 3 4 1x11 2 1x4 3 4 1x11 2 1x5 3 4 1x11 2 1x7 3 4 1x11 2 1x7 3 4 1x12 2 1x8 3 4 1x10 2 1x9 3 4 1x8 2 1x11 3 4 1x12 2 1x9 3 4 1x12 2 1x9 3 4 1x12 2 1x10 3 4 1x11 2 1x13 3 4 1x10 2 1x15 3 4 1x8 2 1x16 3 4 1x7 2 1x16 3 4 1x7 2 1x17 3 4 1x12 2 1x13 3 4 1x12 2 1x12 3 4 1x15 2 1x16 3 4 1x9 2 1x17 3 4 1x9 2 1x19 3 4 1x8 2 1x22 3 4 1x7 2 1x22 3 4 1x9 2 1x20 3 4 1x9 2 1x21 3 4 1x9 2 1x21 3 4 1x14 2 1x16 3 4 1x13 2 1x22 3 4 1x6 2 1x25 3 4 1x6 2 1x26 3 4 1x7 2 1x26 3 4 1x14 2 1x20 3 4 1x16 2 1x26 3 4 1x10 2 1x29 3 4 1x6 2 1x29 3 4 1x7 2 1x29 3 4 1x7 2 1x30 3 4 1x14 2 1x23 3 4 1x15 2 1x28 3 4 1x8 2 1x28 3 4 1x9 2 1x29 3 4 1x10 2 1x29 3 4 1x11 2 1x30 3 4 1x16 2 1x28 3 4 1x10 2 1x33 3 4 1x10 2 1x33 3 4 1x9 2 1x34 3 4 1x14 2 1x33 3 4 1x16 2 1x34 3 4 1x10 2 1x34 3 4 1x12 2 1x36 3 4 1x9 2 1x37 3 4 1x8 2 1x39 3 4 1x15 2 1x34 3 4 1x14 2 1x35 3 4 1x15 2 1x37 3 4 1x11 2 1x38 3 4 1x11 2 1x39 3 4 1x8 2 1x42 3 4 1x7 2 1x43 3 4 1x3 2 1x50 2 1 3 4 1x49 2 1x4 3 4 1x44 2 1x5 3 4 1x40 2 1x6 3 4 1x42 2 1x10 3 4 1x41 2 1x13 3 4 1x38 2 1x18 3 4 1x34 2 1x19 3 4 1x34 2 1x20 3 4 1x33 2 1x21 3 4 1x31 2 1x23 3 4 1x28 2 1x26 3 4 1x27 2 1x27 3 4 1x25 2 1x32 3 4 1x21 2 1x35 3 4 1x20 2 1x35 3 4 1x19 2 1x38 3 4 1x18 2 1x39 3 4 1x16 2 1x41 3 4 1x13 2 1x45 3 4 1x11 2 1x47 3 4 1x10 2 1x47 3 4 1x10 2 1x49 3 4 1x6 2 1x53 3 4 1x5 2 1x52 3 4 1x3 2 1x56 3 4 1 1 2 1x55 2 1 3 4 1x56 2 1 1 3 4 1x56 2 1x3 3 4 1x56 2 1x5 3 4 1x53 2 1x7 3 4 1x52 2 1x9 3 4 1x52 2 1x9 3 4 1x52 2 1x9 3 4 1x51 2 1x9 3 4 1x51 2 1x15 3 4 1x47 2 1x14 3 4 1x47 2 1x17 3 4 1x45 2 1x18 3 4 1x44 2 1x20 3 4 1x42 2 1x19 3 4 1x45 2 1x19 3 4 1x44 2 1x21 3 4 1x41 2 1x22 3 4 1x41 2 1x26 3 4 1x37 2 1x28 3 4 1x35 2 1x30 3 4 1x35 2 1x28 3 4 1x38 2 1x28 3 4 1x37 2 1x31 3 4 1x33 2 1x32 3 4 1x33 2 1x35 3 4 1x31 2 1x35 3 4 1x64 3 4 1x64 3 4 1x60 3 4 1x59 3 4 1x54 3 4 1x52 3 4 1x53 3 4 1x49 3 4 1x47 3 4 1x46 3 4 1x45 3 4 1x42 3 4 1x41 3 4 1x39 3 4 1x37 3 4 1x36 3 4 1x34 3 4 1x34 3 4 1x31 3 4 1x30 3 4 1x29 3 4 1x28 3 4 1x25 3 4 1x25 3 4 1x24 3 4 1x21 3 4 1x21 3 4 1x19 3 4 1x18 3 4 1x18 3 4 1x15 3 4 1x15 3 4 1x12 3 4 1x12 3 4 1x11 3 4 1x10 3 4 1x8 3 4 1x7 3 4 1x7 3 4 1x3 3 4 1x5 3 4 1x3 3 4 1 1 3 4 1</vector>
+      </entities_group>
+      <entities_group name="elements">
+        <vector name="entity_ids" length="12965" type="integer">12667:12965 1:12666</vector>
+        <vector name="entity_num_groups" length="12965" type="ushort">1x107 2x170 1x12688</vector>
+        <vector name="entity_groups" length="13135" type="ushort">2x107 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 3 4 2x22 1x12666</vector>
+      </entities_group>
+    </entities_groups>
+  </pre>
+</gid>
