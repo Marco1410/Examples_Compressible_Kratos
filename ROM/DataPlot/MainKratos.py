@@ -97,19 +97,19 @@ def primal_ROM(mach):
     plt.figure()
     plt.subplot(211)
     plt.title('ROM Naca 0012 Cp Distribution')
-    nodal_Cp = np.zeros((len(model.GetModelPart("ModelPart").Nodes)))
-    for cond in model.GetModelPart("MainModelPart.Body2D_Body").Conditions:
+    nodal_Cp = np.zeros((len(simulation._GetSolver().GetComputingModelPart().GetRootModelPart().Nodes)))
+    for cond in simulation._GetSolver().GetComputingModelPart().GetRootModelPart().GetSubModelPart("Body2D_Body").Conditions:
         Cp = cond.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
         for node in cond.GetNodes():
             Cp_contribution = Cp/2.0
             nodal_Cp[node.Id] += Cp_contribution        
-    for node in model.GetModelPart("MainModelPart.Body2D_Body").Nodes:
+    for node in simulation._GetSolver().GetComputingModelPart().GetRootModelPart().GetSubModelPart("Body2D_Body").Nodes:
         plt.plot(node.X, nodal_Cp[node.Id], 'bs')
     plt.axis([-0.75, 0.75, -3.0, 1.5])
     plt.ylabel('Cp')
     plt.grid(True)
     plt.subplot(212)
-    for node in model.GetModelPart("MainModelPart.Body2D_Body").Nodes:
+    for node in simulation._GetSolver().GetComputingModelPart().GetRootModelPart().GetSubModelPart("Body2D_Body").Nodes:
         plt.plot(node.X, node.Y, 'ro')
     plt.axis([-0.75, 0.75, -0.75, 0.75])
     plt.xlabel('x')
@@ -139,19 +139,19 @@ def primal_HROM(mach):
     plt.figure()
     plt.subplot(211)
     plt.title('HROM Naca 0012 Cp Distribution')
-    nodal_Cp = np.zeros((len(model.GetModelPart("MainModelPart").Nodes)))
-    for cond in model.GetModelPart("MainModelPart.Body2D_Body").Conditions:
+    nodal_Cp = np.zeros((len(simulation._GetSolver().GetComputingModelPart().GetRootModelPart().Nodes)))
+    for cond in simulation._GetSolver().GetComputingModelPart().GetRootModelPart().GetSubModelPart("Body2D_Body").Conditions:
         Cp = cond.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
         for node in cond.GetNodes():
             Cp_contribution = Cp/2.0
             nodal_Cp[node.Id] += Cp_contribution        
-    for node in model.GetModelPart("MainModelPart.Body2D_Body").Nodes:
+    for node in simulation._GetSolver().GetComputingModelPart().GetRootModelPart().GetSubModelPart("Body2D_Body").Nodes:
         plt.plot(node.X, nodal_Cp[node.Id], 'bs')
     plt.axis([-0.75, 0.75, -3.0, 1.5])
     plt.ylabel('Cp')
     plt.grid(True)
     plt.subplot(212)
-    for node in model.GetModelPart("MainModelPart.Body2D_Body").Nodes:
+    for node in simulation._GetSolver().GetComputingModelPart().GetRootModelPart().GetSubModelPart("Body2D_Body").Nodes:
         plt.plot(node.X, node.Y, 'ro')
     plt.axis([-0.75, 0.75, -0.75, 0.75])
     plt.xlabel('x')
