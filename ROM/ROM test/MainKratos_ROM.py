@@ -79,7 +79,7 @@ def update_project_parameters(parameters, a_case,results_name):
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(a_case[0])
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(a_case[1])
     #storing results into a results folder
-    parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString(f"Results{results_name}[{str(np.round(a_case[0]*180/math.pi,2))}] - [{str(np.round(a_case[1],2))}]")
+    #parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString(f"Results{results_name}[{str(np.round(a_case[0]*180/math.pi,2))}] - [{str(np.round(a_case[1],2))}]")
     return parameters
 
 
@@ -178,10 +178,10 @@ def setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name
 
 
 def primal_FOM(mach):
-    with open("ProjectParametersPrimal.json",'r') as parameter_file:
+    with open("ProjectParametersPrimalROM.json",'r') as parameter_file:
         parameters = KratosMultiphysics.Parameters(parameter_file.read())
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach)
-    parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString('ResultsFOM'+str(mach))
+    parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString('Results/FOM'+str(mach))
     model = KratosMultiphysics.Model()
     simulation = PotentialFlowAnalysis(model, parameters)
     start=time.time()
@@ -195,10 +195,10 @@ def primal_FOM(mach):
     return SnapshotsMatrix,tm
 
 def primal_ROM(mach):
-    with open("ProjectParametersPrimal.json",'r') as parameter_file:
+    with open("ProjectParametersPrimalROM.json",'r') as parameter_file:
         parameters = KratosMultiphysics.Parameters(parameter_file.read())
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach)
-    parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString('ResultsROM'+str(mach))
+    parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString('Results/ROM'+str(mach))
     model = KratosMultiphysics.Model()
     simulation = SetUpSimulationInstance(model,parameters) 
     start=time.time()
@@ -212,10 +212,10 @@ def primal_ROM(mach):
     return SnapshotsMatrix,tm
 
 def primal_HROM(mach):
-    with open("ProjectParametersPrimal.json",'r') as parameter_file:
+    with open("ProjectParametersPrimalROM.json",'r') as parameter_file:
         parameters = KratosMultiphysics.Parameters(parameter_file.read())
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach)
-    parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString('ResultsHROM'+str(mach))
+    parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString('Results/HROM'+str(mach))
     model = KratosMultiphysics.Model()
     simulation = SetUpSimulationInstance(model,parameters) 
     start=time.time()
@@ -232,6 +232,7 @@ def primal_HROM(mach):
 
 
 if __name__ == "__main__":
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Results')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsFOM')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsROM')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsHROM')
@@ -256,39 +257,39 @@ if __name__ == "__main__":
     print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(primal_fom_snapshots - primal_rom_snapshots)/np.linalg.norm(primal_fom_snapshots)*100,"%")
     print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(primal_rom_snapshots - primal_hrom_snapshots)/np.linalg.norm(primal_rom_snapshots)*100,"%")
 
-    #print(":::::::::::::::::: CASE 1 :::::::::::::::::::::")
-    #fom_snapshots,tmfom = primal_FOM(0.3)
-    #setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    #rom_snapshots,tmrom = primal_ROM(0.3)
-    #setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
-    #hrom_snapshots,tmhrom = primal_HROM(0.3)
-    #setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    #print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(fom_snapshots - rom_snapshots)/np.linalg.norm(fom_snapshots)*100,"%")
-    #print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(rom_snapshots - hrom_snapshots)/np.linalg.norm(rom_snapshots)*100,"%")
-    #print("time  FOM:", tmfom)
-    #print("time  ROM:", tmrom)
-    #print("time HROM:", tmhrom)
-    #print(":::::::::::::::::: CASE 2 :::::::::::::::::::::")
-    #fom_snapshots,tmfom = primal_FOM(0.5)
-    #setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    #rom_snapshots,tmrom = primal_ROM(0.5)
-    #setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
-    #hrom_snapshots,tmhrom = primal_HROM(0.5)
-    #setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    #print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(fom_snapshots - rom_snapshots)/np.linalg.norm(fom_snapshots)*100,"%")
-    #print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(rom_snapshots - hrom_snapshots)/np.linalg.norm(rom_snapshots)*100,"%")
-    #print("time  FOM:", tmfom)
-    #print("time  ROM:", tmrom)
-    #print("time HROM:", tmhrom)
-    #print(":::::::::::::::::: CASE 3 :::::::::::::::::::::")
-    #fom_snapshots,tmfom = primal_FOM(0.7)
-    #setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    #rom_snapshots,tmrom = primal_ROM(0.7)
-    #setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
-    #hrom_snapshots,tmhrom = primal_HROM(0.7)
-    #setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    #print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(fom_snapshots - rom_snapshots)/np.linalg.norm(fom_snapshots)*100,"%")
-    #print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(rom_snapshots - hrom_snapshots)/np.linalg.norm(rom_snapshots)*100,"%")
-    #print("time  FOM:", tmfom)
-    #print("time  ROM:", tmrom)
-    #print("time HROM:", tmhrom)
+    print(":::::::::::::::::: CASE 1 :::::::::::::::::::::")
+    fom_snapshots,tmfom = primal_FOM(0.3)
+    setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
+    rom_snapshots,tmrom = primal_ROM(0.3)
+    setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
+    hrom_snapshots,tmhrom = primal_HROM(0.3)
+    setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
+    print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(fom_snapshots - rom_snapshots)/np.linalg.norm(fom_snapshots)*100,"%")
+    print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(rom_snapshots - hrom_snapshots)/np.linalg.norm(rom_snapshots)*100,"%")
+    print("time  FOM:", tmfom)
+    print("time  ROM:", tmrom)
+    print("time HROM:", tmhrom)
+    print(":::::::::::::::::: CASE 2 :::::::::::::::::::::")
+    fom_snapshots,tmfom = primal_FOM(0.5)
+    setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
+    rom_snapshots,tmrom = primal_ROM(0.5)
+    setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
+    hrom_snapshots,tmhrom = primal_HROM(0.5)
+    setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
+    print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(fom_snapshots - rom_snapshots)/np.linalg.norm(fom_snapshots)*100,"%")
+    print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(rom_snapshots - hrom_snapshots)/np.linalg.norm(rom_snapshots)*100,"%")
+    print("time  FOM:", tmfom)
+    print("time  ROM:", tmrom)
+    print("time HROM:", tmhrom)
+    print(":::::::::::::::::: CASE 3 :::::::::::::::::::::")
+    fom_snapshots,tmfom = primal_FOM(0.7)
+    setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
+    rom_snapshots,tmrom = primal_ROM(0.7)
+    setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
+    hrom_snapshots,tmhrom = primal_HROM(0.7)
+    setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
+    print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(fom_snapshots - rom_snapshots)/np.linalg.norm(fom_snapshots)*100,"%")
+    print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(rom_snapshots - hrom_snapshots)/np.linalg.norm(rom_snapshots)*100,"%")
+    print("time  FOM:", tmfom)
+    print("time  ROM:", tmrom)
+    print("time HROM:", tmhrom)
