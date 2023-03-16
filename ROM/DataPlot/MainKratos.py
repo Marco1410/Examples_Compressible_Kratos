@@ -5,7 +5,6 @@ import KratosMultiphysics.kratos_utilities
 import numpy as np
 from scipy.stats import qmc
 import matplotlib.pyplot as plt
-import compute_Cp_and_Cl
 import math
 import time
 import json
