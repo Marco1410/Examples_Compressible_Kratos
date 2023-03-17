@@ -48,17 +48,17 @@ def primal_FOM(mach):
             nodal_Cp[node.Id] += Cp_contribution        
     for node in model.GetModelPart("MainModelPart.Body2D_Body").Nodes:
         plt.plot(node.X, nodal_Cp[node.Id], 'bs')
-    plt.axis([-0.75, 0.75, -3.0, 1.5])
+    plt.axis([-0.1, 1.1, -3.0, 1.1])
     plt.ylabel('Cp')
     plt.grid(True)
     plt.subplot(212)
     for node in model.GetModelPart("MainModelPart.Body2D_Body").Nodes:
         plt.plot(node.X, node.Y, 'ro')
-    plt.axis([-0.75, 0.75, -0.75, 0.75])
+    plt.axis([-0.1, 1.1, -0.75, 0.75])
     plt.xlabel('x')
     plt.ylabel('y')
     plt.grid(True)
-    plt.show(block=False)
+    plt.show()#block=False
     plt.savefig("FOM.png")
 
     # plt.title('Naca 0012 Cp Distribution')
@@ -105,17 +105,17 @@ def primal_ROM(mach):
             nodal_Cp[node.Id] += Cp_contribution        
     for node in simulation._GetSolver().GetComputingModelPart().GetRootModelPart().GetSubModelPart("Body2D_Body").Nodes:
         plt.plot(node.X, nodal_Cp[node.Id], 'bs')
-    plt.axis([-0.75, 0.75, -3.0, 1.5])
+    plt.axis([-0.1, 1.1, -3.0, 1.1])
     plt.ylabel('Cp')
     plt.grid(True)
     plt.subplot(212)
     for node in simulation._GetSolver().GetComputingModelPart().GetRootModelPart().GetSubModelPart("Body2D_Body").Nodes:
         plt.plot(node.X, node.Y, 'ro')
-    plt.axis([-0.75, 0.75, -0.75, 0.75])
+    plt.axis([-0.1, 1.1, -0.75, 0.75])
     plt.xlabel('x')
     plt.ylabel('y')
     plt.grid(True)
-    plt.show(block=False)
+    plt.show()
     plt.savefig("ROM.png")
 
     end=time.time()  
@@ -147,17 +147,17 @@ def primal_HROM(mach):
             nodal_Cp[node.Id] += Cp_contribution        
     for node in simulation._GetSolver().GetComputingModelPart().GetRootModelPart().GetSubModelPart("Body2D_Body").Nodes:
         plt.plot(node.X, nodal_Cp[node.Id], 'bs')
-    plt.axis([-0.75, 0.75, -3.0, 1.5])
+    plt.axis([-0.1, 1.1, -3.0, 1.1])
     plt.ylabel('Cp')
     plt.grid(True)
     plt.subplot(212)
     for node in simulation._GetSolver().GetComputingModelPart().GetRootModelPart().GetSubModelPart("Body2D_Body").Nodes:
         plt.plot(node.X, node.Y, 'ro')
-    plt.axis([-0.75, 0.75, -0.75, 0.75])
+    plt.axis([-0.1, 1.1, -0.75, 0.75])
     plt.xlabel('x')
     plt.ylabel('y')
     plt.grid(True)
-    plt.show(block=False)
+    plt.show()
     plt.savefig("HROM.png")
 
     end=time.time()  

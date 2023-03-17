@@ -57,8 +57,8 @@
             "process_name"  : "FarFieldProcess",
             "Parameters"    : {
                 "model_part_name"   : "MainModelPart.PotentialWallCondition2D_Far_field_Auto1",
-                "angle_of_attack": 0.0,
-                "mach_infinity": 0.2,
+                "angle_of_attack": 0.087266389,
+                "mach_infinity": 0.3,
                 "free_stream_density": 1.225,
                 "inlet_potential"         : 1.0,
                 "initialize_flow_field": false
@@ -91,35 +91,35 @@
         }]
     },
     "output_processes" : {
-        "gid_output" : [{
-            "python_module" : "gid_output_process",
-            "kratos_module" : "KratosMultiphysics",
-            "process_name"  : "GiDOutputProcess",
-            "help"          : "This process writes postprocessing files for GiD",
-            "Parameters"    : {
-                "model_part_name"        : "MainModelPart.Parts_Parts_Auto1",
-                "output_name"            : "outputAdjoint",
-                "postprocess_parameters" : {
-                    "result_file_configuration" : {
-                        "gidpost_flags"       : {
-                            "GiDPostMode"           : "GiD_PostBinary",
-                            "WriteDeformedMeshFlag" : "WriteDeformed",
-                            "WriteConditionsFlag"   : "WriteConditions",
-                            "MultiFileFlag"         : "SingleFile"
-                        },
-                        "file_label"          : "step",
-                        "output_control_type" : "step",
-                        "output_interval"     : 1,
-                        "body_output"         : true,
-                        "node_output"         : false,
-                        "skin_output"         : false,
-                        "plane_output"        : [],
-                        "nodal_results"       : ["ADJOINT_VELOCITY_POTENTIAL","ADJOINT_AUXILIARY_VELOCITY_POTENTIAL", "SHAPE_SENSITIVITY"]
-                    },
-                    "point_data_configuration"  : []
-                }
-            }
-        }],
+        // "gid_output" : [{
+        //     "python_module" : "gid_output_process",
+        //     "kratos_module" : "KratosMultiphysics",
+        //     "process_name"  : "GiDOutputProcess",
+        //     "help"          : "This process writes postprocessing files for GiD",
+        //     "Parameters"    : {
+        //         "model_part_name"        : "MainModelPart.Parts_Parts_Auto1",
+        //         "output_name"            : "outputAdjoint",
+        //         "postprocess_parameters" : {
+        //             "result_file_configuration" : {
+        //                 "gidpost_flags"       : {
+        //                     "GiDPostMode"           : "GiD_PostBinary",
+        //                     "WriteDeformedMeshFlag" : "WriteDeformed",
+        //                     "WriteConditionsFlag"   : "WriteConditions",
+        //                     "MultiFileFlag"         : "SingleFile"
+        //                 },
+        //                 "file_label"          : "step",
+        //                 "output_control_type" : "step",
+        //                 "output_interval"     : 1,
+        //                 "body_output"         : true,
+        //                 "node_output"         : false,
+        //                 "skin_output"         : false,
+        //                 "plane_output"        : [],
+        //                 "nodal_results"       : ["ADJOINT_VELOCITY_POTENTIAL","ADJOINT_AUXILIARY_VELOCITY_POTENTIAL", "SHAPE_SENSITIVITY"]
+        //             },
+        //             "point_data_configuration"  : []
+        //         }
+        //     }
+        // }],
         "rom_output" : [{
             "python_module" : "calculate_rom_basis_output_process",
             "kratos_module" : "KratosMultiphysics.RomApplication",

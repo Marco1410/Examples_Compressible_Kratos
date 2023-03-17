@@ -72,7 +72,8 @@
                 "epsilon"         : 1e-9,
                 "echo_level"      : 0
             }
-        }],
+        }]
+        ,
         "list_other_processes" :[{
             "kratos_module" : "KratosMultiphysics.HDF5Application",
             "python_module" : "single_mesh_temporal_input_process",
