@@ -27,10 +27,11 @@ def setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name
         json.dump(f,parameter_file,indent=4)
         parameter_file.truncate()
 
-def primal_FOM(mach):
+def primal_FOM(mach, angle):
     with open("ProjectParametersPrimalROM.json",'r') as parameter_file:
         parameters = KratosMultiphysics.Parameters(parameter_file.read())
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach)
+    parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(angle)
     #parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString('Results/FOM'+str(mach))
     model = KratosMultiphysics.Model()
     simulation = PotentialFlowAnalysis(model, parameters)
@@ -50,7 +51,7 @@ def primal_FOM(mach):
         plt.plot(node.X, nodal_Cp[node.Id], 'bs')
     plt.axis([-0.1, 1.1, -3.0, 1.1])
     plt.ylabel('Cp')
-    plt.grid(True)
+    plt.grid(False)
     plt.subplot(212)
     for node in model.GetModelPart("MainModelPart.Body2D_Body").Nodes:
         plt.plot(node.X, node.Y, 'ro')
@@ -84,7 +85,7 @@ def primal_FOM(mach):
     tm = end - start
     return SnapshotsMatrix,tm
 
-def primal_ROM(mach):
+def primal_ROM(mach, angle):
     with open("ProjectParametersPrimalROM.json",'r') as parameter_file:
         parameters = KratosMultiphysics.Parameters(parameter_file.read())
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach)
@@ -107,7 +108,7 @@ def primal_ROM(mach):
         plt.plot(node.X, nodal_Cp[node.Id], 'bs')
     plt.axis([-0.1, 1.1, -3.0, 1.1])
     plt.ylabel('Cp')
-    plt.grid(True)
+    plt.grid(False)
     plt.subplot(212)
     for node in simulation._GetSolver().GetComputingModelPart().GetRootModelPart().GetSubModelPart("Body2D_Body").Nodes:
         plt.plot(node.X, node.Y, 'ro')
@@ -126,7 +127,7 @@ def primal_ROM(mach):
     tm = end - start
     return SnapshotsMatrix,tm
 
-def primal_HROM(mach):
+def primal_HROM(mach, angle):
     with open("ProjectParametersPrimalROM.json",'r') as parameter_file:
         parameters = KratosMultiphysics.Parameters(parameter_file.read())
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach)
@@ -149,7 +150,7 @@ def primal_HROM(mach):
         plt.plot(node.X, nodal_Cp[node.Id], 'bs')
     plt.axis([-0.1, 1.1, -3.0, 1.1])
     plt.ylabel('Cp')
-    plt.grid(True)
+    plt.grid(False)
     plt.subplot(212)
     for node in simulation._GetSolver().GetComputingModelPart().GetRootModelPart().GetSubModelPart("Body2D_Body").Nodes:
         plt.plot(node.X, node.Y, 'ro')
@@ -174,13 +175,14 @@ def primal_HROM(mach):
 if __name__ == "__main__":
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('ROM test.post.lst')
 
-    mach = 0.3
+    mach  = 0.3
+    angle = 0.0 * math.pi / 180
 
-    fom_snapshots,tmfom = primal_FOM(mach)
+    fom_snapshots,tmfom = primal_FOM(mach, angle)
     setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    rom_snapshots,tmrom = primal_ROM(mach)
+    rom_snapshots,tmrom = primal_ROM(mach, angle)
     setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
-    hrom_snapshots,tmhrom = primal_HROM(mach)
+    hrom_snapshots,tmhrom = primal_HROM(mach, angle)
     setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
     print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(fom_snapshots - rom_snapshots)/np.linalg.norm(fom_snapshots)*100,"%")
     print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(rom_snapshots - hrom_snapshots)/np.linalg.norm(rom_snapshots)*100,"%")

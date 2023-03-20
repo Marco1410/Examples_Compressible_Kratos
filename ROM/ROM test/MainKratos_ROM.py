@@ -13,38 +13,80 @@ from KratosMultiphysics.RomApplication.randomized_singular_value_decomposition i
 
 def get_multiple_params():
     plot_values = True
-    number_of_values = 15
-    sampler = qmc.Halton(d=2)
+    number_of_values = 4
+    sampler = qmc.Halton(d=1)
     sample = sampler.random(number_of_values)
     #Angle of attack
-    l_angle = [-0.01 * math.pi / 180.0]
-    u_angle = [ 0.01 * math.pi / 180.0]
+    l_angle = [-6]
+    u_angle = [ 1]
     #Mach infinit
     l_mach = [0.03]
     u_mach = [0.6]
     mu = []
-    values = qmc.scale(sample, [l_angle[0],l_mach[0]], [u_angle[0],u_mach[0]])
-    for i in range(number_of_values):
-        mu.append([values[i,0], values[i,1]])
-    if plot_values:
-        for i in range(len(values)):
-            plt.plot(values[i,1], np.round(values[i,0]*180/math.pi,1)+5, 'bs')
-        plt.ylabel('Alpha')
-        plt.xlabel('Mach')
-        plt.grid(True)
-        plt.show()
+    params = np.zeros((15))
+    for i in range(len(params)):
+        params[i] = l_angle[0] + i * 0.5
+        
+    for i in range(len(params)): 
+        sample = sampler.random(number_of_values)
+        values = qmc.scale(sample, [l_mach[0]], [u_mach[0]])
+        mu.append([params[i] * math.pi / 180.0, l_mach[0]]) 
+        mu.append([params[i] * math.pi / 180.0, u_mach[0]]) 
+        for j in range(number_of_values):
+            mu.append([params[i] * math.pi / 180.0, values[j]])  
+        
+    for i in range(len(params)*(number_of_values+2)):
+        if plot_values:
+            plt.plot(mu[i][1], np.round(mu[i][0]*180/math.pi,2) + 5, 'bs')
+
+    plt.ylabel('Alpha')
+    plt.xlabel('Mach')
+    plt.grid(True)
+    plt.show()
+
+    # plot_values = True
+    # number_of_values = 150
+    # sampler = qmc.Halton(d=2)
+    # sample = sampler.random(number_of_values)
+    # #Angle of attack
+    # l_angle = [-4 * math.pi / 180.0]
+    # u_angle = [-3 * math.pi / 180.0]
+    # #Mach infinit
+    # l_mach = [0.03]
+    # u_mach = [0.6]
+    # mu = []
+    # values = qmc.scale(sample, [l_angle[0],l_mach[0]], [u_angle[0],u_mach[0]])
+    # values[0,0] = l_angle[0]
+    # values[0,1] = l_mach[0]
+    # values[1,0] = l_angle[0]
+    # values[1,1] = u_mach[0]
+    # values[number_of_values-1,0] = u_angle[0]
+    # values[number_of_values-1,1] = u_mach[0]
+    # values[number_of_values-2,0] = u_angle[0]
+    # values[number_of_values-2,1] = l_mach[0]
+    # for i in range(number_of_values):
+    #     mu.append([values[i,0], values[i,1]])
+    # if plot_values:
+    #     for i in range(len(values)):
+    #         plt.plot(values[i,1], np.round(values[i,0]*180/math.pi,1)+5, 'bs')
+    #     plt.ylabel('Alpha')
+    #     plt.xlabel('Mach')
+    #     plt.grid(True)
+    #     plt.show()
     return mu
 
 def get_multiple_params_angle():
-    plot_values = False
-    number_of_values = 50
+    plot_values = True
+    number_of_values = 20
     sampler = qmc.Halton(d=1)
     sample = sampler.random(number_of_values)
     #Angle of attack
-    l_angle = [-6.0 * math.pi / 180.0] # -1 
-    u_angle = [ 1.0 * math.pi / 180.0] #  6 
+    l_angle = [-4.0 * math.pi / 180.0] # 1 
+    u_angle = [-3.0 * math.pi / 180.0] # 2 
     mu = []
     values = qmc.scale(sample, [l_angle[0]], [u_angle[0]])
+    values[0] = l_angle
+    values[number_of_values-1] = u_angle
     for i in range(number_of_values):
         mu.append([values[i], 0.3])
     if plot_values:
@@ -57,7 +99,7 @@ def get_multiple_params_angle():
     return mu
 
 def get_multiple_params_mach():
-    plot_values = False
+    plot_values = True
     number_of_values = 6
     sampler = qmc.Halton(d=1)
     sample = sampler.random(number_of_values)
@@ -66,6 +108,8 @@ def get_multiple_params_mach():
     u_mach = [0.6]
     mu = []
     values = qmc.scale(sample, [l_mach[0]], [u_mach[0]])
+    values[0] = l_mach
+    values[number_of_values-1] = u_mach
     for i in range(number_of_values):
         mu.append([0.0 * math.pi / 180.0, values[i]])
     if plot_values:
@@ -82,7 +126,7 @@ def update_project_parameters(parameters, a_case,results_name):
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(a_case[0])
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(a_case[1])
     #storing results into a results folder
-    #parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString(f"Results{results_name}[{str(np.round(a_case[0]*180/math.pi,2))}] - [{str(np.round(a_case[1],2))}]")
+    #parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString(f"Results{results_name}[{str(np.round(a_case[1],2))}] - [{str(np.round(a_case[0]*180/math.pi,2)+5)}]")
     return parameters
 
 
@@ -133,7 +177,7 @@ def multiple_params_Train_Primal_HROM(mu):
         else:
             SnapshotsMatrix = np.c_[SnapshotsMatrix, BasisOutputProcess._GetSnapshotsMatrix()]
             RedidualsSnapshotsMatrix = np.c_[RedidualsSnapshotsMatrix, simulation.GetHROM_utility()._GetResidualsProjectedMatrix()]
-    u,_,_,_ = RandomizedSingularValueDecomposition(COMPUTE_V=False).Calculate(RedidualsSnapshotsMatrix, 1e-12)
+    u,_,_,_ = RandomizedSingularValueDecomposition(COMPUTE_V=False).Calculate(RedidualsSnapshotsMatrix, 1e-6)
     simulation.GetHROM_utility().hyper_reduction_element_selector.SetUp(u)
     simulation.GetHROM_utility().hyper_reduction_element_selector.Run()
     simulation.GetHROM_utility().AppendHRomWeightsToRomParameters()
@@ -185,7 +229,7 @@ def primal_FOM(mach,angle):
         parameters = KratosMultiphysics.Parameters(parameter_file.read())
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(angle)
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach)
-    parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString('Results/FOM'+str(mach))
+    #parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString(f"Results/FOM[{str(np.round(mach,2))}] - [{str(np.round(angle*180/math.pi,2)+5)}]")
     model = KratosMultiphysics.Model()
     simulation = PotentialFlowAnalysis(model, parameters)
     start=time.time()
@@ -203,7 +247,7 @@ def primal_ROM(mach,angle):
         parameters = KratosMultiphysics.Parameters(parameter_file.read())
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(angle)
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach)
-    parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString('Results/ROM'+str(mach))
+    #parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString(f"Results/ROM[{str(np.round(mach,2))}] - [{str(np.round(angle*180/math.pi,2)+5)}]")
     model = KratosMultiphysics.Model()
     simulation = SetUpSimulationInstance(model,parameters) 
     start=time.time()
@@ -221,7 +265,7 @@ def primal_HROM(mach,angle):
         parameters = KratosMultiphysics.Parameters(parameter_file.read())
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(angle)
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach)
-    parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString('Results/HROM'+str(mach))
+    #parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString(f"Results/HROM[{str(np.round(mach,2))}] - [{str(np.round(angle*180/math.pi,2)+5)}]")
     model = KratosMultiphysics.Model()
     simulation = SetUpSimulationInstance(model,parameters) 
     start=time.time()
@@ -238,36 +282,34 @@ def primal_HROM(mach,angle):
 
 
 if __name__ == "__main__":
-    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Results')
-    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsFOM')
-    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsROM')
-    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsHROM')
-    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsTrain_HROM')
-    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsHROM')
-    KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('PrimalRomParameters.json')
-    KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('ROM test.post.lst')
+    # KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Results')
+    # KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsFOM')
+    # KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsROM')
+    # KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsHROM')
+    # KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('PrimalRomParameters.json')
+    # KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('ROM test.post.lst')
 
-    #mu = get_multiple_params()
-    mu = get_multiple_params_angle()
-    #mu = get_multiple_params_mach()
+    # mu = get_multiple_params()
+    # # mu = get_multiple_params_angle()
+    # # mu = get_multiple_params_mach()
      
     
-    primal_fom_snapshots = multiple_params_Train_Primal_ROM(mu)
+    # primal_fom_snapshots = multiple_params_Train_Primal_ROM(mu)
 
 
-    setting_flags_rom_parameters(simulation_to_run = 'trainHROM', parameters_file_name = './PrimalRomParameters.json')
-    primal_rom_snapshots = multiple_params_Train_Primal_HROM(mu)
-    setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
-    primal_hrom_snapshots = multiple_params_Primal_HROM(mu)
-    setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(primal_fom_snapshots - primal_rom_snapshots)/np.linalg.norm(primal_fom_snapshots)*100,"%")
-    print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(primal_rom_snapshots - primal_hrom_snapshots)/np.linalg.norm(primal_rom_snapshots)*100,"%")
+    # setting_flags_rom_parameters(simulation_to_run = 'trainHROM', parameters_file_name = './PrimalRomParameters.json')
+    # primal_rom_snapshots = multiple_params_Train_Primal_HROM(mu)
+    # setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
+    # primal_hrom_snapshots = multiple_params_Primal_HROM(mu)
+    # setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
+    # print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(primal_fom_snapshots - primal_rom_snapshots)/np.linalg.norm(primal_fom_snapshots)*100,"%")
+    # print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(primal_rom_snapshots - primal_hrom_snapshots)/np.linalg.norm(primal_rom_snapshots)*100,"%")
 
 
 
     print(":::::::::::::::::: CASE 1 :::::::::::::::::::::")
-    angle = 1.0 * math.pi / 180
-    mach  = 0.3
+    angle = -3.6 * math.pi / 180
+    mach  = 0.1
     fom_snapshots,tmfom = primal_FOM(mach,angle)
     setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
     rom_snapshots,tmrom = primal_ROM(mach,angle)
@@ -280,32 +322,32 @@ if __name__ == "__main__":
     print("time  ROM:", tmrom)
     print("time HROM:", tmhrom)
 
-    print(":::::::::::::::::: CASE 2 :::::::::::::::::::::")
-    angle = 3.0 * math.pi / 180
-    mach  = 0.3
-    fom_snapshots,tmfom = primal_FOM(mach,angle)
-    setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    rom_snapshots,tmrom = primal_ROM(mach,angle)
-    setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
-    hrom_snapshots,tmhrom = primal_HROM(mach,angle)
-    setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(fom_snapshots - rom_snapshots)/np.linalg.norm(fom_snapshots)*100,"%")
-    print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(rom_snapshots - hrom_snapshots)/np.linalg.norm(rom_snapshots)*100,"%")
-    print("time  FOM:", tmfom)
-    print("time  ROM:", tmrom)
-    print("time HROM:", tmhrom)
-    print(":::::::::::::::::: CASE 3 :::::::::::::::::::::")
+    # print(":::::::::::::::::: CASE 2 :::::::::::::::::::::")
+    # angle = -2.5 * math.pi / 180
+    # mach  = 0.3
+    # fom_snapshots,tmfom = primal_FOM(mach,angle)
+    # setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
+    # rom_snapshots,tmrom = primal_ROM(mach,angle)
+    # setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
+    # hrom_snapshots,tmhrom = primal_HROM(mach,angle)
+    # setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
+    # print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(fom_snapshots - rom_snapshots)/np.linalg.norm(fom_snapshots)*100,"%")
+    # print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(rom_snapshots - hrom_snapshots)/np.linalg.norm(rom_snapshots)*100,"%")
+    # print("time  FOM:", tmfom)
+    # print("time  ROM:", tmrom)
+    # print("time HROM:", tmhrom)
+    # print(":::::::::::::::::: CASE 3 :::::::::::::::::::::")
 
-    angle = 5.0 * math.pi / 180
-    mach  = 0.3
-    fom_snapshots,tmfom = primal_FOM(mach,angle)
-    setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    rom_snapshots,tmrom = primal_ROM(mach,angle)
-    setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
-    hrom_snapshots,tmhrom = primal_HROM(mach,angle)
-    setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(fom_snapshots - rom_snapshots)/np.linalg.norm(fom_snapshots)*100,"%")
-    print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(rom_snapshots - hrom_snapshots)/np.linalg.norm(rom_snapshots)*100,"%")
-    print("time  FOM:", tmfom)
-    print("time  ROM:", tmrom)
-    print("time HROM:", tmhrom)
+    # angle = -0.8 * math.pi / 180
+    # mach  = 0.5
+    # fom_snapshots,tmfom = primal_FOM(mach,angle)
+    # setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
+    # rom_snapshots,tmrom = primal_ROM(mach,angle)
+    # setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
+    # hrom_snapshots,tmhrom = primal_HROM(mach,angle)
+    # setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
+    # print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(fom_snapshots - rom_snapshots)/np.linalg.norm(fom_snapshots)*100,"%")
+    # print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(rom_snapshots - hrom_snapshots)/np.linalg.norm(rom_snapshots)*100,"%")
+    # print("time  FOM:", tmfom)
+    # print("time  ROM:", tmrom)
+    # print("time HROM:", tmhrom)
