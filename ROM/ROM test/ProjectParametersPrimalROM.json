@@ -52,50 +52,50 @@
                 "perturbation_field"      : true
             }
         }
-        // ,
-        // {
-        //     "python_module" : "define_wake_process_2d",
-        //     "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
-        //     "process_name"  : "DefineWakeProcess",
-        //     "Parameters"    : {
-        //         "model_part_name" : "MainModelPart.Body2D_Body",
-        //          "epsilon"         : 1e-9,
-        //          "echo_level" : 0
-        //      }
-        // }
+        ,
+        {
+            "python_module" : "define_wake_process_2d",
+            "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
+            "process_name"  : "DefineWakeProcess",
+            "Parameters"    : {
+                "model_part_name" : "MainModelPart.Body2D_Body",
+                 "epsilon"         : 1e-9,
+                 "echo_level" : 0
+             }
+        }
     ]
     },
      "output_processes" : {
-    //     "gid_output" : [{
-    //         "python_module" : "gid_output_process",
-    //         "kratos_module" : "KratosMultiphysics",
-    //         "process_name"  : "GiDOutputProcess",
-    //         "help"          : "This process writes postprocessing files for GiD",
-    //         "Parameters"    : {
-    //             "model_part_name"        : "MainModelPart.Parts_Parts_Auto1",
-    //             "output_name"            : "Results/outputPrimal",
-    //             "postprocess_parameters" : {
-    //                 "result_file_configuration" : {
-    //                     "gidpost_flags"       : {
-    //                         "GiDPostMode"           : "GiD_PostBinary",
-    //                         "WriteDeformedMeshFlag" : "WriteDeformed",
-    //                         "WriteConditionsFlag"   : "WriteConditions",
-    //                         "MultiFileFlag"         : "SingleFile"
-    //                     },
-    //                     "file_label"          : "step",
-    //                     "output_control_type" : "step",
-    //                     "output_interval"     : 1,
-    //                     "body_output"         : true,
-    //                     "node_output"         : false,
-    //                     "skin_output"         : false,
-    //                     "plane_output"        : [],
-    //                     "nodal_results"       : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
-    //                     "gauss_point_results" : ["PRESSURE_COEFFICIENT","VELOCITY"]
-    //                 },
-    //                 "point_data_configuration"  : []
-    //             }
-    //         }
-    //     }],
+        "gid_output" : [{
+            "python_module" : "gid_output_process",
+            "kratos_module" : "KratosMultiphysics",
+            "process_name"  : "GiDOutputProcess",
+            "help"          : "This process writes postprocessing files for GiD",
+            "Parameters"    : {
+                "model_part_name"        : "MainModelPart.Parts_Parts_Auto1",
+                "output_name"            : "Results/outputPrimal",
+                "postprocess_parameters" : {
+                    "result_file_configuration" : {
+                        "gidpost_flags"       : {
+                            "GiDPostMode"           : "GiD_PostBinary",
+                            "WriteDeformedMeshFlag" : "WriteDeformed",
+                            "WriteConditionsFlag"   : "WriteConditions",
+                            "MultiFileFlag"         : "SingleFile"
+                        },
+                        "file_label"          : "step",
+                        "output_control_type" : "step",
+                        "output_interval"     : 1,
+                        "body_output"         : true,
+                        "node_output"         : false,
+                        "skin_output"         : false,
+                        "plane_output"        : [],
+                        "nodal_results"       : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
+                        "gauss_point_results" : ["PRESSURE_COEFFICIENT","VELOCITY"]
+                    },
+                    "point_data_configuration"  : []
+                }
+            }
+        }],
         "rom_output" : [{
             "python_module" : "calculate_rom_basis_output_process",
             "kratos_module" : "KratosMultiphysics.RomApplication",
