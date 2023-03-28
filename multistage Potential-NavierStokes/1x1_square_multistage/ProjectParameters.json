@@ -2,23 +2,22 @@
 "execution_list" : ["fluid_stage","thermal_stage"],
 "stages" : {
     "fluid_stage" : {
-        "stage_preprocess" : {
-            "prepare_restart" : {
-                "Charlie&Ruben_comments" : "TO BE DISCUSSED: Lo hariamos en el medio entre stages (fuera del stage que acaba!)",
-                "write_restart" : false,
-                "restart_settings" : {}
-            },
-            "operations" : [{
-                "operation" : "KratosMultiphysics.operations.local_operation.LocalOperation",
-                "Parameters" : {}
-            },{
-                "operation" : "user_operation.UserOperation",
-                "Parameters" : {}
-            },{
-                "operation" : "KratosMultiphysics.LocalCOperation",
-                "Parameters" : {}
-            }]
-        },
+        // "stage_preprocess" : {
+        //     "prepare_restart" : {
+        //         "write_restart" : false,
+        //         "restart_settings" : {}
+        //     },
+        //     "operations" : [{
+        //         "operation" : "KratosMultiphysics.operations.local_operation.LocalOperation",
+        //         "Parameters" : {}
+        //     },{
+        //         "operation" : "user_operation.UserOperation",
+        //         "Parameters" : {}
+        //     },{
+        //         "operation" : "KratosMultiphysics.LocalCOperation",
+        //         "Parameters" : {}
+        //     }]
+        // },
         "analysis_stage"   : "KratosMultiphysics.FluidDynamicsApplication.fluid_dynamics_analysis",
         "problem_data"     : {
             "problem_name"  : "1x1_square_fluid",
@@ -158,47 +157,52 @@
                 }
             }],
             "auxiliar_process_list"            : []
-        },
-        "stage_postprocess" : {
-            "prepare_restart" : {
-                "Charlie&Ruben_comments" : "TO BE DISCUSSED: Lo hariamos en el medio entre stages (fuera del stage que acaba!)",
-                "write_restart" : false,
-                "restart_settings" : {}
-            },
-            "operations" : [{
-                "operation" : "KratosMultiphysics.operations.local_operation.LocalOperation",
-                "Parameters" : {}
-            }]
         }
+        // ,
+        // "stage_postprocess" : {
+        //     "prepare_restart" : {
+        //         "write_restart" : false,
+        //         "restart_settings" : {}
+        //     },
+        //     "operations" : [{
+        //         "operation" : "KratosMultiphysics.operations.local_operation.LocalOperation",
+        //         "Parameters" : {}
+        //     }]
+        // }
     },
     "thermal_stage" : {
         "stage_preprocess" : {
             "modelers" : [{
                 "modeler_name" : "import_mdpa_modeler",
                 "kratos_module" : "KratosMultiphysics",
+                "name" : "KratosMultiphysics.modelers.import_mdpa_modeler.ImportMDPAModeler",
                 "Parameters" : {
                     "input_filename" : "1x1_square",
                     "model_part_name" : "ThermalModelPart"
                 }
-            },{
-                "modeler_name" : "copy_value_modeler",
-                "kratos_module" : "KratosMultiphysics",
-                "Parameters" : {
-                    "origin_model_part" : "FluidModelPart",
-                    "destination_model_part" : "ThermalModelPart",
-                    "variable_names" : ["VELOCITY"]
-                }
-            },{
+            },
+            // {
+            //     "modeler_name" : "copy_value_modeler",
+            //     "kratos_module" : "KratosMultiphysics",
+            //     "Parameters" : {
+            //         "origin_model_part" : "FluidModelPart",
+            //         "destination_model_part" : "ThermalModelPart",
+            //         "variable_names" : ["VELOCITY"]
+            //     }
+            // },
+            {
                 "modeler_name" : "delete_model_parts_modeler",
                 "kratos_module" : "KratosMultiphysics",
+                "name" : "KratosMultiphysics.modelers.delete_model_parts_modeler.DeleteModelPartsModeler",
                 "Parameters" : {
                     "model_part_names" : ["FluidModelPart"]
                 }
-            }],
-            "operations" : [{
-                "operation" : "KratosMultiphysics.operations.local_operation.LocalOperation",
-                "Parameters" : {}
             }]
+            // ,
+            // "operations" : [{
+            //     "operation" : "KratosMultiphysics.operations.local_operation.LocalOperation",
+            //     "Parameters" : {}
+            // }]
         },
         "analysis_stage"   : "KratosMultiphysics.ConvectionDiffusionApplication.convection_diffusion_analysis",
         "problem_data"     : {
@@ -303,13 +307,14 @@
                     }
                 }
             }]
-        },
-        "restart_options"  : {
-            "SaveRestart"      : false,
-            "RestartFrequency" : 0,
-            "LoadRestart"      : false,
-            "Restart_Step"     : 0
         }
+        // ,
+        // "restart_options"  : {
+        //     "SaveRestart"      : false,
+        //     "RestartFrequency" : 0,
+        //     "LoadRestart"      : false,
+        //     "Restart_Step"     : 0
+        // }
     }
 }
 }

@@ -307,28 +307,28 @@ def primal_HROM(mach,angle):
 
 
 if __name__ == "__main__":
-    # KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Results')
-    # KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsFOM')
-    # KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsROM')
-    # KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsHROM')
-    # KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('PrimalRomParameters.json')
-    # KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('ROM test.post.lst')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Results')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsFOM')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsROM')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResultsHROM')
+    KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('PrimalRomParameters.json')
+    KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('ROM test.post.lst')
 
-    # # mu = get_multiple_params()
-    # mu = get_multiple_params_angle()
-    # # mu = get_multiple_params_mach()
+    # mu = get_multiple_params()
+    mu = get_multiple_params_angle()
+    # mu = get_multiple_params_mach()
      
     
-    # primal_fom_snapshots = multiple_params_Train_Primal_ROM(mu)
+    primal_fom_snapshots = multiple_params_Train_Primal_ROM(mu)
 
 
-    # setting_flags_rom_parameters(simulation_to_run = 'trainHROM', parameters_file_name = './PrimalRomParameters.json')
-    # primal_rom_snapshots = multiple_params_Train_Primal_HROM(mu)
-    # setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
-    # primal_hrom_snapshots = multiple_params_Primal_HROM(mu)
-    # setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    # print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(primal_fom_snapshots - primal_rom_snapshots)/np.linalg.norm(primal_fom_snapshots)*100,"%")
-    # print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(primal_rom_snapshots - primal_hrom_snapshots)/np.linalg.norm(primal_rom_snapshots)*100,"%")
+    setting_flags_rom_parameters(simulation_to_run = 'trainHROM', parameters_file_name = './PrimalRomParameters.json')
+    primal_rom_snapshots = multiple_params_Train_Primal_HROM(mu)
+    setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
+    primal_hrom_snapshots = multiple_params_Primal_HROM(mu)
+    setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
+    print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(primal_fom_snapshots - primal_rom_snapshots)/np.linalg.norm(primal_fom_snapshots)*100,"%")
+    print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(primal_rom_snapshots - primal_hrom_snapshots)/np.linalg.norm(primal_rom_snapshots)*100,"%")
 
     # mu.append([-6.0 * math.pi / 180.0, 0.3])
     # mu.append([-5.5 * math.pi / 180.0, 0.3])
@@ -347,19 +347,19 @@ if __name__ == "__main__":
     # mu.append([ 1.0 * math.pi / 180.0, 0.3])
 
     # print(":::::::::::::::::: CASE 1 :::::::::::::::::::::")
-    angle = -2.75 * math.pi / 180
-    mach  = 0.3
-    fom_snapshots,tmfom = primal_FOM(mach,angle)
-    setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    rom_snapshots,tmrom = primal_ROM(mach,angle)
-    setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
-    hrom_snapshots,tmhrom = primal_HROM(mach,angle)
-    setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
-    print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(fom_snapshots - rom_snapshots)/np.linalg.norm(fom_snapshots)*100,"%")
-    print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(rom_snapshots - hrom_snapshots)/np.linalg.norm(rom_snapshots)*100,"%")
-    print("time  FOM:", tmfom)
-    print("time  ROM:", tmrom)
-    print("time HROM:", tmhrom)
+    # angle = -2.75 * math.pi / 180
+    # mach  = 0.3
+    # fom_snapshots,tmfom = primal_FOM(mach,angle)
+    # setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
+    # rom_snapshots,tmrom = primal_ROM(mach,angle)
+    # setting_flags_rom_parameters(simulation_to_run = 'runHROM', parameters_file_name = './PrimalRomParameters.json')
+    # hrom_snapshots,tmhrom = primal_HROM(mach,angle)
+    # setting_flags_rom_parameters(simulation_to_run = 'ROM', parameters_file_name = './PrimalRomParameters.json')
+    # print("==========================> approximation error primal   FOM vs ROM: ",np.linalg.norm(fom_snapshots - rom_snapshots)/np.linalg.norm(fom_snapshots)*100,"%")
+    # print("==========================> approximation error primal  ROM vs HROM: ",np.linalg.norm(rom_snapshots - hrom_snapshots)/np.linalg.norm(rom_snapshots)*100,"%")
+    # print("time  FOM:", tmfom)
+    # print("time  ROM:", tmrom)
+    # print("time HROM:", tmhrom)
 
     # print(":::::::::::::::::: CASE 2 :::::::::::::::::::::")
     # angle = -1.5 * math.pi / 180

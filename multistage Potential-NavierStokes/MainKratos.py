@@ -9,3 +9,5 @@ if __name__ == "__main__":
     global_model = KratosMultiphysics.Model()
     multistage_simulation = MultistageAnalysis(global_model, parameters)
     multistage_simulation.Run()
+    multistage_simulation.GetNumberOfStages()
+    multistage_simulation.GetCurrentStageName()
