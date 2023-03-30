@@ -96,38 +96,6 @@
                     "echo_level" : 0
                 }
             }]
-        },
-        "output_processes" : {
-            "gid_output" : [{
-                "python_module" : "gid_output_process",
-                "kratos_module" : "KratosMultiphysics",
-                "process_name"  : "GiDOutputProcess",
-                "help"          : "This process writes postprocessing files for GiD",
-                "Parameters"    : {
-                    "model_part_name"        : "FluidModelPart.FluidParts_Fluid",
-                    "output_name"            : "outputPrimal",
-                    "postprocess_parameters" : {
-                        "result_file_configuration" : {
-                            "gidpost_flags"       : {
-                                "GiDPostMode"           : "GiD_PostBinary",
-                                "WriteDeformedMeshFlag" : "WriteDeformed",
-                                "WriteConditionsFlag"   : "WriteConditions",
-                                "MultiFileFlag"         : "SingleFile"
-                            },
-                            "file_label"          : "step",
-                            "output_control_type" : "step",
-                            "output_interval"     : 1,
-                            "body_output"         : true,
-                            "node_output"         : false,
-                            "skin_output"         : false,
-                            "plane_output"        : [],
-                            "nodal_results"       : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
-                            "gauss_point_results" : ["PRESSURE_COEFFICIENT","VELOCITY"]
-                        },
-                        "point_data_configuration"  : []
-                    }
-                }
-            }]
         }
     },
     "navier_stokes_stage" : {
@@ -141,7 +109,6 @@
                 "model_part_name" : "MainModelPart"
             }
         }
-        // ,
         // {
         //     "modeler_name" : "copy_value_modeler",
         //     "kratos_module" : "KratosMultiphysics",
@@ -150,14 +117,6 @@
         //         "origin_model_part" : "FluidModelPart",
         //         "destination_model_part" : "MainModelPart",
         //         "variable_names" : ["VELOCITY","PRESSURE"]
-        //     }
-        // },
-        // {
-        //     "modeler_name" : "delete_model_parts_modeler",
-        //     "kratos_module" : "KratosMultiphysics",
-        //     "name" : "KratosMultiphysics.modelers.delete_model_parts_modeler.DeleteModelPartsModeler",
-        //     "Parameters" : {
-        //         "model_part_names" : ["FluidModelPart"]
         //     }
         // }
     ]
@@ -176,7 +135,7 @@
             "problem_name"  : "naca0012_NS",
             "parallel_type" : "OpenMP",
             "start_time"    : 0.0,
-            "end_time"      : 4e-5,
+            "end_time"      : 0.05,
             "echo_level"    : 0
         },
         "solver_settings"  : {
