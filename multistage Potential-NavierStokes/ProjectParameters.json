@@ -109,25 +109,15 @@
                 "model_part_name" : "MainModelPart"
             }
         }
-        // {
-        //     "modeler_name" : "copy_value_modeler",
-        //     "kratos_module" : "KratosMultiphysics",
-        //     "name" : "KratosMultiphysics.modelers.copy_value_modeler.CopyValueModeler",
-        //     "Parameters" : {
-        //         "origin_model_part" : "FluidModelPart",
-        //         "destination_model_part" : "MainModelPart",
-        //         "variable_names" : ["VELOCITY","PRESSURE"]
-        //     }
-        // }
     ]
         ,
         "operations" : [{
-             "operation" : "KratosMultiphysics.operations.copy_value_operation.LocalOperation",
-             "name" : "KratosMultiphysics.operations.copy_value_operation.CopyValueOperation",
+             "operation" : "copy_values_operation",
+             "name" : "KratosMultiphysics.operations.copy_values_operation.CopyValuesOperation",
              "Parameters" : {
                 "origin_model_part" : "FluidModelPart",
                 "destination_model_part" : "MainModelPart",
-                "variable_names" : ["VELOCITY","PRESSURE"]}
+                "variable_names_to_pass" : ["VELOCITY","PRESSURE"]}
          }]
         },
         "analysis_stage"   : "KratosMultiphysics.FluidDynamicsApplication.fluid_dynamics_analysis",
