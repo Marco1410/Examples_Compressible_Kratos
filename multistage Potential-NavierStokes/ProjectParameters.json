@@ -112,8 +112,8 @@
     ]
         ,
         "operations" : [{
-             "operation" : "copy_values_operation",
-             "name" : "KratosMultiphysics.operations.copy_values_operation.CopyValuesOperation",
+             "operation" : "from_potential_flow_to_compressible_Navier_Stokes_operation",
+             "name" : "KratosMultiphysics.FluidDynamicsApplication.operations.from_potential_flow_to_compressible_Navier_Stokes_operation.FromPotentialFlowToCompressibleNavierStokesOperation",
              "Parameters" : {
                 "origin_model_part" : "FluidModelPart",
                 "destination_model_part" : "MainModelPart",
