@@ -16,7 +16,7 @@
             "input_filename" : "naca0012_5aoa"
         },
         "maximum_iterations"     : 10,
-        "echo_level"             : 1,
+        "echo_level"             : 0,
         "formulation" :
         {
             "element_type": "perturbation_incompressible"
@@ -91,27 +91,10 @@
                         "skin_output"         : false,
                         "plane_output"        : [],
                         "nodal_results"       : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
-                        "gauss_point_results" : ["PRESSURE_COEFFICIENT","VELOCITY","WAKE","KUTTA"],
-                        "elemental_conditional_flags_results": ["STRUCTURE"]
+                        "gauss_point_results" : ["PRESSURE_COEFFICIENT","VELOCITY"]
                     },
                     "point_data_configuration"  : []
                 }
-            }
-        }],
-        "rom_output" : [{
-            "python_module" : "calculate_rom_basis_output_process",
-            "kratos_module" : "KratosMultiphysics.RomApplication",
-            "process_name"  : "CalculateRomBasisOutputProcess",
-            "help"          : "This process should write the Rom basis",
-            "Parameters"    : {
-                "multiple_simulations": true,
-                "model_part_name": "MainModelPart",
-                "snapshots_control_type": "step",
-                "snapshots_interval": 1.0,
-                "nodal_unknowns": ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
-                "rom_basis_output_format": "json",
-                "rom_basis_output_name": "PrimalRomParameters",
-                "svd_truncation_tolerance": 1.0e-12
             }
         }]
     }

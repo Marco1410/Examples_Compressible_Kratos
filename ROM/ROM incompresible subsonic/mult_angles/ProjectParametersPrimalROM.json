@@ -111,7 +111,7 @@
                 "nodal_unknowns": ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
                 "rom_basis_output_format": "json",
                 "rom_basis_output_name": "PrimalRomParameters",
-                "svd_truncation_tolerance": 1.0e-12
+                "svd_truncation_tolerance": 1.0e-50
             }
         }]
     }
