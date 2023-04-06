@@ -11,6 +11,7 @@
         "solver_type"     : "potential_flow",
         "model_part_name" : "MainModelPart",
         "domain_size"     : 2,
+        "auxiliary_variables_list" : ["VELOCITY","PRESSURE"],
         "model_import_settings"  : {
             "input_type"     : "mdpa",
             "input_filename" : "naca0012_5aoa"
@@ -91,7 +92,7 @@
                         "skin_output"         : false,
                         "plane_output"        : [],
                         "nodal_results"       : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
-                        "gauss_point_results" : ["PRESSURE_COEFFICIENT","VELOCITY"]
+                        "gauss_point_results" : ["PRESSURE_COEFFICIENT","VELOCITY","WAKE"]
                     },
                     "point_data_configuration"  : []
                 }

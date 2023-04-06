@@ -59,8 +59,8 @@ def GetRomManagerParameters():
     The returned KratosParameter object is seamlessly used inside the RomManager.
     """
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
-            "rom_stages_to_train" : [""],      // ["ROM","HROM"]
-            "rom_stages_to_test"  : ["ROM"],      // ["ROM","HROM"]
+            "rom_stages_to_train" : ["ROM"],      // ["ROM","HROM"]
+            "rom_stages_to_test"  : [],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
             "projection_strategy": "galerkin",           // "lspg", "galerkin", "petrov_galerkin"
             "save_gid_output": false,                     // false, true #if true, it must exits previously in the ProjectParameters.json
@@ -209,7 +209,7 @@ def get_params_by_mach_train(number_of_values):
 #
 def get_params_by_angle_test(number_of_params_1):
     #Angle of attack
-    param1 = random_samples_from_interval(-6.0, 1.0,number_of_params_1)
+    param1 = random_samples_from_interval(-0.1, 0.1,number_of_params_1)
     #Mach infinit
     param2 = [0.3]
     mu = []
@@ -222,8 +222,8 @@ def get_params_by_angle_train(number_of_values):
     sampler = qmc.Halton(d=1)
     sample = sampler.random(number_of_values)
     #Angle of attack
-    l_angle = -6.0
-    u_angle =  1.0
+    l_angle = -0.1
+    u_angle =  0.1
     mu = []
     values = qmc.scale(sample, [l_angle], [u_angle])
     values[0] = l_angle
@@ -293,16 +293,16 @@ if __name__ == "__main__":
     # mu_train = get_multiple_params_by_Halton_train(5)
     # mu_test  = get_multiple_params_random_test(1,1)
 
-    mu_train = get_multiple_params_by_angle_train(2)
-    mu_test  = get_multiple_params_by_Halton_test(2) 
+    # mu_train = get_multiple_params_by_angle_train(2)
+    # mu_test  = get_multiple_params_by_Halton_test(2) 
 
     ##############      By mach       ###############
     # mu_train = get_params_by_mach_train(3) 
     # mu_test  = get_params_by_mach_test(2)
 
     ##############      By angle      ###############
-    # mu_train = get_params_by_angle_train(4)
-    # mu_test  = get_params_by_angle_test(2)
+    mu_train = get_params_by_angle_train(4)
+    mu_test  = get_params_by_angle_test(2)
 
     # mu_train = get_params_by_angle_fix_train()
     # mu_test  = get_params_by_angle_test(2) 
