@@ -59,31 +59,31 @@ def GetRomManagerParameters():
     The returned KratosParameter object is seamlessly used inside the RomManager.
     """
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
-            "rom_stages_to_train" : ["ROM","HROM"],      // ["ROM","HROM"]
-            "rom_stages_to_test"  : ["ROM","HROM"],      // ["ROM","HROM"]
+            "rom_stages_to_train" : [""],      // ["ROM","HROM"]
+            "rom_stages_to_test"  : ["ROM"],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
             "projection_strategy": "galerkin",           // "lspg", "galerkin", "petrov_galerkin"
-            "save_gid_output": true,                     // false, true #if true, it must exits previously in the ProjectParameters.json
+            "save_gid_output": false,                     // false, true #if true, it must exits previously in the ProjectParameters.json
             "save_vtk_output": false,                    // false, true #if true, it must exits previously in the ProjectParameters.json
             "output_name": "mu",                         // "id" , "mu"
             "ROM":{
-                "svd_truncation_tolerance": 1e-6,
+                "svd_truncation_tolerance": 1e-12,
                 "model_part_name": "MainModelPart",                                      // This changes depending on the simulation: Structure, FluidModelPart, ThermalPart #TODO: Idenfity it automatically
                 "nodal_unknowns": ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"], // Main unknowns. Snapshots are taken from these
-                "rom_basis_output_format": "numpy",                                      //TODO: add "numpy"
+                "rom_basis_output_format": "numpy",                                      // "json" "numpy"
                 "rom_basis_output_name": "RomParameters",
                 "snapshots_control_type": "step",                                        // "step", "time"
                 "snapshots_interval": 1,
                 "petrov_galerkin_training_parameters":{
                     "basis_strategy": "residuals",                                        // 'residuals', 'jacobian'
                     "include_phi": false,
-                    "svd_truncation_tolerance": 1e-6,
+                    "svd_truncation_tolerance": 1e-12,
                     "echo_level": 0
                 }
             },
             "HROM":{
                 "element_selection_type": "empirical_cubature",
-                "element_selection_svd_truncation_tolerance": 1e-6,
+                "element_selection_svd_truncation_tolerance": 1e-12,
                 "create_hrom_visualization_model_part" : false,
                 "echo_level" : 0
             }
@@ -134,9 +134,9 @@ def get_multiple_params_by_angle_train(number_of_values):
     u_mach = 0.6
     mu = []
 
-    params = np.zeros((8))
+    params = np.zeros((15))
     for i in range(len(params)):
-        params[i] = l_angle + i * 1.0
+        params[i] = l_angle + i * 0.5
         
     for i in range(len(params)): 
         sample = sampler.random(number_of_values)
@@ -271,7 +271,7 @@ def plot_mu_values(mu_train,mu_test):
     plt.xlabel('Mach')
     plt.grid(True)
     plt.show(block=False)
-    plt.legend(loc='best')
+    plt.legend(bbox_to_anchor=(.85, 1.03, 1., .102), loc='upper left', borderaxespad=0.)
     plt.savefig("MuValues.png")
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -286,18 +286,18 @@ if __name__ == "__main__":
     ############## GET PARAMETERS ###################
     #################################################
 
-    ############## By Halton sequence ###############
-    mu_train = get_multiple_params_by_Halton_train(8) 
-    mu_test  = get_multiple_params_by_Halton_test(2) 
+    ############## By angle and mach  ###############
+    # mu_train = get_multiple_params_by_Halton_train(5) 
+    # mu_test  = get_multiple_params_by_Halton_test(1) 
 
-    # mu_train = get_multiple_params_by_Halton_train(8)
+    # mu_train = get_multiple_params_by_Halton_train(5)
     # mu_test  = get_multiple_params_random_test(1,1)
 
-    # mu_train = get_multiple_params_by_angle_train()
-    # mu_test  = get_multiple_params_by_Halton_test(2) 
+    mu_train = get_multiple_params_by_angle_train(2)
+    mu_test  = get_multiple_params_by_Halton_test(2) 
 
     ##############      By mach       ###############
-    # mu_train = get_params_by_mach_train(4) 
+    # mu_train = get_params_by_mach_train(3) 
     # mu_test  = get_params_by_mach_test(2)
 
     ##############      By angle      ###############

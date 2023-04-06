@@ -65,26 +65,6 @@
                     "mach_infinity"   : 0.8,
                     "speed_of_sound"  : 332.0
                 }
-            },{
-                "python_module" : "apply_far_field_process",
-                "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
-                "process_name"  : "FarFieldProcess",
-                "Parameters"    : {
-                    "model_part_name" : "FluidModelPart.NoSlip2D_Top",
-                    "angle_of_attack" : 0.0,
-                    "mach_infinity"   : 0.8,
-                    "speed_of_sound"  : 332.0
-                }
-            },{
-                "python_module" : "apply_far_field_process",
-                "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
-                "process_name"  : "FarFieldProcess",
-                "Parameters"    : {
-                    "model_part_name" : "FluidModelPart.NoSlip2D_Bottom",
-                    "angle_of_attack" : 0.0,
-                    "mach_infinity"   : 0.8,
-                    "speed_of_sound"  : 332.0
-                }
             },
             {
                 "python_module" : "define_wake_process_2d",
@@ -112,8 +92,8 @@
     ]
         ,
         "operations" : [{
-             "operation" : "from_potential_flow_to_compressible_Navier_Stokes_operation",
-             "name" : "KratosMultiphysics.FluidDynamicsApplication.operations.from_potential_flow_to_compressible_Navier_Stokes_operation.FromPotentialFlowToCompressibleNavierStokesOperation",
+             "operation" : "potential_to_compressible_Navier_Stokes_operation",
+             "name" : "KratosMultiphysics.FluidDynamicsApplication.operations.potential_to_compressible_navier_stokes_operation.PotentialToCompressibleNavierStokesOperation",
              "Parameters" : {
                 "origin_model_part" : "FluidModelPart",
                 "destination_model_part" : "MainModelPart",
