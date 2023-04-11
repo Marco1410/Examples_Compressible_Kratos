@@ -60,30 +60,30 @@ def GetRomManagerParameters():
     """
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
             "rom_stages_to_train" : ["ROM"],      // ["ROM","HROM"]
-            "rom_stages_to_test"  : [],      // ["ROM","HROM"]
+            "rom_stages_to_test"  : ["ROM"],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
             "projection_strategy": "galerkin",           // "lspg", "galerkin", "petrov_galerkin"
-            "save_gid_output": false,                     // false, true #if true, it must exits previously in the ProjectParameters.json
+            "save_gid_output": true,                     // false, true #if true, it must exits previously in the ProjectParameters.json
             "save_vtk_output": false,                    // false, true #if true, it must exits previously in the ProjectParameters.json
-            "output_name": "mu",                         // "id" , "mu"
+            "output_name": "id",                         // "id" , "mu"
             "ROM":{
-                "svd_truncation_tolerance": 1e-12,
+                "svd_truncation_tolerance": 1e-100,
                 "model_part_name": "MainModelPart",                                      // This changes depending on the simulation: Structure, FluidModelPart, ThermalPart #TODO: Idenfity it automatically
                 "nodal_unknowns": ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"], // Main unknowns. Snapshots are taken from these
-                "rom_basis_output_format": "numpy",                                      // "json" "numpy"
+                "rom_basis_output_format": "json",                                      // "json" "numpy"
                 "rom_basis_output_name": "RomParameters",
                 "snapshots_control_type": "step",                                        // "step", "time"
                 "snapshots_interval": 1,
                 "petrov_galerkin_training_parameters":{
                     "basis_strategy": "residuals",                                        // 'residuals', 'jacobian'
                     "include_phi": false,
-                    "svd_truncation_tolerance": 1e-12,
+                    "svd_truncation_tolerance": 1e-100,
                     "echo_level": 0
                 }
             },
             "HROM":{
                 "element_selection_type": "empirical_cubature",
-                "element_selection_svd_truncation_tolerance": 1e-12,
+                "element_selection_svd_truncation_tolerance": 1e-100,
                 "create_hrom_visualization_model_part" : false,
                 "echo_level" : 0
             }
@@ -209,7 +209,7 @@ def get_params_by_mach_train(number_of_values):
 #
 def get_params_by_angle_test(number_of_params_1):
     #Angle of attack
-    param1 = random_samples_from_interval(-0.1, 0.1,number_of_params_1)
+    param1 = random_samples_from_interval(-6.0, 1.0,number_of_params_1)
     #Mach infinit
     param2 = [0.3]
     mu = []
@@ -222,8 +222,8 @@ def get_params_by_angle_train(number_of_values):
     sampler = qmc.Halton(d=1)
     sample = sampler.random(number_of_values)
     #Angle of attack
-    l_angle = -0.1
-    u_angle =  0.1
+    l_angle = -6.0
+    u_angle =  1.0
     mu = []
     values = qmc.scale(sample, [l_angle], [u_angle])
     values[0] = l_angle
@@ -237,12 +237,33 @@ def get_params_by_angle_fix_train():
     mu = []
     #Angle of attack , Mach infinit
     mu.append([-6.0 * math.pi / 180.0, 0.3])
+    mu.append([-5.75 * math.pi / 180.0, 0.3])
+    mu.append([-5.5 * math.pi / 180.0, 0.3])
+    mu.append([-5.25 * math.pi / 180.0, 0.3])
     mu.append([-5.0 * math.pi / 180.0, 0.3])
+    mu.append([-4.75 * math.pi / 180.0, 0.3])
+    mu.append([-4.5 * math.pi / 180.0, 0.3])
+    mu.append([-4.25 * math.pi / 180.0, 0.3])
     mu.append([-4.0 * math.pi / 180.0, 0.3])
+    mu.append([-3.75 * math.pi / 180.0, 0.3])
+    mu.append([-3.5 * math.pi / 180.0, 0.3])
+    mu.append([-3.25 * math.pi / 180.0, 0.3])
     mu.append([-3.0 * math.pi / 180.0, 0.3])
+    mu.append([-2.75 * math.pi / 180.0, 0.3])
+    mu.append([-2.5 * math.pi / 180.0, 0.3])
+    mu.append([-2.25 * math.pi / 180.0, 0.3])
     mu.append([-2.0 * math.pi / 180.0, 0.3])
+    mu.append([-1.75 * math.pi / 180.0, 0.3])
+    mu.append([-1.5 * math.pi / 180.0, 0.3])
+    mu.append([-1.25 * math.pi / 180.0, 0.3])
     mu.append([-1.0 * math.pi / 180.0, 0.3])
+    mu.append([-0.75 * math.pi / 180.0, 0.3])
+    mu.append([-0.5 * math.pi / 180.0, 0.3])
+    mu.append([-0.25 * math.pi / 180.0, 0.3])
     mu.append([ 0.0 * math.pi / 180.0, 0.3])
+    mu.append([ 0.25 * math.pi / 180.0, 0.3])
+    mu.append([ 0.5 * math.pi / 180.0, 0.3])
+    mu.append([ 0.75 * math.pi / 180.0, 0.3])
     mu.append([ 1.0 * math.pi / 180.0, 0.3])
     return mu
 
@@ -301,11 +322,11 @@ if __name__ == "__main__":
     # mu_test  = get_params_by_mach_test(2)
 
     ##############      By angle      ###############
-    mu_train = get_params_by_angle_train(4)
-    mu_test  = get_params_by_angle_test(2)
+    # mu_train = get_params_by_angle_train(10)
+    # mu_test  = get_params_by_angle_test(1)
 
-    # mu_train = get_params_by_angle_fix_train()
-    # mu_test  = get_params_by_angle_test(2) 
+    mu_train = get_params_by_angle_fix_train()
+    mu_test  = get_params_by_angle_test(1) 
     #################################################
 
     plot_mu_values(mu_train,mu_test)
