@@ -4,7 +4,7 @@
         "parallel_type"   : "OpenMP",
         "echo_level"      : 0,
         "start_time"      : 0.0,
-        "end_time"        : 1
+        "end_time"        : 1.0
     },
     "solver_settings"                  : {
         "solver_type"            : "potential_flow",
@@ -16,9 +16,10 @@
         },
         "maximum_iterations"     : 10,
         "echo_level"             : 0,
+        "auxiliary_variables_list" : [],
         "formulation" :
         {
-            "element_type": "compressible"
+            "element_type": "perturbation_incompressible"
         },
         "linear_solver_settings"  : {
             "solver_type": "amgcl",
@@ -38,7 +39,8 @@
     },
     "processes" : {
         "initial_conditions_process_list"  : [],
-        "boundary_conditions_process_list" : [{
+        "boundary_conditions_process_list" : [
+        {
             "python_module" : "apply_far_field_process",
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
             "process_name"  : "FarFieldProcess",
@@ -47,9 +49,11 @@
                 "angle_of_attack": 0.0,
                 "mach_infinity": 0.3,
                 "free_stream_density": 1.225,
-                "inlet_potential"         : 1.0
+                "inlet_potential"         : 1.0,
+                "perturbation_field": true
             }
-        },{
+        },
+        {
             "python_module" : "define_wake_process_2d",
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
             "process_name"  : "DefineWakeProcess",
@@ -58,7 +62,8 @@
                 "epsilon"         : 1e-9,
                 "echo_level" : 0
             }
-        }]
+        }
+    ]
     },
     "output_processes" : {
         "gid_output" : [{
@@ -84,8 +89,9 @@
                         "node_output"         : false,
                         "skin_output"         : false,
                         "plane_output"        : [],
-                        "nodal_results"       : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
-                        "gauss_point_results" : ["PRESSURE_COEFFICIENT","VELOCITY"]
+                        "nodal_results"       : ["VELOCITY_POTENTIAL",
+                                                 "AUXILIARY_VELOCITY_POTENTIAL"],
+                        "gauss_point_results" : ["PRESSURE_COEFFICIENT","VELOCITY","WAKE"]
                     },
                     "point_data_configuration"  : []
                 }
