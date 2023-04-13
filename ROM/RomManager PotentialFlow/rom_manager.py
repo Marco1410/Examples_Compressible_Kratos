@@ -18,13 +18,16 @@ def CustomizeSimulation(cls, global_model, parameters):
             self.custom_param  = custom_param
 
         def Initialize(self):
+
             angle_of_attack = parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].GetDouble()
             parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(0.0) 
             with open("ProjectParametersMeshMoving.json",'r') as parameter_file:
-	            mesh_parameters = KratosMultiphysics.Parameters(parameter_file.read()) 
+                mesh_parameters = KratosMultiphysics.Parameters(parameter_file.read()) 
             mesh_parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["rotation_angle"].SetDouble(angle_of_attack)
             mesh_simulation = MeshMovingAnalysis(self.model,mesh_parameters)
+
             super().Initialize()
+            
             mesh_simulation.Run()
 
         def FinalizeSolutionStep(self):
