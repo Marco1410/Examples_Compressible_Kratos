@@ -27,7 +27,11 @@
             "maximum_iterations"       : 10,
             "echo_level"               : 0,
             "volume_model_part_name"   : "FluidParts_Fluid",
-            "skin_parts"               : ["AutomaticInlet2D_Left","Outlet2D_Right","NoSlip2D_Top","NoSlip2D_Bottom","NoSlip2D_Aerofoil"],
+            "skin_parts"               : [  "AutomaticInlet2D_Left",
+                                            "Outlet2D_Right",
+                                            "NoSlip2D_Top",
+                                            "NoSlip2D_Bottom",
+                                            "NoSlip2D_Aerofoil"],
             "no_skin_parts"            : [],
             "reform_dofs_at_each_step" : false,
             "linear_solver_settings"  : {
@@ -91,14 +95,25 @@
         }
     ]
         ,
-        "operations" : [{
-             "operation" : "potential_to_compressible_Navier_Stokes_operation",
-             "name" : "KratosMultiphysics.FluidDynamicsApplication.operations.potential_to_compressible_navier_stokes_operation.PotentialToCompressibleNavierStokesOperation",
-             "Parameters" : {
-                "origin_model_part" : "FluidModelPart",
-                "destination_model_part" : "MainModelPart",
-                "variable_names_to_pass" : ["VELOCITY","PRESSURE"]}
-         }]
+        "operations" : [
+        //     {
+        //      "operation" : "potential_to_compressible_Navier_Stokes_operation",
+        //      "name" : "KratosMultiphysics.FluidDynamicsApplication.operations.potential_to_compressible_navier_stokes_operation.PotentialToCompressibleNavierStokesOperation",
+        //      "Parameters" : {
+        //         "origin_model_part" : "FluidModelPart",
+        //         "destination_model_part" : "MainModelPart",
+        //         "variable_names_to_pass" : ["VELOCITY"]}
+        //  }
+        //  ,
+         {
+          "operation" : "potential_to_compressible_operation",
+          "name" : "KratosMultiphysics.FluidDynamicsApplication.operations.potential_to_compressible_operation.PotentialToCompressibleOperation",
+          "Parameters" : {
+             "origin_model_part" : "FluidModelPart",
+             "destination_model_part" : "MainModelPart"
+            }
+      }
+        ]
         },
         "analysis_stage"   : "KratosMultiphysics.FluidDynamicsApplication.fluid_dynamics_analysis",
         "problem_data"     : {
