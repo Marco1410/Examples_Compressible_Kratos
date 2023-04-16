@@ -49,13 +49,13 @@ def UpdateProjectParameters(parameters, mu=None):
 
 def GetRomManagerParameters():
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
-            "rom_stages_to_train" : [],      // ["ROM","HROM"]
+            "rom_stages_to_train" : ["ROM","HROM"],      // ["ROM","HROM"]
             "rom_stages_to_test"  : ["ROM","HROM"],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
             "projection_strategy": "galerkin",           // "lspg", "galerkin", "petrov_galerkin"
             "save_gid_output": true,                     // false, true #if true, it must exits previously in the ProjectParameters.json
             "save_vtk_output": false,                    // false, true #if true, it must exits previously in the ProjectParameters.json
-            "output_name": "id",                         // "id" , "mu"
+            "output_name": "mu",                         // "id" , "mu"
             "ROM":{
                 "svd_truncation_tolerance": 1e-6,
                 "model_part_name": "MainModelPart",                                      // This changes depending on the simulation: Structure, FluidModelPart, ThermalPart #TODO: Idenfity it automatically
@@ -65,7 +65,7 @@ def GetRomManagerParameters():
                 "snapshots_control_type": "step",                                        // "step", "time"
                 "snapshots_interval": 1,
                 "petrov_galerkin_training_parameters":{
-                    "basis_strategy": "jacobian",                                        // 'residuals', 'jacobian'
+                    "basis_strategy": "residuals",                                        // 'residuals', 'jacobian'
                     "include_phi": false,
                     "svd_truncation_tolerance": 1e-6,
                     "echo_level": 0
@@ -74,7 +74,7 @@ def GetRomManagerParameters():
             "HROM":{
                 "element_selection_type": "empirical_cubature",
                 "element_selection_svd_truncation_tolerance": 1e-6,
-                "create_hrom_visualization_model_part" : true,
+                "create_hrom_visualization_model_part" : false,
                 "echo_level" : 0
             }
         }""")
@@ -153,8 +153,8 @@ def plot_mu_values(mu_train,mu_test):
 if __name__ == "__main__":
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Results')
 
-    mu_train = get_multiple_params_by_Halton_train(15) 
-    mu_test  = get_multiple_params_by_Halton_test(100) 
+    mu_train = get_multiple_params_by_Halton_train(5) 
+    mu_test  = get_multiple_params_by_Halton_test(1) 
 
     plot_mu_values(mu_train,mu_test)
 
