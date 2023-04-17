@@ -9,4 +9,4 @@ simulation = MeshMovingAnalysis(model,parameters)
 simulation.Run()
 
 model_part = model.GetModelPart("MainModelPart")
-KratosMultiphysics.ModelPartIO("naca0012_newaoa", KratosMultiphysics.IO.WRITE | KratosMultiphysics.IO.MESH_ONLY).WriteModelPart(model_part)
+KratosMultiphysics.ModelPartIO("naca0012_0aoa", KratosMultiphysics.IO.WRITE | KratosMultiphysics.IO.MESH_ONLY).WriteModelPart(model_part)

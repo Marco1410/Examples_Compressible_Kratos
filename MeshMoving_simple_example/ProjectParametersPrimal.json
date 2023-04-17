@@ -12,7 +12,7 @@
             "model_part_name"    : "MainModelPart",
             "model_import_settings"              : {
                 "input_type"     : "mdpa",
-                "input_filename" : "naca_0012_geom"
+                "input_filename" : "naca0012_5aoa"
             },
             "echo_level": 0,
             "time_stepping" : {
@@ -38,11 +38,11 @@
             "kratos_module" : "KratosMultiphysics.MeshMovingApplication",
             "process_name"  : "ImposeMeshMotionProcess",
             "Parameters"    : {
-                "model_part_name"       : "MainModelPart.NoSlip2D_Aerofoil",
+                "model_part_name"       : "MainModelPart.Body2D_Body",
                 "rotation_definition"   : "rotation_axis",
                 "rotation_axis"         : [0.0, 0.0, 1.0],
                 "reference_point"       : [0.998173, 0.0174894, 0.0],
-                "rotation_angle"        : "-3.0*3.14156/180"
+                "rotation_angle"        : "5.0*3.141596/180"
             }
         },{
             "python_module" : "fix_vector_variable_process",
@@ -50,7 +50,7 @@
             "help"          : "This process fixes the selected components of a given vector variable without modifying the value of the variable.",
             "process_name"  : "FixVectorVariableProcess",
             "Parameters"    : {
-                "model_part_name"      : "MainModelPart.NoSlip2D_Aerofoil",
+                "model_part_name"      : "MainModelPart.Body2D_Body",
                 "variable_name"        : "MESH_DISPLACEMENT",
                 "constrained"          : [true,true,true]
             }
@@ -60,37 +60,7 @@
             "help"          : "This process fixes the selected components of a given vector variable",
             "process_name"  : "AssignVectorVariableProcess",
             "Parameters"    : {
-                "model_part_name" : "MainModelPart.NoSlip2D_Bottom",
-                "variable_name"   : "MESH_DISPLACEMENT",
-                "value"           : [0.0,0.0,0.0]
-            }
-        },{
-            "python_module" : "assign_vector_variable_process",
-            "kratos_module" : "KratosMultiphysics",
-            "help"          : "This process fixes the selected components of a given vector variable",
-            "process_name"  : "AssignVectorVariableProcess",
-            "Parameters"    : {
-                "model_part_name" : "MainModelPart.NoSlip2D_Top",
-                "variable_name"   : "MESH_DISPLACEMENT",
-                "value"           : [0.0,0.0,0.0]
-            }
-        },{
-            "python_module" : "assign_vector_variable_process",
-            "kratos_module" : "KratosMultiphysics",
-            "help"          : "This process fixes the selected components of a given vector variable",
-            "process_name"  : "AssignVectorVariableProcess",
-            "Parameters"    : {
-                "model_part_name" : "MainModelPart.Outlet2D_Right",
-                "variable_name"   : "MESH_DISPLACEMENT",
-                "value"           : [0.0,0.0,0.0]
-            }
-        },{
-            "python_module" : "assign_vector_variable_process",
-            "kratos_module" : "KratosMultiphysics",
-            "help"          : "This process fixes the selected components of a given vector variable",
-            "process_name"  : "AssignVectorVariableProcess",
-            "Parameters"    : {
-                "model_part_name" : "MainModelPart.AutomaticInlet2D_Left",
+                "model_part_name" : "MainModelPart.PotentialWallCondition2D_Far_field_Auto1",
                 "variable_name"   : "MESH_DISPLACEMENT",
                 "value"           : [0.0,0.0,0.0]
             }
@@ -104,7 +74,7 @@
             "process_name"  : "GiDOutputProcess",
             "help"          : "This process writes postprocessing files for GiD",
             "Parameters"    : {
-                "model_part_name"        : "MainModelPart.FluidParts_Fluid",
+                "model_part_name"        : "MainModelPart.Parts_Parts_Auto1",
                 "output_name"            : "outputPrimal",
                 "postprocess_parameters" : {
                     "result_file_configuration" : {
