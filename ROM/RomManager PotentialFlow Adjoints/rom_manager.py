@@ -54,29 +54,30 @@ def GetRomManagerParameters():
             "rom_stages_to_test"  : ["ROM","HROM"],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
             "projection_strategy": "galerkin",           // "lspg", "galerkin", "petrov_galerkin"
-            "save_gid_output": true,                     // false, true #if true, it must exits previously in the ProjectParameters.json
+            "save_gid_output": false,                     // false, true #if true, it must exits previously in the ProjectParameters.json
             "save_vtk_output": false,                    // false, true #if true, it must exits previously in the ProjectParameters.json
             "output_name": "id",                         // "id" , "mu"
             "ROM":{
                 "svd_truncation_tolerance": 1e-6,
                 "model_part_name": "MainModelPart",                                      // This changes depending on the simulation: Structure, FluidModelPart, ThermalPart #TODO: Idenfity it automatically
-                "nodal_unknowns": ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"], // Main unknowns. Snapshots are taken from these
+                "nodal_unknowns": [ "VELOCITY_POTENTIAL",
+                                    "AUXILIARY_VELOCITY_POTENTIAL"],             // Main unknowns. Snapshots are taken from these
                 "rom_basis_output_format": "json",                                      // "json" "numpy"
-                "rom_basis_output_name": "RomParameters",
+                "rom_basis_output_name": "PrimalRomParameters",
                 "snapshots_control_type": "step",                                        // "step", "time"
                 "snapshots_interval": 1,
                 "petrov_galerkin_training_parameters":{
                     "basis_strategy": "residuals",                                        // 'residuals', 'jacobian'
                     "include_phi": false,
                     "svd_truncation_tolerance": 1e-6,
-                    "echo_level": 0
+                    "echo_level": 1
                 }
             },
             "HROM":{
                 "element_selection_type": "empirical_cubature",
                 "element_selection_svd_truncation_tolerance": 1e-6,
                 "create_hrom_visualization_model_part" : true,
-                "echo_level" : 0
+                "echo_level" : 1
             }
         }""")
     return general_rom_manager_parameters
@@ -127,7 +128,33 @@ def get_multiple_params_by_Halton_train(number_of_values):
     
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def plot_mu_values(mu_train,mu_test):
+def save_mu_parameters(mu_train,mu_test):
+    import pickle
+    archivo = open('mu_train.dat', 'wb')
+    pickle.dump(mu_train, archivo)
+    archivo.close()
+    archivo = open('mu_test.dat', 'wb')
+    pickle.dump(mu_test, archivo)
+    archivo.close()
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+def load_mu_parameters():
+    import pickle
+    archivo = open('mu_train.dat', 'rb')
+    lista = pickle.load(archivo)
+    mu_train = np.asarray(lista)
+    archivo.close()
+    archivo = open('mu_test.dat', 'rb')
+    lista = pickle.load(archivo)
+    mu_test = np.asarray(lista)
+    archivo.close()
+    return mu_train,mu_test
+    
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+def plot_mu_values(mu_train,mu_test,name):
     mu_train_a = np.zeros(len(mu_train))
     mu_train_m = np.zeros(len(mu_train))
     mu_test_a  = np.zeros(len(mu_test))
@@ -146,7 +173,7 @@ def plot_mu_values(mu_train,mu_test):
     plt.grid(True)
     plt.show(block=False)
     plt.legend(bbox_to_anchor=(.85, 1.03, 1., .102), loc='upper left', borderaxespad=0.)
-    plt.savefig("MuValues.png")
+    plt.savefig(name)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -157,13 +184,15 @@ if __name__ == "__main__":
     mu_train = get_multiple_params_by_Halton_train(5) 
     mu_test  = get_multiple_params_by_Halton_test(2) 
 
-    plot_mu_values(mu_train,mu_test)
+    save_mu_parameters(mu_train,mu_test)
+
+    # mu_train, mu_test = load_mu_parameters()
+
+    plot_mu_values(mu_train,mu_test,"Mu_Values.png")
 
     general_rom_manager_parameters = GetRomManagerParameters()
 
     primal_project_parameters_name = "ProjectParametersPrimalROM.json"
-
-    general_rom_manager_parameters["ROM"]["rom_basis_output_name"].SetString("PrimalRomParameters")
 
     primal_rom_manager = RomManager(primal_project_parameters_name,general_rom_manager_parameters,CustomizeSimulation,UpdateProjectParameters)
 
@@ -173,7 +202,11 @@ if __name__ == "__main__":
 
     primal_rom_manager.PrintErrors()
 
+
     adjoint_project_parameters_name = "ProjectParametersAdjointROM.json"
+
+    general_rom_manager_parameters["ROM"]["nodal_unknowns"].SetStringArray([ "ADJOINT_VELOCITY_POTENTIAL"
+                                                                            ,"ADJOINT_AUXILIARY_VELOCITY_POTENTIAL"])
 
     general_rom_manager_parameters["ROM"]["rom_basis_output_name"].SetString("AdjointRomParameters")
 
@@ -184,5 +217,4 @@ if __name__ == "__main__":
     adjoint_rom_manager.Test(mu_test) 
 
     adjoint_rom_manager.PrintErrors()
-
 
