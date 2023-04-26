@@ -1,4 +1,5 @@
 {
+    "analysis_stage": "KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis",
     "problem_data"                     : {
         "problem_name"    : "naca0012",
         "parallel_type"   : "OpenMP",
