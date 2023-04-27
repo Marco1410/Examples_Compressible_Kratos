@@ -18,7 +18,7 @@
         "echo_level"             : 0,
         "formulation" :
         {
-            "element_type": "incompressible"
+            "element_type": "perturbation_incompressible"
         },
         "convergence_criterion": "solution_criterion",
         "compute_reactions"			   : false,
