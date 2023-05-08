@@ -20,7 +20,7 @@
         "formulation": {
                     "element_type":"perturbation_transonic"
         },
-        "maximum_iterations"       : 100,
+        "maximum_iterations"       : 20,
         "echo_level"             : 1,
         "linear_solver_settings"  : {
                 "solver_type"             : "LinearSolversApplication.sparse_lu",
@@ -42,10 +42,10 @@
                 "angle_of_attack" : 0.0,
                 "free_stream_density"  : 1.225,
                 "mach_infinity"   : 0.70,
-                "perturbation_field": true,
                 "critical_mach": 0.2,
-                "mach_number_squared_limit": 3.0,
-                "upwind_factor_constant": 2.0      
+                "upwind_factor_constant": 2.0, 
+                "perturbation_field": true, 
+                "mach_number_squared_limit": 3.0    
             }
         },{
             "python_module" : "define_wake_process_2d",
