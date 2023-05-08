@@ -55,7 +55,8 @@
         "volume_model_part_name"   : "FluidParts_Fluid",
         "skin_parts"               : ["PotentialWallCondition3D_FarField","Body3D_Body"],
         "no_skin_parts"            : ["Wake3D_Wake","Tip3D_WingTips"],
-        "reform_dofs_at_each_step" : false
+        "reform_dofs_at_each_step" : false,
+        "auxiliary_variables_list" : []
     },
     "processes"        : {
         "boundary_conditions_process_list" : [{
