@@ -58,7 +58,7 @@ def GetRomManagerParameters():
             "save_vtk_output": false,                    // false, true #if true, it must exits previously in the ProjectParameters.json
             "output_name": "id",                         // "id" , "mu"
             "ROM":{
-                "svd_truncation_tolerance": 1e-6,
+                "svd_truncation_tolerance": 1e-9,
                 "model_part_name": "MainModelPart",                                      // This changes depending on the simulation: Structure, FluidModelPart, ThermalPart #TODO: Idenfity it automatically
                 "nodal_unknowns": [ "VELOCITY_POTENTIAL",
                                     "AUXILIARY_VELOCITY_POTENTIAL"],                     // Main unknowns. Snapshots are taken from these
@@ -75,7 +75,7 @@ def GetRomManagerParameters():
             },
             "HROM":{
                 "element_selection_type": "empirical_cubature",
-                "element_selection_svd_truncation_tolerance": 1e-9,
+                "element_selection_svd_truncation_tolerance": 1e-12,
                 "create_hrom_visualization_model_part" : false,
                 "echo_level" : 0
             }
@@ -204,6 +204,7 @@ if __name__ == "__main__":
 
     primal_rom_manager.PrintErrors()
 
+    input("press any key to continue")
 
     adjoint_project_parameters_name = "ProjectParametersAdjointROM.json"
 

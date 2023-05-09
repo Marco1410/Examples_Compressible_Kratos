@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gid version="15.0">
+  <pre>
+    <layer_to_use name="Fluid"/>
+    <groups>
+      <group id="1" name="Fluid" color="#26d1a8ff"/>
+      <group id="2" name="FarField" color="#e0210fff"/>
+    </groups>
+    <entities_groups>
+      <entities_group name="surfaces">
+        <vector name="entity_ids" length="6" type="integer">4:9</vector>
+        <vector name="entity_num_groups" length="6" type="ushort">1x6</vector>
+        <vector name="entity_groups" length="6" type="ushort">2x6</vector>
+      </entities_group>
+      <entities_group name="volumes">
+        <vector name="entity_ids" length="1" type="integer">1</vector>
+        <vector name="entity_num_groups" length="1" type="ushort">1</vector>
+        <vector name="entity_groups" length="1" type="ushort">1</vector>
+      </entities_group>
+      <entities_group name="nodes">
+        <vector name="entity_ids" length="695" type="integer">1:695</vector>
+        <vector name="entity_num_groups" length="695" type="ushort">2x4 1 1 2x4 1 2x5 1 2 1 2 2 1 2x3 1 2x5 1 2x3 1 1 2x9 1x3 2 2 1 2 2 1x3 2x3 1x4 2x4 1 2 1 2 1 2x4 1 2x3 1 1 2x5 1x4 2x4 1 2 1 2x5 1 2x4 1 1 2x5 1 1 2 2 1 2 1 2 1x5 2x5 1 2 1 1 2x8 1 2 1 1 2x4 1 1 2x5 1 2 1 1 2 2 1 2x3 1 1 2 2 1 1 2x9 1 1 2x7 1 1 2 1x3 2x5 1 1 2 1x3 2 2 1 1 2x4 1 2 1 2x3 1 2 1 2 2 1 1 2x4 1x6 2x3 1 2x6 1 1 2 1 2x4 1 2 1 2 2 1 2 2 1 2 2 1 2x4 1 1 2x5 1 2 1 1 2 2 1x3 2x3 1 2x7 1 1 2 2 1 2x3 1 2 1 1 2x7 1 2x3 1 2 2 1 2 2 1 1 2x6 1 1 2 2 1 2x8 1 1 2x3 1 1 2 1 1 2 1x3 2x4 1x3 2 1 2x4 1 2x8 1x5 2x4 1 2 2 1 2 2 1 1 2 1 2 1x3 2 1 2x6 1 2x5 1 1 2 1 2x4 1 2x4 1 2 1 2 1 2 1 2 1x3 2x6 1 2x7 1 2x3 1 2x5 1x3 2 1 2 2 1x3 2x3 1x3 2x12 1 2 1x3 2x3 1 2 1x3 2x6 1 2 1 2 1 2x3 1 2 2 1 2x5 1 2 1 2 1x3 2 1 1 2 1 2 1 2x12 1 1 2 1 1 2 1x3 2 2 1 1 2 2 1 2 2 1 1 2 1 1 2x8 1 2 1 1 2 1 1 2x4 1 2 1 2 1x3 2x5 1 2 1 1 2x3 1 2 2 1 2x3 1 1 2 1 2x6 1 1 2x8 1 2 2 1 1 2x12 1 2x8 1 1 2x3 1 2x10</vector>
+        <vector name="entity_groups" length="1155" type="ushort">2 1 2 1 2 1 2 1x3 2 1 2 1 2 1 2 1 1 2 1 2 1 2 1 2 1 2 1 1 2 1 1 2 1 2 1 1 2 1 2 1 2 1 1 2 1 2 1 2 1 2 1 2 1 1 2 1 2 1 2 1x3 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1x4 2 1 2 1 1 2 1 2 1x4 2 1 2 1 2 1x5 2 1 2 1 2 1 2 1 1 2 1 1 2 1 1 2 1 2 1 2 1 2 1 1 2 1 2 1 2 1x3 2 1 2 1 2 1 2 1 2 1x5 2 1 2 1 2 1 2 1 1 2 1 1 2 1 2 1 2 1 2 1 2 1 1 2 1 2 1 2 1 2 1x3 2 1 2 1 2 1 2 1 2 1x3 2 1 2 1 1 2 1 1 2 1x6 2 1 2 1 2 1 2 1 2 1 1 2 1x3 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 1 2 1x3 2 1 2 1 2 1 2 1x3 2 1 2 1 2 1 2 1 2 1 1 2 1x3 2 1 2 1 1 2 1 2 1 2 1x3 2 1 2 1x3 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1x3 2 1 2 1 2 1 2 1 2 1 2 1 2 1x3 2 1x4 2 1 2 1 2 1 2 1 2 1x3 2 1x4 2 1 2 1x3 2 1 2 1 2 1 2 1 1 2 1 1 2 1 2 1 2 1 1 2 1 1 2 1 2 1x3 2 1 2 1 2 1 2 1x7 2 1 2 1 2 1 1 2 1 2 1 2 1 2 1 2 1 2 1x3 2 1 1 2 1 2 1 2 1 2 1 1 2 1 1 2 1 2 1 1 2 1 2 1 1 2 1 2 1 1 2 1 2 1 2 1 2 1x3 2 1 2 1 2 1 2 1 2 1 1 2 1x3 2 1 2 1x4 2 1 2 1 2 1 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1x3 2 1 2 1 1 2 1 2 1 2 1 1 2 1x3 2 1 2 1 2 1 2 1 2 1 2 1 2 1 1 2 1 2 1 2 1 1 2 1 2 1 1 2 1 2 1x3 2 1 2 1 2 1 2 1 2 1 2 1x3 2 1 2 1 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1x3 2 1 2 1 2 1x3 2 1x3 2 1x4 2 1 2 1 2 1 2 1x4 2 1 1 2 1 2 1 2 1 2 1 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1x6 2 1 2 1 2 1 2 1 1 2 1 2 1 1 2 1 2 1x3 2 1 1 2 1x4 2 1 1 2 1 2 1 2 1 2 1 2 1 2 1 1 2 1 2 1 2 1 2 1 2 1x3 2 1 1 2 1 2 1 2 1 2 1 1 2 1 2 1 2 1 2 1 1 2 1 1 2 1 1 2 1 1 2 1x4 2 1 2 1 2 1 2 1 2 1 2 1 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 1 2 1 2 1 2 1 1 2 1 2 1 2 1 2 1 2 1x4 2 1 1 2 1 2 1x4 2 1 2 1 2 1x4 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 1 2 1x4 2 1 2 1 2 1 1 2 1x4 2 1 2 1 2 1 2 1 2 1 2 1 1 2 1 1 2 1 1 2 1 2 1 2 1 1 2 1 2 1 1 2 1 2 1 2 1 2 1 2 1 1 2 1 1 2 1x4 2 1x3 2 1 1 2 1 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1x3 2 1x3 2 1x4 2 1 2 1x3 2 1 2 1 1 2 1 2 1x3 2 1x3 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 1 2 1x3 2 1x3 2 1 2 1 2 1 2 1 1 2 1 1 2 1x4 2 1 2 1 2 1 2 1 2 1 1 2 1x3 2 1 2 1 2 1 1 2 1 2 1 1 2 1 2 1 2 1x3 2 1 1 2 1 2 1 2 1 2 1 2 1 2 1x3 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 1 2 1 2 1x3 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1x3 2 1 2 1 2 1 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1</vector>
+      </entities_group>
+      <entities_group name="elements">
+        <vector name="entity_ids" length="3519" type="integer">2604:3519 1:2603</vector>
+        <vector name="entity_num_groups" length="3519" type="ushort">1x3519</vector>
+        <vector name="entity_groups" length="3519" type="ushort">2x916 1x2603</vector>
+      </entities_group>
+    </entities_groups>
+  </pre>
+</gid>
