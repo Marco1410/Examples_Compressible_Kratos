@@ -1,4 +1,5 @@
 import os
+import pickle
 from scipy.stats import qmc
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,12 +24,12 @@ def plot_mu_values(mu,name,xl,xu,yl,yu):
     mu_m = np.zeros(len(mu))
     fig  = plt.figure()
     fig.subplots_adjust(top=0.8)
-    fig.set_figwidth(15.0)
-    fig.set_figheight(10.0)
+    fig.set_figwidth(20.0)
+    fig.set_figheight(15.0)
     for i in range(len(mu)):
         mu_a[i] = mu[i][0] * 180 / np.pi
         mu_m[i] = mu[i][1]
-        fig = plt.plot(mu_m[i], mu_a[i], "o", markersize = 7.0, label = str(np.round(mu_a[i],1))+"º_"+str(np.round(mu_m[i],2)))
+        fig = plt.plot(mu_m[i], mu_a[i], "o", markersize = 5.0, label = str(np.round(mu_a[i],1))+"º_"+str(np.round(mu_m[i],2)))
     fig = plt.title('Mu Values')
     fig = plt.axis([xl,xu+0.1,yl,yu])
     fig = plt.ylabel('Alpha')
@@ -40,15 +41,11 @@ def plot_mu_values(mu,name,xl,xu,yl,yu):
 
 
 def save_mu_parameters(mu):
-    import pickle
     archivo = open('mu_values.dat', 'wb')
     pickle.dump(mu, archivo)
     archivo.close()
 
 if __name__ == "__main__":
-    
-    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Data')
-    os.mkdir("Data")
     
     with open("ProjectParameters_transonic.json",'r') as parameter_file:
         parameters = KratosMultiphysics.Parameters(parameter_file.read())
@@ -57,42 +54,28 @@ if __name__ == "__main__":
     ################################
     ################################
     def M_cr(critical_cp,critical_mach):
-        f = critical_cp - ((1/(0.7*critical_mach**2))*(((2+0.4*critical_mach**2)/2.4)**3.5-1))
-        return f
+        return critical_cp - ((1/(0.7*critical_mach**2))*((((2+0.4*critical_mach**2)/2.4)**3.5)-1))
 
     def shock_parameters(mach_infinity,angle_of_attack):
-        critical_cp = 1 - (1/mach_infinity**2)
+        critical_cp = 1 - (1/mach_infinity**2)  #critical_cp = critical_cp / np.sqrt(1-mach_infinity**2)
         # Bisection method
         a = 0.2
-        b = 1.0
+        b = 0.95
         tol=1.0e-6
         critical_mach = (a + b) / 2.0
         while True:
             if b - a < tol:
-                return x
-            elif np.sign(M_cr(critical_cp,critical_mach)) * np.sign(M_cr(critical_cp,critical_mach)) > 0:
+                upwind_factor_constant = 1.0
+                return critical_cp,critical_mach,upwind_factor_constant
+            elif M_cr(critical_cp,a) * M_cr(critical_cp,critical_mach) > 0:
                 a = critical_mach
             else:
                 b = critical_mach
             critical_mach = (a + b) / 2.0
-
-            if angle_of_attack > 4:
-                critical_mach = critical_mach * 0.10
-            elif angle_of_attack > 3:
-                critical_mach = critical_mach * 0.20
-            elif angle_of_attack > 2:
-                critical_mach = critical_mach * 0.50
-            elif angle_of_attack > 1:
-                critical_mach = critical_mach * 0.70
-            elif angle_of_attack > 0.5:
-                critical_mach = critical_mach * 0.90
-
-            upwind_factor_constant = 0.8
-            return critical_mach,upwind_factor_constant
         
-    mach_range  = [ 0.7,0.8]
-    angle_range = [1.5,2.5]
-    number_of_point_test = 25
+    mach_range  = [0.65,0.95]
+    angle_range = [0.00,6.0]
+    number_of_point_test = 5
     ################################
     ################################
     ################################
@@ -101,7 +84,7 @@ if __name__ == "__main__":
     save_mu_parameters(mu_test)
     plot_mu_values(mu_test,"Mu_Values.png",mach_range[0],mach_range[1],angle_range[0],angle_range[1])
 
-    mesh_list = ["mesh_1"]#,"mesh_2"]
+    mesh_list = ["mesh_1","mesh_2"]
 
     # airfoils vs cp vs x
     fig  = plt.figure()
@@ -117,7 +100,7 @@ if __name__ == "__main__":
     ax1.grid()
 
     ax2 = fig.add_subplot(212)
-    ax2.axis([-0.1,1.1,-0.2,0.2])
+    ax2.axis([-0.1,1.15,-0.2,0.2])
     ax2.set_ylabel('y')
     ax2.set_xlabel('x')
     ax2.set_title('Airfoils')
@@ -125,22 +108,26 @@ if __name__ == "__main__":
 
     for mesh_name in mesh_list:
         parameters["solver_settings"]["model_import_settings"]["input_filename"].SetString(mesh_name+"_Kratos")
+        fout=open("critical_cp_mach_"+mesh_name+".dat", 'w')
+        fout.write("# Angle_of_atack mach_infinity Critical_Cp Critical_Mach upwind_factor_constant \n")
         for id, mu in enumerate(mu_test):
             angle_of_attack = mu[0]
             mach_infinity = mu[1]
-            critical_mach,upwind_factor_constant = shock_parameters(mach_infinity,angle_of_attack)
+            mach_number_squared_limit = 3.0
+
+            critical_cp,critical_mach,upwind_factor_constant = shock_parameters(mach_infinity,angle_of_attack)
+
             parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(angle_of_attack)
             parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach_infinity)
             parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["critical_mach"].SetDouble(critical_mach)
             parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["upwind_factor_constant"].SetDouble(upwind_factor_constant)
+            parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_number_squared_limit"].SetDouble(mach_number_squared_limit)
 
             model = KratosMultiphysics.Model()
             simulation = PotentialFlowAnalysis(model,parameters)
             simulation.Run()
 
             modelpart = model["FluidModelPart.walls"]
-            fout=open("Data/"+mesh_name+"_"+str(id)+".dat",'w')
-            fout.write("#  CoordinatesX CoordinatesY CoordinatesZ CoefPressure\n")
             x = np.zeros(modelpart.NumberOfNodes())
             y = np.zeros(modelpart.NumberOfNodes())
             z = np.zeros(modelpart.NumberOfNodes())
@@ -148,10 +135,9 @@ if __name__ == "__main__":
             for i,node in enumerate(modelpart.Nodes):
                 x[i] = node.X0 ; y[i] = node.Y0 ; z[i] = node.Z0
                 cp[i] = node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
-                fout.write("%s %s %s %s\n" %(x[i],y[i],z[i],cp[i]))
-            fout.close()
-            ax1.plot( x, cp, "o", markersize = 7.0, label = mesh_name + "_" + str(np.round(mu[0] * 180 / np.pi,1))+"º_" + str(np.round(mu[1],2)))
-        ax2.plot( x, y, "o", markersize = 5.0, label = mesh_name)
+            ax1.plot( x, cp, "o", markersize = 5.0, label = mesh_name + "_" + str(np.round(mu[0] * 180 / np.pi,1))+"º_" + str(np.round(mu[1],2)))
+        fout.close()
+        ax2.plot( x, y, "o", markersize = 3.0, label = mesh_name)
 
     ax1.legend()
     ax2.legend()
