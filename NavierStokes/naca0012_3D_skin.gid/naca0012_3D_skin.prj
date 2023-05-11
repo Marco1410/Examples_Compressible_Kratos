@@ -4,14 +4,8 @@
     <layer_to_use name="Fluid"/>
     <groups>
       <group id="3" name="Body" color="#42eb71ff" allowed_types="#7f" allowed_element_types="#7fe"/>
-      <group id="6" name="Wake" color="#e0210fff" allowed_types="#7f" allowed_element_types="#7fe"/>
     </groups>
     <entities_groups>
-      <entities_group name="lines">
-        <vector name="entity_ids" length="1" type="integer">14</vector>
-        <vector name="entity_num_groups" length="1" type="ushort">1</vector>
-        <vector name="entity_groups" length="1" type="ushort">6</vector>
-      </entities_group>
       <entities_group name="surfaces">
         <vector name="entity_ids" length="2" type="integer">2 3</vector>
         <vector name="entity_num_groups" length="2" type="ushort">1 1</vector>
@@ -19,13 +13,13 @@
       </entities_group>
       <entities_group name="nodes">
         <vector name="entity_ids" length="1383" type="integer">1:1383</vector>
-        <vector name="entity_num_groups" length="1383" type="ushort">2 2 1x4 2 1x8 2 1x8 2 1x12 2 1x10 2 1x11 2 1x13 2 1x15 2 1x17 2 1x20 2 1x15 2 1x17 2 1x12 2 1x13 2 1x10 2 1x10 2 1x12 2 1x14 2 1x13 2 1x11 2 1x12 2 1x12 2 1x13 2 1x11 2 1x10 2 1x11 2 1x10 2 1x12 2 1x12 2 1x10 2 1x11 2 1x12 2 1x12 2 1x12 2 1x12 2 1x13 2 1x11 2 1x12 2 1x12 2 1x10 2 1x12 2 1x10 2 1x12 2 1x12 2 1x8 2 1x12 2 1x10 2 1x11 2 1x11 2 1x12 2 1x11 2 1x12 2 1x10 2 1x11 2 1x12 2 1x10 2 1x12 2 1x10 2 1x11 2 1x14 2 1x10 2 1x12 2 1x13 2 1x11 2 1x11 2 1x11 2 1x11 2 1x8 2 1x11 2 1x12 2 1x11 2 1x11 2 1x11 2 1x8 2 1x14 2 1x8 2 1x15 2 1x9 2 1x15 2 1x7 2 1x13 2 1x9 2 1x15 2 1x11 2 1x11 2 1x13 2 1x11 2 1x14 2 1x10 2 1x11 2 1x11 2 1x11 2 1x14 2 1x11 2 1x8 2 1x14 2 1x11 2 1x11 2 1x11 2 1x11 2 1x11 2 1x10 2 1x13 2 1x12 2 1x9 2 1x13 2 1x13 2 1x11 2 1x13 2 1x19</vector>
-        <vector name="entity_groups" length="1494" type="ushort">6 3 6 3x5 6 3x9 6 3x9 6 3x13 6 3x11 6 3x12 6 3x14 6 3x16 6 3x18 6 3x21 6 3x16 6 3x18 6 3x13 6 3x14 6 3x11 6 3x11 6 3x13 6 3x15 6 3x14 6 3x12 6 3x13 6 3x13 6 3x14 6 3x12 6 3x11 6 3x12 6 3x11 6 3x13 6 3x13 6 3x11 6 3x12 6 3x13 6 3x13 6 3x13 6 3x13 6 3x14 6 3x12 6 3x13 6 3x13 6 3x11 6 3x13 6 3x11 6 3x13 6 3x13 6 3x9 6 3x13 6 3x11 6 3x12 6 3x12 6 3x13 6 3x12 6 3x13 6 3x11 6 3x12 6 3x13 6 3x11 6 3x13 6 3x11 6 3x12 6 3x15 6 3x11 6 3x13 6 3x14 6 3x12 6 3x12 6 3x12 6 3x12 6 3x9 6 3x12 6 3x13 6 3x12 6 3x12 6 3x12 6 3x9 6 3x15 6 3x9 6 3x16 6 3x10 6 3x16 6 3x8 6 3x14 6 3x10 6 3x16 6 3x12 6 3x12 6 3x14 6 3x12 6 3x15 6 3x11 6 3x12 6 3x12 6 3x12 6 3x15 6 3x12 6 3x9 6 3x15 6 3x12 6 3x12 6 3x12 6 3x12 6 3x12 6 3x11 6 3x14 6 3x13 6 3x10 6 3x14 6 3x14 6 3x12 6 3x14 6 3x20</vector>
+        <vector name="entity_num_groups" length="1383" type="ushort">1x1383</vector>
+        <vector name="entity_groups" length="1383" type="ushort">3x1383</vector>
       </entities_group>
       <entities_group name="elements">
-        <vector name="entity_ids" length="2836" type="integer">2727:2836 1:2726</vector>
-        <vector name="entity_num_groups" length="2836" type="ushort">1x2836</vector>
-        <vector name="entity_groups" length="2836" type="ushort">6x110 3x2726</vector>
+        <vector name="entity_ids" length="2726" type="integer">1:2726</vector>
+        <vector name="entity_num_groups" length="2726" type="ushort">1x2726</vector>
+        <vector name="entity_groups" length="2726" type="ushort">3x2726</vector>
       </entities_group>
     </entities_groups>
   </pre>

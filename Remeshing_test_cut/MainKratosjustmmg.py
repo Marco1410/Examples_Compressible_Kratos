@@ -113,25 +113,19 @@ def _ComputeLevelSetMetric(main_model_part,min_size_level):
             "sizing_parameters": {
 
                 "reference_variable_name"               : "DISTANCE",
-                "boundary_layer_max_distance"           : 300,
+                "boundary_layer_max_distance"           : 60,
                 "interpolation"                         : "piecewise_linear",
                 "size_distribution": [
-                                              [-300,20],
-                                                [-200,20],
-                                                [-100,20],
-                                                [-50,10],
-                                                [-15,7],
-                                                [-10,3],
-                                                [-1,3],
-                                                [0,3],
-                                                [5,3],
-                                                [10,3],
-                                                [15,7],
-                                                [20,10],
-                                                [50,20],
-                                                [100,30],
-                                                [200,40],
-                                                [300,40]
+                                                [-60,6],
+                                                [-15,4],
+                                                [-10,2],
+                                                [-1,1],
+                                                [0,0.01],
+                                                [5,0.5],
+                                                [10,1],
+                                                [15,2],
+                                                [20,4],
+                                                [60,6]
                                      ]
             },
             "enforce_current"                      : false,
@@ -218,9 +212,9 @@ mmg_parameters = KratosMultiphysics.Parameters("""
     "force_sizes"                      :
     {
         "force_min"                           : true,
-        "minimal_size"                        : 2,
+        "minimal_size"                        : 0.01,
         "force_max"                           : true,
-        "maximal_size"                        : 10
+        "maximal_size"                        : 15
     }
 
 

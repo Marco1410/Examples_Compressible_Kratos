@@ -4,7 +4,7 @@
         "parallel_type" : "OpenMP",
         "echo_level"    : 0,
         "start_time"    : 0.0,
-        "end_time"      : 1
+        "end_time"      : 1.0
     },
     "solver_settings"  : {
         "model_part_name"          : "FluidModelPart",
@@ -20,14 +20,14 @@
         "formulation": {
                     "element_type":"perturbation_transonic"
         },
-        "maximum_iterations"       : 20,
+        "maximum_iterations"       : 100,
         "echo_level"             : 1,
         "linear_solver_settings"  : {
                 "solver_type"             : "LinearSolversApplication.sparse_lu",
                 "verbosity"               : 0
         },
-        "volume_model_part_name"   : "fluid",
-        "skin_parts"               : ["farfield","walls"],
+        "volume_model_part_name"   : "Parts_Parts_Auto1",
+        "skin_parts"               : ["PotentialWallCondition2D_Far_field_Auto1","Body2D_Body"],
         "no_skin_parts"            : [],
         "reform_dofs_at_each_step" : false
     },
@@ -38,13 +38,15 @@
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
             "process_name"  : "FarFieldProcess",
             "Parameters"    : {
-                "model_part_name" : "FluidModelPart.farfield",
+                "model_part_name" : "FluidModelPart.PotentialWallCondition2D_Far_field_Auto1",
                 "angle_of_attack" : 0.0,
                 "free_stream_density"  : 1.225,
                 "mach_infinity"   : 0.70,
                 "critical_mach": 0.94,
+                "initialize_flow_field": false,
                 "perturbation_field": true, 
                 "upwind_factor_constant": 1.0, 
+                "mach_number_limit": 1.7320,
                 "mach_number_squared_limit": -1
             }
         },{
@@ -52,15 +54,7 @@
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
             "process_name"  : "DefineWakeProcess",
             "Parameters"    : {
-                "model_part_name" : "FluidModelPart.walls"
-            }
-        },{
-            "python_module" : "compute_lift_process",
-            "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
-            "process_name"  : "ComputeLiftProcess3D",
-            "Parameters"    : {
-                "model_part_name" : "FluidModelPart.walls",
-                "far_field_model_part_name": "FluidModelPart.farfield"
+                "model_part_name" : "FluidModelPart.Body2D_Body"
             }
         }],
         "auxiliar_process_list"            : [{
