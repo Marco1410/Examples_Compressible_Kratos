@@ -1,11 +1,5 @@
 import KratosMultiphysics
-from KratosMultiphysics.FluidDynamicsApplication.fluid_dynamics_analysis import FluidDynamicsAnalysis
-import numpy as np
-import sys
-import time
 import KratosMultiphysics.MeshingApplication
-from KratosMultiphysics import python_linear_solver_factory as linear_solver_factory
-import math
 
 def PrintOutput(main_model_part,filename):
     from KratosMultiphysics.gid_output_process import GiDOutputProcess
@@ -116,16 +110,17 @@ def _ComputeLevelSetMetric(main_model_part,min_size_level):
                 "boundary_layer_max_distance"           : 60,
                 "interpolation"                         : "piecewise_linear",
                 "size_distribution": [
-                                                [-60,6],
-                                                [-15,4],
-                                                [-10,2],
-                                                [-1,1],
-                                                [0,0.01],
+                                                [-60,10],
+                                                [-15,2],
+                                                [-10,1],
+                                                [-5,0.5],
+                                                [-2.5,0.1],
+                                                [0,0.005],
+                                                [2.5,0.1],
                                                 [5,0.5],
                                                 [10,1],
                                                 [15,2],
-                                                [20,4],
-                                                [60,6]
+                                                [60,10]
                                      ]
             },
             "enforce_current"                      : false,
@@ -167,11 +162,11 @@ def _RemeshAfterCut(main_model_part, skin_model_part):
 model=KratosMultiphysics.Model()
 
 # # Read skin file  (only triangles)
-file_name = "naca0012_3D_skin"
+file_name = "naca0012_3D_skin.gid/naca0012_3D_skin"
 skin_model_part=model.CreateModelPart("Skin")
 KratosMultiphysics.ModelPartIO(file_name).ReadModelPart(skin_model_part)
 
-file_name="naca0012_3D_farfield"
+file_name="../NavierStokes/naca0012_3D.gid/naca0012_3D"
 model=KratosMultiphysics.Model()
 main_model_part=model.CreateModelPart("MainModelPart")
 main_model_part.ProcessInfo[KratosMultiphysics.DOMAIN_SIZE] = 3
@@ -214,7 +209,7 @@ mmg_parameters = KratosMultiphysics.Parameters("""
         "force_min"                           : true,
         "minimal_size"                        : 0.01,
         "force_max"                           : true,
-        "maximal_size"                        : 15
+        "maximal_size"                        : 10
     }
 
 

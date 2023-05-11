@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gid version="15.0">
+  <pre>
+    <layer_to_use name="Fluid"/>
+    <groups>
+      <group id="1" name="Fluid" color="#26d1a8ff"/>
+      <group id="2" name="FarField" color="#e0210fff"/>
+    </groups>
+    <entities_groups>
+      <entities_group name="surfaces">
+        <vector name="entity_ids" length="6" type="integer">4:9</vector>
+        <vector name="entity_num_groups" length="6" type="ushort">1x6</vector>
+        <vector name="entity_groups" length="6" type="ushort">2x6</vector>
+      </entities_group>
+      <entities_group name="volumes">
+        <vector name="entity_ids" length="1" type="integer">1</vector>
+        <vector name="entity_num_groups" length="1" type="ushort">1</vector>
+        <vector name="entity_groups" length="1" type="ushort">1</vector>
+      </entities_group>
+      <entities_group name="nodes">
+        <vector name="entity_ids" length="1894" type="integer">1:1894</vector>
+        <vector name="entity_num_groups" length="1894" type="ushort">1x1894</vector>
+        <vector name="entity_groups" length="1894" type="ushort">2x1894</vector>
+      </entities_group>
+      <entities_group name="elements">
+        <vector name="entity_ids" length="3784" type="integer">1:3784</vector>
+        <vector name="entity_num_groups" length="3784" type="ushort">1x3784</vector>
+        <vector name="entity_groups" length="3784" type="ushort">2x3784</vector>
+      </entities_group>
+    </entities_groups>
+  </pre>
+</gid>
