@@ -1,5 +1,5 @@
 {
-    "analysis_stage"   : "KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis",
+    "analysis_stage"   : "KratosMultiphysics.FluidDynamicsApplication.fluid_dynamics_analysis",
     "problem_data"     : {
         "problem_name"  : "naca0012_3D",
         "parallel_type" : "OpenMP",
@@ -45,10 +45,13 @@
         "solver_type"              : "potential_flow",
         "model_import_settings"    : {
             "input_type"     : "mdpa",
-            "input_filename" : "naca0012_3D"
+            "input_filename" : "../../Remeshing_test_cut/remeshed_final_cut_mesh"
+        },
+        "material_import_settings" : {
+            "materials_filename" : "FluidMaterials.json"
         },
         "maximum_iterations"       : 10,
-        "echo_level"               : 0,
+        "echo_level"               : 1,
         "volume_model_part_name"   : "FluidParts_Fluid",
         "skin_parts"               : ["PotentialWallCondition3D_FarField","Body3D_Body"],
         "no_skin_parts"            : ["Wake3D_Wake","Tip3D_WingTips"],
@@ -65,8 +68,7 @@
                 "mach_infinity"   : 0.03,
                 "speed_of_sound"  : 340.0
             }
-        },
-        {
+        },{
             "python_module" : "define_wake_process_3d",
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
             "process_name"  : "DefineWakeProcess3D",
@@ -74,23 +76,15 @@
                 "model_part_name" : "FluidModelPart.Wake3D_Wake",
                 "body_model_part_name" : "FluidModelPart.Body3D_Body"
             }
-        }],
-        "auxiliar_process_list"            : [{
+        },{
             "python_module" : "compute_nodal_value_process",
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
-            "process_name"  : "ComputeNodalValuesProcess",
+            "process_name"  : "ComputeNodalValueProcess",
             "Parameters"    : {
-                "model_part_name": "FluidModelPart",
+                "model_part_name" : "FluidModelPart",
                 "elemental_variables_list_to_project": ["PRESSURE_COEFFICIENT","VELOCITY"]
             }
-        },
-        {
-            "python_module" : "apply_potential_flow_hessian_remeshing_process",
-            "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
-            "process_name"  : "ApplyPotentialFlowHessianRemeshingProcess",
-            "Parameters"    : {
-                "model_part_name": "FluidModelPart"
-            }
-        }]
+        }],
+        "auxiliar_process_list"            : []
     }
 }

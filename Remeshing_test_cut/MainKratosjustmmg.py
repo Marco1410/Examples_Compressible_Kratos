@@ -110,17 +110,11 @@ def _ComputeLevelSetMetric(main_model_part,min_size_level):
                 "boundary_layer_max_distance"           : 60,
                 "interpolation"                         : "piecewise_linear",
                 "size_distribution": [
-                                                [-60,10],
-                                                [-15,2],
-                                                [-10,1],
-                                                [-5,0.5],
-                                                [-2.5,0.1],
-                                                [0,0.005],
-                                                [2.5,0.1],
-                                                [5,0.5],
-                                                [10,1],
-                                                [15,2],
-                                                [60,10]
+                                                [ -60,70  ],
+                                                [-0.5,0.05],
+                                                [   0,0.01],
+                                                [ 0.5,0.05],
+                                                [  60,70  ]
                                      ]
             },
             "enforce_current"                      : false,
@@ -207,9 +201,9 @@ mmg_parameters = KratosMultiphysics.Parameters("""
     "force_sizes"                      :
     {
         "force_min"                           : true,
-        "minimal_size"                        : 0.01,
+        "minimal_size"                        : 0.001,
         "force_max"                           : true,
-        "maximal_size"                        : 10
+        "maximal_size"                        : 70
     }
 
 

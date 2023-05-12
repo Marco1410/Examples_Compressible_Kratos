@@ -12,14 +12,14 @@
         <vector name="entity_groups" length="2" type="ushort">3 3</vector>
       </entities_group>
       <entities_group name="nodes">
-        <vector name="entity_ids" length="1383" type="integer">1:1383</vector>
-        <vector name="entity_num_groups" length="1383" type="ushort">1x1383</vector>
-        <vector name="entity_groups" length="1383" type="ushort">3x1383</vector>
+        <vector name="entity_ids" length="60400" type="integer">1:60400</vector>
+        <vector name="entity_num_groups" length="60400" type="ushort">1x60400</vector>
+        <vector name="entity_groups" length="60400" type="ushort">3x60400</vector>
       </entities_group>
       <entities_group name="elements">
-        <vector name="entity_ids" length="2726" type="integer">1:2726</vector>
-        <vector name="entity_num_groups" length="2726" type="ushort">1x2726</vector>
-        <vector name="entity_groups" length="2726" type="ushort">3x2726</vector>
+        <vector name="entity_ids" length="60000" type="integer">1:60000</vector>
+        <vector name="entity_num_groups" length="60000" type="ushort">1x60000</vector>
+        <vector name="entity_groups" length="60000" type="ushort">3x60000</vector>
       </entities_group>
     </entities_groups>
   </pre>
