@@ -1,5 +1,5 @@
 {
-    "analysis_stage"   : "KratosMultiphysics.FluidDynamicsApplication.fluid_dynamics_analysis",
+    "analysis_stage"   : "KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis",
     "problem_data"     : {
         "problem_name"  : "naca0012_3D",
         "parallel_type" : "OpenMP",
@@ -45,7 +45,7 @@
         "solver_type"              : "potential_flow",
         "model_import_settings"    : {
             "input_type"     : "mdpa",
-            "input_filename" : "../../Remeshing_test_cut/remeshed_final_cut_mesh"
+            "input_filename" : "naca0012_3D"
         },
         "material_import_settings" : {
             "materials_filename" : "FluidMaterials.json"

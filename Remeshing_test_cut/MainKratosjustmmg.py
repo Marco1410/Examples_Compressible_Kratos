@@ -110,11 +110,11 @@ def _ComputeLevelSetMetric(main_model_part,min_size_level):
                 "boundary_layer_max_distance"           : 60,
                 "interpolation"                         : "piecewise_linear",
                 "size_distribution": [
-                                                [ -60,70  ],
-                                                [-0.5,0.05],
-                                                [   0,0.01],
-                                                [ 0.5,0.05],
-                                                [  60,70  ]
+                                                [ -60,100  ],
+                                                [-0.5,0.1],
+                                                [   0,0.005],
+                                                [ 0.5,0.1],
+                                                [  60,100  ]
                                      ]
             },
             "enforce_current"                      : false,
@@ -160,7 +160,8 @@ file_name = "naca0012_3D_skin.gid/naca0012_3D_skin"
 skin_model_part=model.CreateModelPart("Skin")
 KratosMultiphysics.ModelPartIO(file_name).ReadModelPart(skin_model_part)
 
-file_name="../NavierStokes/naca0012_3D.gid/naca0012_3D"
+#file_name="../NavierStokes/naca0012_3D.gid/naca0012_3D"
+file_name= "naca0012_3D_farfield.gid/naca0012_3D_farfield"
 model=KratosMultiphysics.Model()
 main_model_part=model.CreateModelPart("MainModelPart")
 main_model_part.ProcessInfo[KratosMultiphysics.DOMAIN_SIZE] = 3
@@ -201,9 +202,9 @@ mmg_parameters = KratosMultiphysics.Parameters("""
     "force_sizes"                      :
     {
         "force_min"                           : true,
-        "minimal_size"                        : 0.001,
+        "minimal_size"                        : 0.005,
         "force_max"                           : true,
-        "maximal_size"                        : 70
+        "maximal_size"                        : 100
     }
 
 
@@ -212,7 +213,7 @@ mmg_parameters = KratosMultiphysics.Parameters("""
 
 mmg_process = KratosMultiphysics.MeshingApplication.MmgProcess3D(main_model_part, mmg_parameters)
 mmg_process.Execute()
-
+PrintOutputMetric(main_model_part,"output")
 tmoc = KratosMultiphysics.TetrahedralMeshOrientationCheck
 throw_errors = False
 flags = (tmoc.COMPUTE_NODAL_NORMALS).AsFalse() | (tmoc.COMPUTE_CONDITION_NORMALS).AsFalse()

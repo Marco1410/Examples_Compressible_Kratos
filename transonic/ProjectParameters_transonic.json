@@ -20,7 +20,7 @@
         "formulation": {
                     "element_type":"perturbation_transonic"
         },
-        "maximum_iterations"       : 100,
+        "maximum_iterations"       : 50,
         "echo_level"             : 1,
         "linear_solver_settings"  : {
                 "solver_type"             : "LinearSolversApplication.sparse_lu",
@@ -42,7 +42,7 @@
                 "angle_of_attack" : 0.0,
                 "free_stream_density"  : 1.225,
                 "mach_infinity"   : 0.70,
-                "critical_mach": 0.94,
+                "critical_mach": 0.99,
                 "initialize_flow_field": false,
                 "perturbation_field": true, 
                 "upwind_factor_constant": 1.0, 
