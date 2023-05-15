@@ -153,7 +153,7 @@ def plot_mu_values(mu_train,mu_test):
 if __name__ == "__main__":
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Results')
 
-    mu_train = get_multiple_params_by_Halton_train(5) 
+    mu_train = get_multiple_params_by_Halton_train(15) 
     mu_test  = get_multiple_params_by_Halton_test(5) 
 
     plot_mu_values(mu_train,mu_test)

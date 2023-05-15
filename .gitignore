@@ -35,3 +35,7 @@
 
 # Backup files
 *.bak
+
+# Others
+*.png
+*.dat

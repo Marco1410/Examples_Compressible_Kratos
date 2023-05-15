@@ -94,15 +94,15 @@ if __name__ == "__main__":
     # y el angulo de ataque < 5º
     mach_range  = [0.65,0.75]
     angle_range = [2.0,4.5]
-    number_of_point_test = 15
+    number_of_point_test = 1
     ################################
     ################################
     ################################
 
-    #mu_test  = get_multiple_params_by_Halton(number_of_point_test,angle_range,mach_range)
-    #save_mu_parameters(mu_test)
-    #plot_mu_values(mu_test,"Mu_Values.png",mach_range[0],mach_range[1],angle_range[0],angle_range[1])
-    mu_test = load_mu_parameters()
+    mu_test  = get_multiple_params_by_Halton(number_of_point_test,angle_range,mach_range)
+    save_mu_parameters(mu_test)
+    plot_mu_values(mu_test,"Mu_Values.png",mach_range[0],mach_range[1],angle_range[0],angle_range[1])
+    #mu_test = load_mu_parameters()
 
     mesh_list = ["naca0012_0aoa"]
 
