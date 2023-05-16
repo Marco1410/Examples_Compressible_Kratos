@@ -1,4 +1,5 @@
 {
+    "analysis_stage"   : "KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis",
     "problem_data"     : {
         "problem_name"  : "LH0002_KratosFpotentialtransonic",
         "parallel_type" : "OpenMP",
@@ -20,7 +21,7 @@
         "formulation": {
                     "element_type":"perturbation_transonic"
         },
-        "maximum_iterations"       : 50,
+        "maximum_iterations"       : 80,
         "echo_level"             : 1,
         "linear_solver_settings"  : {
                 "solver_type"             : "LinearSolversApplication.sparse_lu",
@@ -39,14 +40,13 @@
             "process_name"  : "FarFieldProcess",
             "Parameters"    : {
                 "model_part_name" : "FluidModelPart.PotentialWallCondition2D_Far_field_Auto1",
-                "angle_of_attack" : 0.0,
-                "free_stream_density"  : 1.225,
-                "mach_infinity"   : 0.70,
-                "critical_mach": 0.99,
-                "initialize_flow_field": false,
-                "perturbation_field": true, 
+                "free_stream_density": 1.225,
+                "angle_of_attack"           : 0.0,
+                "mach_infinity"             : 0.70,
+                "critical_mach"             : 0.99,
                 "upwind_factor_constant": 1.0, 
-                "mach_number_limit": 1.7320,
+                "mach_number_limit": 0.94,
+                "perturbation_field": true, 
                 "mach_number_squared_limit": -1
             }
         },{
@@ -65,5 +65,37 @@
                 "elemental_variables_list_to_project" : ["PRESSURE_COEFFICIENT"]
             }
         }]
-    }
+    },
+    "output_processes" : {
+        "gid_output" : [{
+            "python_module" : "gid_output_process",
+            "kratos_module" : "KratosMultiphysics",
+            "process_name"  : "GiDOutputProcess",
+            "Parameters"    : {
+                "model_part_name"        : "FluidModelPart.fluid_computational_model_part",
+                "postprocess_parameters" : {
+                    "result_file_configuration" : {
+                        "gidpost_flags"               : {
+                            "GiDPostMode"           : "GiD_PostBinary",
+                            "WriteDeformedMeshFlag" : "WriteDeformed",
+                            "WriteConditionsFlag"   : "WriteConditions",
+                            "MultiFileFlag"         : "SingleFile"
+                        },
+                        "file_label"                  : "step",
+                        "output_control_type"         : "step",
+                        "output_interval"             : 1,
+                        "body_output"                 : true,
+                        "node_output"                 : false,
+                        "skin_output"                 : false,
+                        "plane_output"                : [],
+                        "nodal_results"               : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
+                        "nodal_nonhistorical_results" : ["PRESSURE_COEFFICIENT","VELOCITY"],
+                        "gauss_point_results"         : ["MACH","DENSITY"]
+                    },
+                    "point_data_configuration"  : []
+                },
+                "output_name"            : "gid_output/naca0012_2D"
+            }
+        }]
+}
 }

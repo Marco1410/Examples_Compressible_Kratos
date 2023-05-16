@@ -1,4 +1,7 @@
 import os
+import sys
+import time
+import importlib
 import pickle
 from scipy.stats import qmc
 import numpy as np
@@ -7,6 +10,30 @@ import matplotlib
 matplotlib.use('Agg')
 import KratosMultiphysics
 from KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis import PotentialFlowAnalysis
+
+def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
+    class AnalysisStageWithFlush(cls):
+
+        def __init__(self, model,project_parameters, flush_frequency=10.0):
+            super().__init__(model,project_parameters)
+            self.flush_frequency = flush_frequency
+            self.last_flush = time.time()
+            sys.stdout.flush()
+
+        def Initialize(self):
+            super().Initialize()
+            sys.stdout.flush()
+
+        def FinalizeSolutionStep(self):
+            super().FinalizeSolutionStep()
+
+            if self.parallel_type == "OpenMP":
+                now = time.time()
+                if now - self.last_flush > self.flush_frequency:
+                    sys.stdout.flush()
+                    self.last_flush = now
+
+    return AnalysisStageWithFlush(global_model, parameters)
 
 def get_multiple_params_by_Halton(number_of_values,angle,mach):
     sampler = qmc.Halton(d=2)
@@ -56,7 +83,7 @@ def load_mu_parameters():
 
 def M_cr(cp_min,critical_mach):
     #Karman-Tsien rule (mejor que Prandtl-Glauert que no es preciso para M > 0.7)
-    return cp_min/np.sqrt(1-critical_mach**2)-((1/(0.7*critical_mach**2))*((((2+0.4*critical_mach**2)/2.4)**3.5)-1))
+    return cp_min/(np.sqrt(1-critical_mach**2)+(cp_min*critical_mach**2/(1+np.sqrt(1-critical_mach**2))))-((1/(0.7*critical_mach**2))*((((2+0.4*critical_mach**2)/2.4)**3.5)-1))
 
 def shock_parameters(mach_infinity,angle_of_attack):
     # -0.6 cp min del naca 0012 a 0º
@@ -67,11 +94,14 @@ def shock_parameters(mach_infinity,angle_of_attack):
     b = 0.95
     tol=1.0e-6
     critical_mach = (a + b) / 2.0
+    qinf2 = mach_infinity**2*340**2 
+    qvac2 = qinf2*(1+(2/(0.4*mach_infinity**2))) * 0.25
+    m2 = mach_infinity**2*(qvac2/qinf2)/(1+(0.2*mach_infinity**2*(1-(qvac2/qinf2))))
     while True:
         if b - a < tol:
-            #critical_mach = 0.6
-            mach_number_limit = critical_mach * 2.0
-            upwind_factor_constant = mach_number_limit**2 * 1.6
+            critical_mach = critical_mach / 2.0
+            mach_number_limit = np.sqrt(m2)
+            upwind_factor_constant = 2.0
             print(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
             print(mach_infinity,critical_mach,mach_number_limit,upwind_factor_constant)
             #input()
@@ -87,14 +117,21 @@ if __name__ == "__main__":
     with open("ProjectParameters_transonic.json",'r') as parameter_file:
         parameters = KratosMultiphysics.Parameters(parameter_file.read())
 
+    analysis_stage_module_name = parameters["analysis_stage"].GetString()
+    analysis_stage_class_name = analysis_stage_module_name.split('.')[-1]
+    analysis_stage_class_name = ''.join(x.title() for x in analysis_stage_class_name.split('_'))
+
+    analysis_stage_module = importlib.import_module(analysis_stage_module_name)
+    analysis_stage_class = getattr(analysis_stage_module, analysis_stage_class_name)
+
     ################################
     ################################
     ################################
-    # en general el mach de crucero (en transonico) < 0.9
+    # en general un mach de crucero (en transonico) < 0.9
     # y el angulo de ataque < 5º
-    mach_range  = [0.65,0.75]
-    angle_range = [2.0,4.5]
-    number_of_point_test = 1
+    mach_range  = [0.5,0.9]
+    angle_range = [1.0,5.0]
+    number_of_point_test = 10
     ################################
     ################################
     ################################
@@ -157,7 +194,7 @@ if __name__ == "__main__":
             parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_number_limit"].SetDouble(mach_number_limit)
 
             model = KratosMultiphysics.Model()
-            simulation = PotentialFlowAnalysis(model,parameters)
+            simulation = CreateAnalysisStageWithFlushInstance(analysis_stage_class, model,parameters)
             simulation.Run()
 
             modelpart = model["FluidModelPart.Body2D_Body"]
