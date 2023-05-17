@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
 import KratosMultiphysics
-from KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis import PotentialFlowAnalysis
 
 def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
     class AnalysisStageWithFlush(cls):
@@ -88,7 +87,7 @@ def M_cr(cp_min,critical_mach):
 def shock_parameters(mach_infinity,angle_of_attack):
     # -0.6 cp min del naca 0012 a 0º
     # debe ser el menor cp del ala/perfil en regimen incompresible
-    cp_min = -0.6
+    cp_min = -0.5
     # Bisection method
     a = 0.2
     b = 0.95
@@ -99,9 +98,9 @@ def shock_parameters(mach_infinity,angle_of_attack):
     m2 = mach_infinity**2*(qvac2/qinf2)/(1+(0.2*mach_infinity**2*(1-(qvac2/qinf2))))
     while True:
         if b - a < tol:
-            critical_mach = critical_mach / 2.0
+            critical_mach = critical_mach
             mach_number_limit = np.sqrt(m2)
-            upwind_factor_constant = 2.0
+            upwind_factor_constant = 3.0
             print(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
             print(mach_infinity,critical_mach,mach_number_limit,upwind_factor_constant)
             #input()
@@ -129,14 +128,58 @@ if __name__ == "__main__":
     ################################
     # en general un mach de crucero (en transonico) < 0.9
     # y el angulo de ataque < 5º
-    mach_range  = [0.5,0.9]
+    mach_range  = [0.6,0.75]
     angle_range = [1.0,5.0]
-    number_of_point_test = 10
+    number_of_point_test = 5
     ################################
     ################################
     ################################
+    mu_test = []
+    mu_test.append([0.65, 1.0 * np.pi / 180])
+    mu_test.append([0.65, 1.5 * np.pi / 180])
+    mu_test.append([0.65, 2.0 * np.pi / 180])
+    mu_test.append([0.65, 2.5 * np.pi / 180])
+    mu_test.append([0.65, 3.0 * np.pi / 180])
+    mu_test.append([0.65, 3.5 * np.pi / 180])
+    mu_test.append([0.65, 4.0 * np.pi / 180])
+    mu_test.append([0.65, 4.5 * np.pi / 180])
+    mu_test.append([0.65, 5.0 * np.pi / 180])
+    mu_test.append([0.65, 5.5 * np.pi / 180])
 
-    mu_test  = get_multiple_params_by_Halton(number_of_point_test,angle_range,mach_range)
+    # mu_test.append([0.70, 1.0 * np.pi / 180])
+    # mu_test.append([0.70, 1.5 * np.pi / 180])
+    # mu_test.append([0.70, 2.0 * np.pi / 180])
+    # mu_test.append([0.70, 2.5 * np.pi / 180])
+    # mu_test.append([0.70, 3.0 * np.pi / 180])
+    # mu_test.append([0.70, 3.5 * np.pi / 180])
+    # mu_test.append([0.70, 4.0 * np.pi / 180])
+    # mu_test.append([0.70, 4.5 * np.pi / 180])
+    # mu_test.append([0.70, 5.0 * np.pi / 180])
+    # mu_test.append([0.70, 5.5 * np.pi / 180])
+
+    # mu_test.append([0.75, 1.0 * np.pi / 180])
+    # mu_test.append([0.75, 1.5 * np.pi / 180])
+    # mu_test.append([0.75, 2.0 * np.pi / 180])
+    # mu_test.append([0.75, 2.5 * np.pi / 180])
+    # mu_test.append([0.75, 3.0 * np.pi / 180])
+    # mu_test.append([0.75, 3.5 * np.pi / 180])
+    # mu_test.append([0.75, 4.0 * np.pi / 180])
+    # mu_test.append([0.75, 4.5 * np.pi / 180])
+    # mu_test.append([0.75, 5.0 * np.pi / 180])
+    # mu_test.append([0.75, 5.5 * np.pi / 180])
+
+    # mu_test.append([0.80, 1.0 * np.pi / 180])
+    # mu_test.append([0.80, 1.5 * np.pi / 180])
+    # mu_test.append([0.80, 2.0 * np.pi / 180])
+    # mu_test.append([0.80, 2.5 * np.pi / 180])
+    # mu_test.append([0.80, 3.0 * np.pi / 180])
+    # mu_test.append([0.80, 3.5 * np.pi / 180])
+    # mu_test.append([0.80, 4.0 * np.pi / 180])
+    # mu_test.append([0.80, 4.5 * np.pi / 180])
+    # mu_test.append([0.80, 5.0 * np.pi / 180])
+    # mu_test.append([0.80, 5.5 * np.pi / 180])
+
+    #mu_test  = get_multiple_params_by_Halton(number_of_point_test,angle_range,mach_range)
     save_mu_parameters(mu_test)
     plot_mu_values(mu_test,"Mu_Values.png",mach_range[0],mach_range[1],angle_range[0],angle_range[1])
     #mu_test = load_mu_parameters()

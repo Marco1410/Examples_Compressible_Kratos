@@ -84,7 +84,21 @@
             "process_name"  : "DefineWakeProcess3D",
             "Parameters"    : {
                 "model_part_name" : "FluidModelPart.Wake3D_Wake",
-                "body_model_part_name" : "FluidModelPart.Body3D_Body"
+                "body_model_part_name" : "FluidModelPart.Body3D_Body",
+                "wake_stl_file_name" : "",
+                "output_wake": true,
+                "wake_process_cpp_parameters":    {
+                    "tolerance"                     : 1e-9,
+                    "wake_normal"                   : [0.0,0.0,1.0],
+                    "wake_direction"                : [1.0,0.0,0.0],
+                    "switch_wake_normal"            : false,
+                    "count_elements_number"         : false,
+                    "write_elements_ids_to_file"    : false,
+                    "shed_wake_from_trailing_edge"  : false,
+                    "shedded_wake_distance"         : 12.5,
+                    "shedded_wake_element_size"     : 0.2,
+                    "echo_level": 1
+                }
             }
         },{
             "python_module" : "compute_nodal_value_process",
