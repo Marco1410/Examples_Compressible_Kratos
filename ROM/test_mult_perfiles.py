@@ -62,7 +62,7 @@ x = np.linspace(0, 1, n)    # Posiciones a lo largo de la cuerda
 
 # Plot base airfoil ...............
 fig, ax = plt.subplots()
-fig.set_figwidth(12.0)
+fig.set_figwidth(15.0)
 fig.set_figheight(6.8)
 
 # Definir el rango de valores para el espesor máximo y curvatura
