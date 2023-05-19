@@ -13,7 +13,7 @@
         "domain_size"     : 2,
         "model_import_settings"  : {
             "input_type"     : "mdpa",
-            "input_filename" : "naca0012_5aoa"
+            "input_filename" : "naca0012_0aoa"
         },
         "maximum_iterations"     : 30,
         "echo_level"             : 0,

@@ -21,7 +21,7 @@
         "formulation": {
                     "element_type":"perturbation_transonic"
         },
-        "maximum_iterations"       : 80,
+        "maximum_iterations"       : 1500,
         "echo_level"             : 1,
         "linear_solver_settings"  : {
                 "solver_type"             : "LinearSolversApplication.sparse_lu",
@@ -47,6 +47,7 @@
                 "upwind_factor_constant": 1.0, 
                 "mach_number_limit": 0.94,
                 "perturbation_field": true, 
+                "initialize_flow_field": false,
                 "mach_number_squared_limit": -1
             }
         },{

@@ -98,9 +98,11 @@ def shock_parameters(mach_infinity,angle_of_attack):
     m2 = mach_infinity**2*(qvac2/qinf2)/(1+(0.2*mach_infinity**2*(1-(qvac2/qinf2))))
     while True:
         if b - a < tol:
-            critical_mach = critical_mach
-            mach_number_limit = np.sqrt(m2)
-            upwind_factor_constant = 3.0
+            critical_mach = 0.5 #critical_mach
+            mach_number_limit = 1.46 #np.sqrt(m2)
+            upwind_factor_constant = 2.85 #3.0
+            # if (angle_of_attack*180/3.1415926)<2.5 and mach_infinity<0.7:
+            #     upwind_factor_constant = 1.0
             print(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
             print(mach_infinity,critical_mach,mach_number_limit,upwind_factor_constant)
             #input()
@@ -135,48 +137,48 @@ if __name__ == "__main__":
     ################################
     ################################
     mu_test = []
-    mu_test.append([0.65, 1.0 * np.pi / 180])
-    mu_test.append([0.65, 1.5 * np.pi / 180])
-    mu_test.append([0.65, 2.0 * np.pi / 180])
-    mu_test.append([0.65, 2.5 * np.pi / 180])
-    mu_test.append([0.65, 3.0 * np.pi / 180])
-    mu_test.append([0.65, 3.5 * np.pi / 180])
-    mu_test.append([0.65, 4.0 * np.pi / 180])
-    mu_test.append([0.65, 4.5 * np.pi / 180])
-    mu_test.append([0.65, 5.0 * np.pi / 180])
-    mu_test.append([0.65, 5.5 * np.pi / 180])
+    mu_test.append([0.65, 1.0 * np.pi / 180])  
+    # mu_test.append([0.65, 1.5 * np.pi / 180])
+    # mu_test.append([0.65, 2.0 * np.pi / 180])
+    # mu_test.append([0.65, 2.5 * np.pi / 180])
+    mu_test.append([0.65, 3.0 * np.pi / 180])  
+    # mu_test.append([0.65, 3.5 * np.pi / 180])
+    # mu_test.append([0.65, 4.0 * np.pi / 180])
+    # mu_test.append([0.65, 4.5 * np.pi / 180])
+    mu_test.append([0.65, 5.0 * np.pi / 180])  
+    # mu_test.append([0.65, 5.5 * np.pi / 180])
 
-    # mu_test.append([0.70, 1.0 * np.pi / 180])
+    mu_test.append([0.70, 1.0 * np.pi / 180])   
     # mu_test.append([0.70, 1.5 * np.pi / 180])
     # mu_test.append([0.70, 2.0 * np.pi / 180])
     # mu_test.append([0.70, 2.5 * np.pi / 180])
-    # mu_test.append([0.70, 3.0 * np.pi / 180])
+    mu_test.append([0.70, 3.0 * np.pi / 180])   
     # mu_test.append([0.70, 3.5 * np.pi / 180])
     # mu_test.append([0.70, 4.0 * np.pi / 180])
     # mu_test.append([0.70, 4.5 * np.pi / 180])
-    # mu_test.append([0.70, 5.0 * np.pi / 180])
+    mu_test.append([0.70, 5.0 * np.pi / 180])
     # mu_test.append([0.70, 5.5 * np.pi / 180])
 
-    # mu_test.append([0.75, 1.0 * np.pi / 180])
+    mu_test.append([0.75, 1.0 * np.pi / 180])
     # mu_test.append([0.75, 1.5 * np.pi / 180])
     # mu_test.append([0.75, 2.0 * np.pi / 180])
     # mu_test.append([0.75, 2.5 * np.pi / 180])
-    # mu_test.append([0.75, 3.0 * np.pi / 180])
+    mu_test.append([0.75, 3.0 * np.pi / 180])
     # mu_test.append([0.75, 3.5 * np.pi / 180])
     # mu_test.append([0.75, 4.0 * np.pi / 180])
     # mu_test.append([0.75, 4.5 * np.pi / 180])
-    # mu_test.append([0.75, 5.0 * np.pi / 180])
+    #mu_test.append([0.75, 5.0 * np.pi / 180])
     # mu_test.append([0.75, 5.5 * np.pi / 180])
 
     # mu_test.append([0.80, 1.0 * np.pi / 180])
     # mu_test.append([0.80, 1.5 * np.pi / 180])
     # mu_test.append([0.80, 2.0 * np.pi / 180])
     # mu_test.append([0.80, 2.5 * np.pi / 180])
-    # mu_test.append([0.80, 3.0 * np.pi / 180])
+    #mu_test.append([0.80, 3.0 * np.pi / 180])
     # mu_test.append([0.80, 3.5 * np.pi / 180])
     # mu_test.append([0.80, 4.0 * np.pi / 180])
     # mu_test.append([0.80, 4.5 * np.pi / 180])
-    # mu_test.append([0.80, 5.0 * np.pi / 180])
+    #mu_test.append([0.80, 5.0 * np.pi / 180])
     # mu_test.append([0.80, 5.5 * np.pi / 180])
 
     #mu_test  = get_multiple_params_by_Halton(number_of_point_test,angle_range,mach_range)
