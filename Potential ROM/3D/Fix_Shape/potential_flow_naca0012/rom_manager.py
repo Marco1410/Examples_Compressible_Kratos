@@ -93,7 +93,7 @@ def GetRomManagerParameters():
             "rom_stages_to_test"  : ["ROM","HROM"],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
             "projection_strategy": "galerkin",           // "lspg", "galerkin", "petrov_galerkin"
-            "save_gid_output": true,                     // false, true #if true, it must exits previously in the ProjectParameters.json
+            "save_gid_output": false,                     // false, true #if true, it must exits previously in the ProjectParameters.json
             "save_vtk_output": false,                    // false, true #if true, it must exits previously in the ProjectParameters.json
             "output_name": "id",                         // "id" , "mu"
             "ROM":{
@@ -113,7 +113,7 @@ def GetRomManagerParameters():
             },
             "HROM":{
                 "element_selection_type": "empirical_cubature",
-                "element_selection_svd_truncation_tolerance": 1e-912,
+                "element_selection_svd_truncation_tolerance": 1e-12,
                 "create_hrom_visualization_model_part" : true,
                 "echo_level" : 0
             }
