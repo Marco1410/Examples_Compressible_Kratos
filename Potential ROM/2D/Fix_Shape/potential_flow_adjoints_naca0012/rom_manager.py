@@ -2,7 +2,10 @@ import KratosMultiphysics
 import numpy as np
 from scipy.stats import qmc
 import matplotlib.pyplot as plt
-import math
+import matplotlib
+matplotlib.use('Agg')
+import pickle
+import os
 import KratosMultiphysics.kratos_utilities
 from KratosMultiphysics.MeshMovingApplication.mesh_moving_analysis import MeshMovingAnalysis
 from KratosMultiphysics.RomApplication.rom_manager import RomManager
@@ -24,6 +27,7 @@ def CustomizeSimulation(cls, global_model, parameters):
             with open("ProjectParametersMeshMoving.json",'r') as parameter_file:
                 mesh_parameters = KratosMultiphysics.Parameters(parameter_file.read()) 
             mesh_parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["rotation_angle"].SetDouble(angle_of_attack)
+            mesh_parameters["output_processes"].RemoveValue("gid_output")
             mesh_simulation = MeshMovingAnalysis(self.model,mesh_parameters)
 
             super().Initialize()
@@ -32,6 +36,49 @@ def CustomizeSimulation(cls, global_model, parameters):
 
         def FinalizeSolutionStep(self):
             super().FinalizeSolutionStep()
+            # guardar aqui datos directamente de la skin y plotea
+            id_case = np.loadtxt("Data/case.dat",usecols=(0,))
+            test = np.loadtxt("Data/case.dat",usecols=(1,))
+            name = np.loadtxt("Data/case.dat",usecols=(2,))
+            prefix = np.loadtxt("Data/case.dat",usecols=(3,))
+            if prefix == 0:
+                if name == 1:
+                    case = "FOM"
+                if name == 2:
+                    case = "ROM"
+                if name == 3:
+                    case = "HROM"
+                KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('Data/case')
+                if test == 1:
+                    fout=open("Data/test_mesh_"+case+"_"+str(int(id_case))+".dat",'w')
+                else:
+                    fout=open("Data/mesh_"+case+"_"+str(int(id_case))+".dat",'w')
+                modelpart = self.model["MainModelPart.Body2D_Body"]
+                for node in modelpart.Nodes:
+                    x=node.X ; y=node.Y ; z=node.Z
+                    cp=node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
+                    fout.write("%s %s %s %s\n" %(x,y,z,cp))
+                fout.close()
+            else:
+                if name == 1:
+                    case = "FOM"
+                if name == 2:
+                    case = "ROM"
+                if name == 3:
+                    case = "HROM"
+                KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('Data/case')
+                if test == 1:
+                    fout=open("Data/test_mesh_"+"Adjoint"+"_"+case+"_"+str(int(id_case))+".dat",'w')
+                else:
+                    fout=open("Data/mesh_"+"Adjoint"+"_"+case+"_"+str(int(id_case))+".dat",'w')
+                modelpart = self.model["MainModelPart.Body2D_Body"]
+                for node in modelpart.Nodes:
+                    x=node.X ; y=node.Y ; z=node.Z
+                    ssx=node.GetSolutionStepValue(KratosMultiphysics.SHAPE_SENSITIVITY_X)
+                    ssy=node.GetSolutionStepValue(KratosMultiphysics.SHAPE_SENSITIVITY_Y)
+                    ssz=node.GetSolutionStepValue(KratosMultiphysics.SHAPE_SENSITIVITY_Z)
+                    fout.write("%s %s %s %s %s %s\n" %(x,y,z,ssx,ssy,ssz))
+                fout.close()
 
         def CustomMethod(self):
             return self.custom_param
@@ -40,7 +87,25 @@ def CustomizeSimulation(cls, global_model, parameters):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def UpdateProjectParameters(parameters, mu=None, Id=None, name=None):
+def UpdateProjectParameters(parameters, mu=None, Id=None, name=None, mesh_id=None, test=None, prefix=None):
+    if prefix == "Primal_":
+        prefix = 0
+    else:
+        prefix = 1        
+    if name == "FOM" or name == "FOM_test":
+        case = 1
+    if name == "ROM" or name == "ROM_test":
+        case = 2
+    if name == "HROM" or name == "HROM_test":
+        case = 3
+    if test:
+        fout=open("Data/case.dat",'w')
+        fout.write("%s %s %s %s\n" %(Id,1,case,prefix))
+        fout.close()
+    else:
+        fout=open("Data/case.dat",'w')
+        fout.write("%s %s %s %s\n" %(Id,0,case,prefix))
+        fout.close()
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(mu[0])
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mu[1])
     parameters["processes"]["list_other_processes"][0]["Parameters"]["file_settings"]["file_name"].SetString(name+"_Primal_Data/MainModelPart_"+str(Id))
@@ -63,7 +128,7 @@ def GetRomManagerParameters():
                 "nodal_unknowns": [ "VELOCITY_POTENTIAL",
                                     "AUXILIARY_VELOCITY_POTENTIAL"],                     // Main unknowns. Snapshots are taken from these
                 "rom_basis_output_format": "json",                                       // "json" "numpy"
-                "rom_basis_output_name": "PrimalRomParameters",
+                "rom_basis_output_name": "ROM_Basis/PrimalRomParameters",
                 "snapshots_control_type": "step",                                        // "step", "time"
                 "snapshots_interval": 1,
                 "petrov_galerkin_training_parameters":{
@@ -85,112 +150,213 @@ def GetRomManagerParameters():
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 # mult params
-#    
-def get_multiple_params_by_Halton_test(number_of_values):
+#     
+def get_multiple_params_by_Halton_test(number_of_values,angle,mach):
     sampler = qmc.Halton(d=2)
     sample = sampler.random(number_of_values)
-    #Angle of attack
-    l_angle = -1.0
-    u_angle =  6.0
-    #Mach infinit
-    l_mach = 0.03
-    u_mach = 0.6
+    #Angle of attack signo segun el eje de rotacion
     mu = []
-    values = qmc.scale(sample, [l_angle,l_mach], [u_angle,u_mach])
+    values = qmc.scale(sample, [angle[0],mach[0]], [angle[1],mach[1]])
     for i in range(number_of_values):
         #Angle of attack , Mach infinit
-        mu.append([values[i,0] * math.pi / 180.0, values[i,1]])
+        mu.append([values[i,0] * np.pi / 180.0, values[i,1]])
     return mu
 
-def get_multiple_params_by_Halton_train(number_of_values):
+def get_multiple_params_by_Halton_train(number_of_values,angle,mach):
     sampler = qmc.Halton(d=2)
     sample = sampler.random(number_of_values)
-    #Angle of attack
-    l_angle = -1.0
-    u_angle =  6.0
-    #Mach infinit
-    l_mach = 0.03
-    u_mach = 0.6
     mu = []
-    values = qmc.scale(sample, [l_angle,l_mach], [u_angle,u_mach])
-    values[0,0] = l_angle
-    values[0,1] = l_mach
-    values[1,0] = l_angle
-    values[1,1] = u_mach
-    values[number_of_values-1,0] = u_angle
-    values[number_of_values-1,1] = u_mach
-    values[number_of_values-2,0] = u_angle
-    values[number_of_values-2,1] = l_mach
+    values = qmc.scale(sample, [angle[0],mach[0]], [angle[1],mach[1]])
+    values[0,0] = angle[0]
+    values[0,1] = mach[0]
+    values[1,0] = angle[0]
+    values[1,1] = mach[1]
+    values[number_of_values-1,0] = angle[1]
+    values[number_of_values-1,1] = mach[1]
+    values[number_of_values-2,0] = angle[1]
+    values[number_of_values-2,1] = mach[0]
     for i in range(number_of_values):
         #Angle of attack , Mach infinit
-        mu.append([values[i,0] * math.pi / 180.0, values[i,1]])
+        mu.append([values[i,0] * np.pi / 180.0, values[i,1]])
     return mu
     
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#
+# plot
+# 
+def plot_mu_values(mu_train,mu_test,xl,xu,yl,yu):
+    mu_train_a = np.zeros(len(mu_train))
+    mu_train_m = np.zeros(len(mu_train))
+    mu_test_a  = np.zeros(len(mu_test))
+    mu_test_m  = np.zeros(len(mu_test))
+    fig = plt.figure()
+    fig.subplots_adjust(top=0.8)
+    fig.set_figwidth(10.0)
+    fig.set_figheight(7.0)
+    for i in range(len(mu_train)):
+        mu_train_a[i] = -mu_train[i][0] * 180 / np.pi
+        mu_train_m[i] = mu_train[i][1]
+        fig = plt.plot(mu_train_m[i], mu_train_a[i], 'bs', markersize = 5.0, label="Train "+str(np.round(mu_train_a[i],1))+"º "+str(np.round(mu_train_m[i],2)))
+    for i in range(len(mu_test)):
+        mu_test_a[i] = -mu_test[i][0] * 180 / np.pi
+        mu_test_m[i] = mu_test[i][1]
+        fig = plt.plot(mu_test_m[i], mu_test_a[i], 'ro', markersize = 5.0, label="Test  "+str(np.round(mu_test_a[i],1))+"º "+str(np.round(mu_test_m[i],2)))
+    fig = plt.title('Mu Values')
+    fig = plt.axis([xl-0.1,xu+0.2,-yu-0.1,-yl+0.1])
+    fig = plt.ylabel('Alpha')
+    fig = plt.xlabel('Mach')
+    fig = plt.grid()
+    fig = plt.legend()
+    fig = plt.tight_layout()
+    fig = plt.savefig("Images/MuValues.png")
 
+def plot_Cps(mu_train,mu_test,NumberofMuTrain,NumberOfMuTest):
+    case_names = ["FOM","ROM","HROM"]
+    for j in range(NumberofMuTrain):
+        fig = plt.close('all')
+        fig = plt.figure()
+        fig.subplots_adjust(top=0.8)
+        fig.set_figwidth(10.0)
+        fig.set_figheight(7.0)
+        for name in case_names:
+            x  = np.loadtxt("Data/mesh_"+name+"_"+str(j)+".dat",usecols=(0,))
+            cp = np.loadtxt("Data/mesh_"+name+"_"+str(j)+".dat",usecols=(3,))
+            fig = plt.plot(x, cp, '+', markersize = 3.0, label=name+" "+str(np.round(-mu_train[j][0] * 180 / np.pi,1))+"º " + str(np.round(mu_train[j][1],2)))
+        fig = plt.title('Cp vs x')
+        fig = plt.axis([-0.1,1.2,1.1,-3.0])
+        fig = plt.ylabel('Cp')
+        fig = plt.xlabel('x')
+        fig = plt.grid()
+        fig = plt.legend()
+        fig = plt.tight_layout()
+        fig = plt.savefig("Images/mesh_"+str(j)+".png")
+
+    for j in range(NumberOfMuTest):
+        fig = plt.close('all')
+        fig = plt.figure()
+        fig.subplots_adjust(top=0.8)
+        fig.set_figwidth(10.0)
+        fig.set_figheight(7.0)
+        for name in case_names:
+            x  = np.loadtxt("Data/test_mesh_"+name+"_"+str(j)+".dat",usecols=(0,))
+            cp = np.loadtxt("Data/test_mesh_"+name+"_"+str(j)+".dat",usecols=(3,))
+            fig = plt.plot(x, cp, '+', markersize = 3.0, label=name+" "+str(np.round(-mu_test[j][0] * 180 / np.pi,1))+"º " + str(np.round(mu_test[j][1],2)))
+        fig = plt.title('Cp vs x')
+        fig = plt.axis([-0.1,1.2,1.1,-3.0])
+        fig = plt.ylabel('Cp')
+        fig = plt.xlabel('x')
+        fig = plt.grid()
+        fig = plt.legend()
+        fig = plt.tight_layout()
+        fig = plt.savefig("Images/test_mesh_"+str(j)+".png")
+
+def plot_Sensitivities(mu_train,mu_test,NumberofMuTrain,NumberOfMuTest):
+    case_names = ["FOM","ROM","HROM"]
+    for j in range(NumberofMuTrain):
+        fig = plt.close('all')
+        fig = plt.figure()
+        fig.subplots_adjust(top=0.8)
+        fig.set_figwidth(10.0)
+        fig.set_figheight(7.0)
+        for name in case_names:
+            x  = np.loadtxt("Data/mesh_"+"Adjoint"+"_"+name+"_"+str(j)+".dat",usecols=(0,))
+            ssx = np.loadtxt("Data/mesh_"+"Adjoint"+"_"+name+"_"+str(j)+".dat",usecols=(3,))
+            ssy = np.loadtxt("Data/mesh_"+"Adjoint"+"_"+name+"_"+str(j)+".dat",usecols=(4,))
+            ssz = np.loadtxt("Data/mesh_"+"Adjoint"+"_"+name+"_"+str(j)+".dat",usecols=(5,))
+            fig = plt.plot(x, np.sqrt(ssx**2+ssy**2+ssz**2), '+', markersize = 3.0, label=name+" "+str(np.round(-mu_train[j][0] * 180 / np.pi,1))+"º " + str(np.round(mu_train[j][1],2)))
+        fig = plt.title('Shape Sentivitity Norm vs x')
+        fig = plt.axis([-0.1,1.2,-0.1,2.0])
+        fig = plt.ylabel('Shape Sentivitity Norm')
+        fig = plt.xlabel('x')
+        fig = plt.grid()
+        fig = plt.legend()
+        fig = plt.tight_layout()
+        fig = plt.savefig("Images/mesh_"+"Adjoint"+"_"+str(j)+".png")
+
+    for j in range(NumberOfMuTest):
+        fig = plt.close('all')
+        fig = plt.figure()
+        fig.subplots_adjust(top=0.8)
+        fig.set_figwidth(10.0)
+        fig.set_figheight(7.0)
+        for name in case_names:
+            x  = np.loadtxt("Data/test_mesh_"+"Adjoint"+"_"+name+"_"+str(j)+".dat",usecols=(0,))
+            ssx = np.loadtxt("Data/mesh_"+"Adjoint"+"_"+name+"_"+str(j)+".dat",usecols=(3,))
+            ssy = np.loadtxt("Data/mesh_"+"Adjoint"+"_"+name+"_"+str(j)+".dat",usecols=(4,))
+            ssz = np.loadtxt("Data/mesh_"+"Adjoint"+"_"+name+"_"+str(j)+".dat",usecols=(5,))
+            fig = plt.plot(x, np.sqrt(ssx**2+ssy**2+ssz**2), '+', markersize = 3.0, label=name+" "+str(np.round(-mu_test[j][0] * 180 / np.pi,1))+"º " + str(np.round(mu_test[j][1],2)))
+        fig = plt.title('Shape Sentivitity Norm vs x')
+        fig = plt.axis([-0.1,1.2,-0.1,2.0])
+        fig = plt.ylabel('Shape Sentivitity Norm')
+        fig = plt.xlabel('x')
+        fig = plt.grid()
+        fig = plt.legend()
+        fig = plt.tight_layout()
+        fig = plt.savefig("Images/test_mesh_"+"Adjoint"+"_"+str(j)+".png")
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#
+# save / load
+# 
 def save_mu_parameters(mu_train,mu_test):
-    import pickle
-    archivo = open('mu_train.dat', 'wb')
+    archivo = open('Data/mu_train.dat', 'wb')
     pickle.dump(mu_train, archivo)
     archivo.close()
-    archivo = open('mu_test.dat', 'wb')
+    archivo = open('Data/mu_test.dat', 'wb')
     pickle.dump(mu_test, archivo)
     archivo.close()
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 def load_mu_parameters():
-    import pickle
-    archivo = open('mu_train.dat', 'rb')
+    archivo = open('Data/mu_train.dat', 'rb')
     lista = pickle.load(archivo)
     mu_train = np.asarray(lista)
     archivo.close()
-    archivo = open('mu_test.dat', 'rb')
+    archivo = open('Data/mu_test.dat', 'rb')
     lista = pickle.load(archivo)
     mu_test = np.asarray(lista)
     archivo.close()
     return mu_train,mu_test
     
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-def plot_mu_values(mu_train,mu_test,name):
-    mu_train_a = np.zeros(len(mu_train))
-    mu_train_m = np.zeros(len(mu_train))
-    mu_test_a  = np.zeros(len(mu_test))
-    mu_test_m  = np.zeros(len(mu_test))
-    for i in range(len(mu_train)):
-        mu_train_a[i] = -mu_train[i][0] * 180 / math.pi + 5.0
-        mu_train_m[i] = mu_train[i][1]
-    for i in range(len(mu_test)):
-        mu_test_a[i] = -mu_test[i][0] * 180 / math.pi + 5.0
-        mu_test_m[i] = mu_test[i][1]
-    plt.plot(mu_train_m, mu_train_a, 'bs', label="Train Values")
-    plt.plot(mu_test_m, mu_test_a, 'ro', label="Test Values")
-    plt.title('Mu Values')
-    plt.ylabel('Alpha')
-    plt.xlabel('Mach')
-    plt.grid()
-    # plt.show(block=False)
-    # plt.tight_layout()
-    plt.legend()
-    plt.legend(bbox_to_anchor=(.85, 1.03, 1., .102), loc='upper left', borderaxespad=0.)
-    plt.savefig(name)
-
+def Clean():
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('PrimalResults')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('AdjointResults')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Data')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('FOM_Primal_Data')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ROM_Primal_Data')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('HROM_Primal_Data')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Images')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Meshes')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ROM_Basis')
+    os.mkdir("PrimalResults")
+    os.mkdir("AdjointResults")
+    os.mkdir("Data")
+    os.mkdir("FOM_Primal_Data")
+    os.mkdir("ROM_Primal_Data")
+    os.mkdir("HROM_Primal_Data")
+    os.mkdir("Images")
+    os.mkdir("Meshes")
+    os.mkdir("ROM_Basis")
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 
 if __name__ == "__main__":
-    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Results')
 
-    mu_train = get_multiple_params_by_Halton_train(10) 
-    mu_test  = get_multiple_params_by_Halton_test(10) 
+    Clean()
+
+    NumberofMuTrain = 5 # Minimo 5 por las cuatro esquinas y un punto interno
+    NumberOfMuTest  = 1
+
+    # Definir rango de valores de mach y angulo de ataque
+    mach_range  = [0.03,0.6]
+    angle_range = [-6.0,1.0] #signo segun el eje de rotacion
+    mu_train = get_multiple_params_by_Halton_train(NumberofMuTrain,angle_range,mach_range) #fija los puntos en las esquinas
+    mu_test  = get_multiple_params_by_Halton_test(NumberOfMuTest,angle_range,mach_range) 
 
     save_mu_parameters(mu_train,mu_test)
+    #mu_train, mu_test = load_mu_parameters()
 
-    # mu_train, mu_test = load_mu_parameters()
+    plot_mu_values(mu_train,mu_test,mach_range[0],mach_range[1],angle_range[0],angle_range[1])
 
-    plot_mu_values(mu_train,mu_test,"Mu_Values.png")
 
     general_rom_manager_parameters = GetRomManagerParameters()
 
@@ -198,26 +364,30 @@ if __name__ == "__main__":
 
     primal_rom_manager = RomManager(primal_project_parameters_name,general_rom_manager_parameters,CustomizeSimulation,UpdateProjectParameters,"Primal_")
 
-    primal_rom_manager.Fit(mu_train) 
+    primal_rom_manager.Fit(mu_train,1) 
 
-    primal_rom_manager.Test(mu_test) 
+    primal_rom_manager.Test(mu_test,1) 
 
     primal_rom_manager.PrintErrors()
 
-    input("press any key to continue")
+    plot_Cps(mu_train,mu_test,NumberofMuTrain,NumberOfMuTest)
+
+    input("press any key to continue with Adjoint problem")
 
     adjoint_project_parameters_name = "ProjectParametersAdjointROM.json"
 
     general_rom_manager_parameters["ROM"]["nodal_unknowns"].SetStringArray([ "ADJOINT_VELOCITY_POTENTIAL"
                                                                             ,"ADJOINT_AUXILIARY_VELOCITY_POTENTIAL"])
 
-    general_rom_manager_parameters["ROM"]["rom_basis_output_name"].SetString("AdjointRomParameters")
+    general_rom_manager_parameters["ROM"]["rom_basis_output_name"].SetString("ROM_Basis/AdjointRomParameters")
 
     adjoint_rom_manager = RomManager(adjoint_project_parameters_name,general_rom_manager_parameters,CustomizeSimulation,UpdateProjectParameters,"Adjoint_")
 
-    adjoint_rom_manager.Fit(mu_train) 
+    adjoint_rom_manager.Fit(mu_train,1) 
 
-    adjoint_rom_manager.Test(mu_test) 
+    adjoint_rom_manager.Test(mu_test,1) 
 
     adjoint_rom_manager.PrintErrors()
+
+    plot_Sensitivities(mu_train,mu_test,NumberofMuTrain,NumberOfMuTest)
 

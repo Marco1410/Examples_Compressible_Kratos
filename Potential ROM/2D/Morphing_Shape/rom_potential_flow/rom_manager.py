@@ -15,9 +15,9 @@ from KratosMultiphysics.RomApplication.rom_manager import RomManager
 def GenerateMeshes(shape_parameters,test_shapes,plot_airfoils):
     if plot_airfoils:
         fig = plt.figure()
-        fig.subplots_adjust(top=0.9)
-        fig.set_figwidth(20.0)
-        fig.set_figheight(15.0)
+        fig.subplots_adjust(top=0.8)
+        fig.set_figwidth(10.0)
+        fig.set_figheight(7.0)
 
     for i in range(len(shape_parameters)):    
         with open("ProjectParametersMeshAirfoil.json",'r') as parameter_file:
@@ -54,14 +54,14 @@ def GenerateMeshes(shape_parameters,test_shapes,plot_airfoils):
         if (i>(len(shape_parameters)-test_shapes-1)):
             id_test = test_shapes - (len(shape_parameters)-i)
             KratosMultiphysics.ModelPartIO("Meshes/test_mesh_"+str(id_test), KratosMultiphysics.IO.WRITE | KratosMultiphysics.IO.MESH_ONLY).WriteModelPart(mainmodelpart)
-            fig = plt.plot( xp, yp, "+", markersize=3, label = "Test Airfoil "+str(id_test)+" t="+str(np.round(shape_parameters[i,0],3))+" m="+str(np.round(shape_parameters[i,1],3))+" p="+str(np.round(shape_parameters[i,2],3)))
+            fig = plt.plot( xp, yp, "+", markersize=5, label = "Test  Airfoil "+str(id_test)+" t="+str(np.round(shape_parameters[i,0],3))+" m="+str(np.round(shape_parameters[i,1],3))+" p="+str(np.round(shape_parameters[i,2],3)))
             # guardar aqui las coordenadas de los perfiles
             fout=open("Data/mesh_"+str(id_test)+".dat", 'w')
             for j in range(modelpart.NumberOfNodes()):
                 fout.write("%s %s\n" %(xp[j],yp[j]))
             fout.close()
         else:
-            fig = plt.plot( xp, yp, "+", markersize=3, label = "Train Airfoil "+str(i)+" t="+str(np.round(shape_parameters[i,0],3))+" m="+str(np.round(shape_parameters[i,1],3))+" p="+str(np.round(shape_parameters[i,2],3)))
+            fig = plt.plot( xp, yp, "+", markersize=5, label = "Train Airfoil "+str(i)+" t="+str(np.round(shape_parameters[i,0],3))+" m="+str(np.round(shape_parameters[i,1],3))+" p="+str(np.round(shape_parameters[i,2],3)))
             KratosMultiphysics.ModelPartIO("Meshes/mesh_"+str(i), KratosMultiphysics.IO.WRITE | KratosMultiphysics.IO.MESH_ONLY).WriteModelPart(mainmodelpart)
             # guardar aqui las coordenadas de los perfiles            
             fout=open("Data/mesh_"+str(i)+".dat", 'w')
@@ -166,7 +166,7 @@ def CustomizeSimulation(cls, global_model, parameters):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def UpdateProjectParameters(parameters, mu=None, Id=None, name=None, mesh_id=None, test=None):
+def UpdateProjectParameters(parameters, mu=None, Id=None, name=None, mesh_id=None, test=None, prefix=None):
     if name == "FOM" or name == "FOM_test":
         case = 1
     if name == "ROM" or name == "ROM_test":
@@ -271,16 +271,16 @@ def plot_mu_values(mu_train,mu_test,xl,xu,yl,yu):
     mu_test_m  = np.zeros(len(mu_test))
     fig = plt.figure()
     fig.subplots_adjust(top=0.8)
-    fig.set_figwidth(15.0)
-    fig.set_figheight(10.0)
+    fig.set_figwidth(10.0)
+    fig.set_figheight(7.0)
     for i in range(len(mu_train)):
         mu_train_a[i] = -mu_train[i][0] * 180 / np.pi
         mu_train_m[i] = mu_train[i][1]
-        fig = plt.plot(mu_train_m[i], mu_train_a[i], 'bs', markersize = 5.0, label="Train_"+str(np.round(mu_train_a[i],1))+"º_"+str(np.round(mu_train_m[i],2)))
+        fig = plt.plot(mu_train_m[i], mu_train_a[i], 'bs', markersize = 5.0, label="Train "+str(np.round(mu_train_a[i],1))+"º "+str(np.round(mu_train_m[i],2)))
     for i in range(len(mu_test)):
         mu_test_a[i] = -mu_test[i][0] * 180 / np.pi
         mu_test_m[i] = mu_test[i][1]
-        fig = plt.plot(mu_test_m[i], mu_test_a[i], 'ro', markersize = 5.0, label="Test_"+str(np.round(mu_test_a[i],1))+"º_"+str(np.round(mu_test_m[i],2)))
+        fig = plt.plot(mu_test_m[i], mu_test_a[i], 'ro', markersize = 5.0, label="Test  "+str(np.round(mu_test_a[i],1))+"º "+str(np.round(mu_test_m[i],2)))
     fig = plt.title('Mu Values')
     fig = plt.axis([xl-0.1,xu+0.2,-yu-0.1,-yl+0.1])
     fig = plt.ylabel('Alpha')
@@ -302,7 +302,7 @@ def plot_Cps(mu_train,mu_test,NumberOfTrainShapes,NumberOfTestShapes,NumberofMuT
             for name in case_names:
                 x  = np.loadtxt("Data/mesh_"+str(i)+"_"+name+"_"+str(j)+".dat",usecols=(0,))
                 cp = np.loadtxt("Data/mesh_"+str(i)+"_"+name+"_"+str(j)+".dat",usecols=(3,))
-                fig = plt.plot(x, cp, '+', markersize = 3.0, label=name+"_"+str(np.round(-mu_train[j][0] * 180 / np.pi,1))+"º_" + str(np.round(mu_train[j][1],2)))
+                fig = plt.plot(x, cp, '+', markersize = 3.0, label=name+" "+str(np.round(-mu_train[j][0] * 180 / np.pi,1))+"º " + str(np.round(mu_train[j][1],2)))
             fig = plt.title('Cp vs x')
             fig = plt.axis([-0.1,1.2,1.1,-3.0])
             fig = plt.ylabel('Cp')
@@ -322,7 +322,7 @@ def plot_Cps(mu_train,mu_test,NumberOfTrainShapes,NumberOfTestShapes,NumberofMuT
             for name in case_names:
                 x  = np.loadtxt("Data/test_mesh_"+str(i)+"_"+name+"_"+str(j)+".dat",usecols=(0,))
                 cp = np.loadtxt("Data/test_mesh_"+str(i)+"_"+name+"_"+str(j)+".dat",usecols=(3,))
-                fig = plt.plot(x, cp, '+', markersize = 3.0, label=name+"_"+str(np.round(-mu_test[j][0] * 180 / np.pi,1))+"º_" + str(np.round(mu_test[j][1],2)))
+                fig = plt.plot(x, cp, '+', markersize = 3.0, label=name+" "+str(np.round(-mu_test[j][0] * 180 / np.pi,1))+"º " + str(np.round(mu_test[j][1],2)))
             fig = plt.title('Cp vs x')
             fig = plt.axis([-0.1,1.2,1.1,-3.0])
             fig = plt.ylabel('Cp')
@@ -358,12 +358,20 @@ def load_mu_parameters():
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 def Clean():
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('PrimalResults')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('AdjointResults')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Data')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('FOM_Primal_Data')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ROM_Primal_Data')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('HROM_Primal_Data')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Images')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Meshes')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ROM_Basis')
     os.mkdir("PrimalResults")
+    os.mkdir("AdjointResults")
     os.mkdir("Data")
+    os.mkdir("FOM_Primal_Data")
+    os.mkdir("ROM_Primal_Data")
+    os.mkdir("HROM_Primal_Data")
     os.mkdir("Images")
     os.mkdir("Meshes")
     os.mkdir("ROM_Basis")

@@ -36,8 +36,7 @@
         },
         "volume_model_part_name" : "Parts_Parts_Auto1",
         "skin_parts"             : ["PotentialWallCondition2D_Far_field_Auto1","Body2D_Body"],
-        "no_skin_parts"          : [],
-        "auxiliary_variables_list": []
+        "no_skin_parts"          : []
     },
     "processes" : {
         "initial_conditions_process_list"  : [],
@@ -70,10 +69,30 @@
             "process_name"  : "ComputeNodalValueProcess",
             "Parameters"    : {
                 "model_part_name" : "MainModelPart",
-                "elemental_variables_list_to_project":  ["VELOCITY","PRESSURE_COEFFICIENT","DENSITY","MACH"]
+                "elemental_variables_list_to_project":  ["VELOCITY","PRESSURE_COEFFICIENT"]
              }
         }
-    ]
+    ],
+        "list_other_processes" :[{
+            "kratos_module" : "KratosMultiphysics.HDF5Application",
+            "python_module" : "single_mesh_primal_output_process",
+            "help"          : "",
+            "process_name"  : "",
+            "Parameters" : {
+                "model_part_name" : "MainModelPart",
+                "file_settings" : {
+                    "file_name" : "MainModelPart",
+                    "file_access_mode" : "truncate"
+                },
+
+                "nodal_solution_step_data_settings" : {
+                    "list_of_variables": ["VELOCITY_POTENTIAL", "AUXILIARY_VELOCITY_POTENTIAL"]
+                },
+                "output_time_settings" :{
+                    "output_step_frequency": 1
+                }
+            }
+    }]
     },
      "output_processes" : {
         "gid_output" : [{
@@ -99,9 +118,9 @@
                         "node_output"         : false,
                         "skin_output"         : false,
                         "plane_output"        : [],
-                        "nodal_nonhistorical_results": ["VELOCITY","PRESSURE_COEFFICIENT","MACH","DENSITY"],
+                        "nodal_nonhistorical_results": ["VELOCITY","PRESSURE_COEFFICIENT"],
                         "nodal_results"       : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL","MESH_DISPLACEMENT"],
-                        "gauss_point_results" : []
+                        "gauss_point_results" : ["WAKE"]
                     },
                     "point_data_configuration"  : []
                 }

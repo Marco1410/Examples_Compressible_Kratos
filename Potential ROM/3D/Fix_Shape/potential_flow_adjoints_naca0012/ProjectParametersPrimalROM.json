@@ -10,10 +10,10 @@
     "solver_settings"                  : {
         "solver_type"     : "potential_flow",
         "model_part_name" : "MainModelPart",
-        "domain_size"     : 3,
+        "domain_size"     : 2,
         "model_import_settings"  : {
             "input_type"     : "mdpa",
-            "input_filename" : "naca0012_3D_0aoa"
+            "input_filename" : "defined_in_mainscript"
         },
         "maximum_iterations"     : 30,
         "echo_level"             : 0,
@@ -34,8 +34,8 @@
             "verbosity": 0,
             "scaling": false
         },
-        "volume_model_part_name" : "FluidParts_Fluid",
-        "skin_parts"             : ["PotentialWallCondition3D_FarField","Body3D_Body"],
+        "volume_model_part_name" : "Parts_Parts_Auto1",
+        "skin_parts"             : ["PotentialWallCondition2D_Far_field_Auto1","Body2D_Body"],
         "no_skin_parts"          : []
     },
     "processes" : {
@@ -45,7 +45,7 @@
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
             "process_name"  : "FarFieldProcess",
             "Parameters"    : {
-                "model_part_name"   : "MainModelPart.PotentialWallCondition3D_FarField",
+                "model_part_name"   : "MainModelPart.PotentialWallCondition2D_Far_field_Auto1",
                 "angle_of_attack": 0.0,
                 "mach_infinity": 0.3,
                 "free_stream_density": 1.225,
@@ -54,12 +54,13 @@
             }
         },
         {
-            "python_module" : "define_wake_process_3d",
+            "python_module" : "define_wake_process_2d",
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
-            "process_name"  : "DefineWakeProcess3D",
+            "process_name"  : "DefineWakeProcess",
             "Parameters"    : {
-                "model_part_name" : "MainModelPart.Wake3D_Wake",
-                "body_model_part_name" : "MainModelPart.Body3D_Body"
+                "model_part_name" : "MainModelPart.Body2D_Body",
+                 "epsilon"         : 1e-9,
+                 "echo_level" : 0
              }
         },
         {
@@ -71,7 +72,27 @@
                 "elemental_variables_list_to_project":  ["VELOCITY","PRESSURE_COEFFICIENT"]
              }
         }
-    ]
+    ],
+        "list_other_processes" :[{
+            "kratos_module" : "KratosMultiphysics.HDF5Application",
+            "python_module" : "single_mesh_primal_output_process",
+            "help"          : "",
+            "process_name"  : "",
+            "Parameters" : {
+                "model_part_name" : "MainModelPart",
+                "file_settings" : {
+                    "file_name" : "MainModelPart",
+                    "file_access_mode" : "truncate"
+                },
+
+                "nodal_solution_step_data_settings" : {
+                    "list_of_variables": ["VELOCITY_POTENTIAL", "AUXILIARY_VELOCITY_POTENTIAL"]
+                },
+                "output_time_settings" :{
+                    "output_step_frequency": 1
+                }
+            }
+    }]
     },
      "output_processes" : {
         "gid_output" : [{
@@ -80,7 +101,7 @@
             "process_name"  : "GiDOutputProcess",
             "help"          : "This process writes postprocessing files for GiD",
             "Parameters"    : {
-                "model_part_name"        : "MainModelPart.FluidParts_Fluid",
+                "model_part_name"        : "MainModelPart.Parts_Parts_Auto1",
                 "output_name"            : "Results/outputPrimal",
                 "postprocess_parameters" : {
                     "result_file_configuration" : {
@@ -99,7 +120,7 @@
                         "plane_output"        : [],
                         "nodal_nonhistorical_results": ["VELOCITY","PRESSURE_COEFFICIENT"],
                         "nodal_results"       : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL","MESH_DISPLACEMENT"],
-                        "gauss_point_results" : ["PRESSURE_COEFFICIENT","VELOCITY","WAKE"]
+                        "gauss_point_results" : ["WAKE"]
                     },
                     "point_data_configuration"  : []
                 }

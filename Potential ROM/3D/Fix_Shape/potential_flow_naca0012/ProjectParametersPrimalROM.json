@@ -13,7 +13,7 @@
         "domain_size"     : 3,
         "model_import_settings"  : {
             "input_type"     : "mdpa",
-            "input_filename" : "naca0012_3D_0aoa"
+            "input_filename" : "naca0012_3D_0aoa_00"
         },
         "maximum_iterations"     : 30,
         "echo_level"             : 0,
@@ -68,7 +68,7 @@
             "process_name"  : "ComputeNodalValueProcess",
             "Parameters"    : {
                 "model_part_name" : "MainModelPart",
-                "elemental_variables_list_to_project":  ["VELOCITY","PRESSURE_COEFFICIENT"]
+                "elemental_variables_list_to_project":  ["VELOCITY","PRESSURE_COEFFICIENT","DENSITY","MACH"]
              }
         }
     ]
@@ -97,9 +97,9 @@
                         "node_output"         : false,
                         "skin_output"         : false,
                         "plane_output"        : [],
-                        "nodal_nonhistorical_results": ["VELOCITY","PRESSURE_COEFFICIENT"],
+                        "nodal_nonhistorical_results": ["VELOCITY","PRESSURE_COEFFICIENT","MACH","DENSITY"],
                         "nodal_results"       : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL","MESH_DISPLACEMENT"],
-                        "gauss_point_results" : ["PRESSURE_COEFFICIENT","VELOCITY","WAKE"]
+                        "gauss_point_results" : []
                     },
                     "point_data_configuration"  : []
                 }
