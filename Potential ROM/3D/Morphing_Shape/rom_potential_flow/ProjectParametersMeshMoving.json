@@ -42,7 +42,7 @@
                 "model_part_name"       : "MainModelPart.Body3D_Body",
                 "rotation_definition"   : "rotation_axis",
                 "rotation_axis"         : [0.0, 0.0, 1.0],
-                "reference_point"       : [0.999999, 1.974404e-07, 0.0],
+                "reference_point"       : [0.996195, 10, -5.960464e-08],
                 "rotation_angle"        : 0.0
             }
         },

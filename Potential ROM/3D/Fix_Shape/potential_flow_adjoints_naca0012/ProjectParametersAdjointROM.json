@@ -10,10 +10,10 @@
     "solver_settings"                  : {
         "solver_type"     : "adjoint_potential_flow",
         "model_part_name" : "MainModelPart",
-        "domain_size"     : 2,
+        "domain_size"     : 3,
         "model_import_settings"  : {
             "input_type"     : "mdpa",
-            "input_filename" : "naca0012_0aoa_00"
+            "input_filename" : "naca0012_3D_0aoa_00"
         },
         "echo_level"             : 0,
         "formulation" :
@@ -34,17 +34,17 @@
             "verbosity": 0,
             "scaling": false
         },
-        "volume_model_part_name" : "Parts_Parts_Auto1",
-        "skin_parts"             : ["PotentialWallCondition2D_Far_field_Auto1","Body2D_Body"],
+        "volume_model_part_name" : "FluidParts_Fluid",
+        "skin_parts"             : ["PotentialWallCondition3D_FarField","Body3D_Body"],
         "response_function_settings" : {
             "response_type"     : "adjoint_lift_far_field",
             "gradient_mode"     : "semi_analytic",
-            "far_field_model_part_name"         : "PotentialWallCondition2D_Far_field_Auto1",
+            "far_field_model_part_name"         : "PotentialWallCondition3D_FarField",
             "step_size"         : 1e-8
         },
         "sensitivity_settings" : {
             "nodal_solution_step_sensitivity_variables"  : ["SHAPE_SENSITIVITY"],
-            "nodal_solution_step_sensitivity_calculation_is_thread_safe" : false,
+            "nodal_solution_step_sensitivity_calculation_is_thread_safe" : true,
             "build_mode": "static"
         }
     },
@@ -55,7 +55,7 @@
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
             "process_name"  : "FarFieldProcess",
             "Parameters"    : {
-                "model_part_name"   : "MainModelPart.PotentialWallCondition2D_Far_field_Auto1",
+                "model_part_name"   : "MainModelPart.PotentialWallCondition3D_FarField",
                 "angle_of_attack": 0.0,
                 "mach_infinity": 0.3,
                 "free_stream_density": 1.225,
@@ -64,14 +64,27 @@
                 "perturbation_field"      : true
             }
         },{
-            "python_module" : "define_wake_process_2d",
+            "python_module" : "define_wake_process_3d",
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
-            "process_name"  : "DefineWakeProcess",
+            "process_name"  : "DefineWakeProcess3D",
             "Parameters"    : {
-                "model_part_name" : "MainModelPart.Body2D_Body",
-                "epsilon"         : 1e-9,
-                "echo_level"      : 0
-            }
+                "model_part_name" : "MainModelPart.Wake3D_Wake",
+                "body_model_part_name" : "MainModelPart.Body3D_Body",
+                "wake_stl_file_name" : "wake3d.stl",
+                "output_wake": false,
+                "wake_process_cpp_parameters":    {
+                    "tolerance"                     : 1e-9,
+                    "wake_normal"                   : [0.0,0.0,1.0],
+                    "wake_direction"                : [1.0,0.0,0.0],
+                    "switch_wake_normal"            : false,
+                    "count_elements_number"         : false,
+                    "write_elements_ids_to_file"    : false,
+                    "shed_wake_from_trailing_edge"  : false,
+                    "shedded_wake_distance"         : 12.5,
+                    "shedded_wake_element_size"     : 0.2,
+                    "echo_level": 1
+                }
+             }
         }],
         "list_other_processes" :[{
             "kratos_module" : "KratosMultiphysics.HDF5Application",
@@ -97,7 +110,7 @@
             "process_name"  : "GiDOutputProcess",
             "help"          : "This process writes postprocessing files for GiD",
             "Parameters"    : {
-                "model_part_name"        : "MainModelPart.Parts_Parts_Auto1",
+                "model_part_name"        : "MainModelPart.FluidParts_Fluid",
                 "output_name"            : "outputAdjoint",
                 "postprocess_parameters" : {
                     "result_file_configuration" : {

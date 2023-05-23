@@ -31,21 +31,29 @@ def GenerateMeshes(shape_parameters,test_shapes,plot_airfoils):
         airfoil_mesh_simulation.Initialize()
 
         modelpart = airfoil_model["MainModelPart.Body3D_Body"]
-        if plot_airfoils:
-            xp = np.zeros(modelpart.NumberOfNodes())
-            zp = np.zeros(modelpart.NumberOfNodes())
-        for id,node in enumerate(modelpart.Nodes):
-            X,Z,Y = coordinates_new_shape(node.X0,node.Z0,node.Y0,shape_parameters[i,:])
-            node.SetSolutionStepValue(KratosMultiphysics.MESH_DISPLACEMENT_X,X-node.X0)
-            #node.SetSolutionStepValue(KratosMultiphysics.MESH_DISPLACEMENT_Y,Y-node.Y0)
-            node.SetSolutionStepValue(KratosMultiphysics.MESH_DISPLACEMENT_Z,Z-node.Z0)
-            node.Fix(KratosMultiphysics.MESH_DISPLACEMENT_X)
-            #node.Fix(KratosMultiphysics.MESH_DISPLACEMENT_Y)
-            node.Fix(KratosMultiphysics.MESH_DISPLACEMENT_Z)
 
-            if plot_airfoils:
-                xp[id-1] = X
-                zp[id-1] = Y
+        reference_points = []
+        for node in modelpart.Nodes:
+            if node.Y0 < 5.5 and node.Y0 > 4.5:
+                reference_points.append([node.X0,node.Z0])
+
+        if plot_airfoils:
+            xp = np.zeros(len(reference_points))
+            zp = np.zeros(len(reference_points))
+        for node in modelpart.Nodes:
+            for j in range(len(reference_points)):
+                reference_x = reference_points[j][0]
+                reference_z = reference_points[j][1]
+                if reference_x == node.X0 and reference_z == node.Z0:
+                    X,Z,Y = coordinates_new_shape(node.X0,node.Z0,node.Y0,shape_parameters[i,:])
+                    node.SetSolutionStepValue(KratosMultiphysics.MESH_DISPLACEMENT_X,X-node.X0)
+                    node.SetSolutionStepValue(KratosMultiphysics.MESH_DISPLACEMENT_Z,Z-node.Z0)
+                    node.Fix(KratosMultiphysics.MESH_DISPLACEMENT_X)
+                    node.Fix(KratosMultiphysics.MESH_DISPLACEMENT_Z)
+
+                    if plot_airfoils and node.Y0 < 5.5 and node.Y0 > 4.5:
+                        xp[j] = X
+                        zp[j] = Z
 
         airfoil_mesh_simulation.RunSolutionLoop()
         airfoil_mesh_simulation.Finalize()
@@ -57,7 +65,7 @@ def GenerateMeshes(shape_parameters,test_shapes,plot_airfoils):
             fig = plt.plot( xp, zp, "+", markersize=5, label = "Test  Airfoil "+str(id_test)+" t="+str(np.round(shape_parameters[i,0],3))+" m="+str(np.round(shape_parameters[i,1],3))+" p="+str(np.round(shape_parameters[i,2],3)))
             # guardar aqui las coordenadas de los perfiles
             fout=open("Data/mesh_"+str(id_test)+".dat", 'w')
-            for j in range(modelpart.NumberOfNodes()):
+            for j in range(len(reference_points)):
                 fout.write("%s %s\n" %(xp[j],zp[j]))
             fout.close()
         else:
@@ -65,7 +73,7 @@ def GenerateMeshes(shape_parameters,test_shapes,plot_airfoils):
             KratosMultiphysics.ModelPartIO("Meshes/mesh_"+str(i), KratosMultiphysics.IO.WRITE | KratosMultiphysics.IO.MESH_ONLY).WriteModelPart(mainmodelpart)
             # guardar aqui las coordenadas de los perfiles            
             fout=open("Data/mesh_"+str(i)+".dat", 'w')
-            for j in range(modelpart.NumberOfNodes()):
+            for j in range(len(reference_points)):
                 fout.write("%s %s\n" %(xp[j],zp[j]))
             fout.close()
 
@@ -157,8 +165,8 @@ def CustomizeSimulation(cls, global_model, parameters):
                 fout=open("Data/mesh_"+str(int(mesh_id))+"_"+case+"_"+str(int(id_case))+".dat",'w')
             modelpart = self.model["MainModelPart.Body3D_Body"]
             for node in modelpart.Nodes:
-                x=node.X ; y=node.Y ; z=node.Z
-                if y == 5:    # solo imprimo los valores del plano medio, para y = 5
+                x=node.X0 ; y=node.Y0 ; z=node.Z0
+                if y < 5.5 and y > 4.5:    # solo imprimo los valores del plano medio, para y = 5
                     cp=node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
                     fout.write("%s %s %s %s\n" %(x,y,z,cp))
             fout.close()
@@ -303,7 +311,7 @@ def plot_Cps(mu_train,mu_test,NumberOfTrainShapes,NumberOfTestShapes,NumberofMuT
             for name in case_names:
                 x  = np.loadtxt("Data/mesh_"+str(i)+"_"+name+"_"+str(j)+".dat",usecols=(0,))
                 cp = np.loadtxt("Data/mesh_"+str(i)+"_"+name+"_"+str(j)+".dat",usecols=(3,))
-                fig = plt.plot(x, cp, '+', markersize = 3.0, label=name+" "+str(np.round(-mu_train[j][0] * 180 / np.pi,1))+"º " + str(np.round(mu_train[j][1],2)))
+                fig = plt.plot(x, cp, '+', markersize = 3.0, label=name+" "+str(np.round(mu_train[j][0] * 180 / np.pi,1))+"º " + str(np.round(mu_train[j][1],2)))
             fig = plt.title('Cp vs x')
             fig = plt.axis([-0.1,1.2,1.1,-3.0])
             fig = plt.ylabel('Cp')
@@ -323,7 +331,7 @@ def plot_Cps(mu_train,mu_test,NumberOfTrainShapes,NumberOfTestShapes,NumberofMuT
             for name in case_names:
                 x  = np.loadtxt("Data/test_mesh_"+str(i)+"_"+name+"_"+str(j)+".dat",usecols=(0,))
                 cp = np.loadtxt("Data/test_mesh_"+str(i)+"_"+name+"_"+str(j)+".dat",usecols=(3,))
-                fig = plt.plot(x, cp, '+', markersize = 3.0, label=name+" "+str(np.round(-mu_test[j][0] * 180 / np.pi,1))+"º " + str(np.round(mu_test[j][1],2)))
+                fig = plt.plot(x, cp, '+', markersize = 3.0, label=name+" "+str(np.round(mu_test[j][0] * 180 / np.pi,1))+"º " + str(np.round(mu_test[j][1],2)))
             fig = plt.title('Cp vs x')
             fig = plt.axis([-0.1,1.2,1.1,-3.0])
             fig = plt.ylabel('Cp')
@@ -387,9 +395,9 @@ if __name__ == "__main__":
 
     # Definir el rango de valores para el espesor máximo y curvatura
     # naca xxxx posición del espesor máximo = 30%
-    tmax_range = [0.10, 0.15] # Espesor máximo 
-    m_range    = [0.0 , 0.03] # Máxima curvatura
-    p_range    = [0.25, 0.35] # Posicion de máxima curvatura
+    tmax_range = [0.10, 0.13] # Espesor máximo 
+    m_range    = [0.0 , 0.01] # Máxima curvatura
+    p_range    = [0.25, 0.26] # Posicion de máxima curvatura
     shape_parameters = get_multiple_shape_params_by_Halton(NumberOfTrainShapes+NumberOfTestShapes,tmax_range,m_range,p_range)
     GenerateMeshes(shape_parameters,NumberOfTestShapes,plot_airfoils=True)
 

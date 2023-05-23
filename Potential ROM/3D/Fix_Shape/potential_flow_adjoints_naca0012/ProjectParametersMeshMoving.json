@@ -18,7 +18,7 @@
             "time_stepping" : {
                 "time_step"       : 1.0
             },
-            "domain_size"     : 2,
+            "domain_size"     : 3,
             "linear_solver_settings"  : {
                 "solver_type"         : "amgcl",
                 "max_iteration"       : 500,
@@ -38,10 +38,10 @@
             "kratos_module" : "KratosMultiphysics.MeshMovingApplication",
             "process_name"  : "ImposeMeshMotionProcess",
             "Parameters"    : {
-                "model_part_name"       : "MainModelPart.Body2D_Body",
+                "model_part_name"       : "MainModelPart.Body3D_Body",
                 "rotation_definition"   : "rotation_axis",
-                "rotation_axis"         : [0.0, 0.0, 1.0],
-                "reference_point"       : [0.999999, 1.974404e-07, 0.0],
+                "rotation_axis"         : [0.0, 1.0, 0.0],
+                "reference_point"       : [0.9961947, 10, -0.08715574],
                 "rotation_angle"        : 0.0
             }
         },{
@@ -49,7 +49,7 @@
             "kratos_module" : "KratosMultiphysics",
             "process_name"  : "FixVectorVariableProcess",
             "Parameters"    : {
-                "model_part_name"      : "MainModelPart.Body2D_Body",
+                "model_part_name"      : "MainModelPart.Body3D_Body",
                 "variable_name"        : "MESH_DISPLACEMENT",
                 "constrained"          : [true,true,true]
             }
@@ -58,7 +58,7 @@
             "kratos_module" : "KratosMultiphysics",
             "process_name"  : "AssignVectorVariableProcess",
             "Parameters"    : {
-                "model_part_name" : "MainModelPart.PotentialWallCondition2D_Far_field_Auto1",
+                "model_part_name" : "MainModelPart.PotentialWallCondition3D_FarField",
                 "variable_name"   : "MESH_DISPLACEMENT",
                 "value"           : [0.0,0.0,0.0]
             }

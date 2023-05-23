@@ -12,7 +12,7 @@
             "model_part_name"    : "MainModelPart",
             "model_import_settings"              : {
                 "input_type"     : "mdpa",
-                "input_filename" : "naca0012_3D"
+                "input_filename" : "naca0012_3D_0aoa_00"
             },
             "echo_level": 0,
             "time_stepping" : {
@@ -43,7 +43,8 @@
                 "rotation_definition"   : "rotation_axis",
                 "rotation_axis"         : [0.0, 1.0, 0.0],
                 "reference_point"       : [0.9961947, 10, -0.08715574],
-                "rotation_angle"        : "-5.0*3.1415926/180"
+                "translation_vector"    : [0.0, 0.0, 0.08715574]
+                //"rotation_angle"        : "-5.0*3.1415926/180"
             }
         },
         {
