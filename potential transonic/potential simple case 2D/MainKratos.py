@@ -3,6 +3,7 @@ import time
 import importlib
 import numpy as np
 import matplotlib.pyplot as plt
+import KratosMultiphysics.FluidDynamicsApplication 
 import matplotlib
 matplotlib.use('Agg')
 
@@ -24,6 +25,16 @@ def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
         def FinalizeSolutionStep(self):
             super().FinalizeSolutionStep()
 
+            # modelpart = global_model["FluidModelPart"]
+            # heat_capacity_ratio = modelpart.ProcessInfo.GetValue(KratosMultiphysics.FluidDynamicsApplication.HEAT_CAPACITY_RATIO)
+            # for node in modelpart.Nodes:
+            #     density  = node.GetValue(KratosMultiphysics.DENSITY)
+            #     cp       = node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
+            #     velocity = node.GetValue(KratosMultiphysics.VELOCITY)
+            #     pressure = 0.5 * density * (velocity[1]**2+velocity[2]**2) * cp
+            #     entropy  = (density / (heat_capacity_ratio - 1.0)) * np.log(np.abs(pressure) / density**heat_capacity_ratio)
+            #     node.SetValue(KratosMultiphysics.FluidDynamicsApplication.NUMERICAL_ENTROPY,entropy)
+    
             if self.parallel_type == "OpenMP":
                 now = time.time()
                 if now - self.last_flush > self.flush_frequency:
@@ -45,15 +56,19 @@ if __name__ == "__main__":
     analysis_stage_class = getattr(analysis_stage_module, analysis_stage_class_name)
 
 
-    minf = 0.78
+    mach_infinity = 0.8
+    angle_of_attack = 0.0 * np.pi / 180
 
-    qinf2 = minf**2*340**2 
-    qvac2 = qinf2*(1+(2/(0.4*minf**2))) * 0.25
-    m2 = minf**2*(qvac2/qinf2)/(1+(0.2*minf**2*(1-(qvac2/qinf2))))
-    mach_number_limit = np.sqrt(m2)
+    upwind_factor_constant = 2.5
+    critical_mach = 0.7
+    mach_number_limit = 1.25
     
-    parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(minf)
+    parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach_infinity)
+    parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["critical_mach"].SetDouble(critical_mach)
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_number_limit"].SetDouble(mach_number_limit)
+    parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(angle_of_attack)
+    parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["upwind_factor_constant"].SetDouble(upwind_factor_constant)
+    
     global_model = KratosMultiphysics.Model()
     simulation = CreateAnalysisStageWithFlushInstance(analysis_stage_class, global_model, parameters)
     simulation.Run()
@@ -67,14 +82,12 @@ if __name__ == "__main__":
     for i,node in enumerate(modelpart.Nodes):
         x[i] = node.X0 ; y[i] = node.Y0 ; z[i] = node.Z0
         cp[i] = node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
-        rho[i] = node.GetValue(KratosMultiphysics.DENSITY)
     
     # Plot cp vs x
     fig,ax  = plt.subplots()
     fig.set_figwidth(15.0)
     fig.set_figheight(10.0)
     ax.plot( x, cp, "o", markersize = 3.0)
-    ax.plot( x, rho, "+", markersize = 3.0)
     ax.grid()
     plt.ylabel('Cp')
     plt.xlabel('x')

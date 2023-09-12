@@ -71,7 +71,8 @@ def _ComputeLevelSetMetric(main_model_part,min_size_level):
         # Extending distace to all the domain
         import KratosMultiphysics.python_linear_solver_factory #Linear solver for variational distance process
         linear_solver_settings=KratosMultiphysics.Parameters("""
-        {
+        {   
+            "reform_dofs_at_each_step": true,
             "solver_type": "amgcl",
             "max_iteration": 400,
             "gmres_krylov_space_dimension": 1000,
@@ -141,7 +142,7 @@ def _RemeshAfterCut(main_model_part, skin_model_part):
             "interpolate_nodal_values"         : false,
             "preserve_flags"                   : false,
             "initialize_entities"              : false,
-            "echo_level"                       : 5
+            "echo_level"                       : 3
         }
         """)
         mmg_process = KratosMultiphysics.MeshingApplication.MmgProcess3D(main_model_part, mmg_parameters)
@@ -202,7 +203,7 @@ mmg_parameters = KratosMultiphysics.Parameters("""
     "force_sizes"                      :
     {
         "force_min"                           : true,
-        "minimal_size"                        : 0.005,
+        "minimal_size"                        : 0.5,
         "force_max"                           : true,
         "maximal_size"                        : 100
     }

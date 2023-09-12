@@ -30,8 +30,8 @@
                         "skin_output"                 : false,
                         "plane_output"                : [],
                         "nodal_results"               : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
-                        "nodal_nonhistorical_results" : ["PRESSURE_COEFFICIENT","VELOCITY","DENSITY"],
-                        "gauss_point_results"         : ["MACH","DENSITY"]
+                        "nodal_nonhistorical_results" : ["PRESSURE_COEFFICIENT","VELOCITY","DENSITY","NUMERICAL_ENTROPY"],
+                        "gauss_point_results"         : ["MACH","DENSITY","TEMPERATURE"]
                     },
                     "point_data_configuration"  : []
                 },
@@ -50,7 +50,7 @@
         "formulation": {
                     "element_type":"perturbation_transonic"
         },
-        "maximum_iterations"       : 30,
+        "maximum_iterations"       : 300,
         "echo_level"               : 1,
         "linear_solver_settings"  : {
                 "solver_type"             : "LinearSolversApplication.sparse_lu",
@@ -59,7 +59,8 @@
         "volume_model_part_name"   : "Parts_Parts_Auto1",
         "skin_parts"               : ["PotentialWallCondition2D_Far_field_Auto1","Body2D_Body"],
         "no_skin_parts"            : ["Wake2D_Wake","Tip2D_WingTips"],
-        "reform_dofs_at_each_step" : false
+        "reform_dofs_at_each_step" : false,
+        "auxiliary_variables_list" : ["NUMERICAL_ENTROPY"]
     },
     "processes"        : {
         "boundary_conditions_process_list" : [{
@@ -70,11 +71,12 @@
                 "model_part_name" : "FluidModelPart.PotentialWallCondition2D_Far_field_Auto1",
                 "free_stream_density"  : 1.225,
                 "angle_of_attack" : 0.0349,
-                "mach_infinity"   : 0.01,
-                "critical_mach": 0.2,
-                "mach_number_limit": 1.7320,
-                "upwind_factor_constant": 2.5, 
-                "mach_number_squared_limit": -1,
+                "mach_infinity"   : 0.03,
+                "critical_mach": 0.99,
+                "mach_number_limit": 0.94,
+                "inlet_potential": 1.0,
+                "upwind_factor_constant": 1.0,
+                "initialize_flow_field": true,
                 "perturbation_field": true 
             }
         },{
