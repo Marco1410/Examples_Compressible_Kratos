@@ -204,7 +204,7 @@ def GetRomManagerParameters():
             "rom_stages_to_test"  : ["ROM","HROM"],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
             "projection_strategy": "galerkin",           // "lspg", "galerkin", "petrov_galerkin"
-            "save_gid_output": false,                     // false, true #if true, it must exits previously in the ProjectParameters.json
+            "save_gid_output": true,                     // false, true #if true, it must exits previously in the ProjectParameters.json
             "save_vtk_output": false,                    // false, true #if true, it must exits previously in the ProjectParameters.json
             "output_name": "id",                         // "id" , "mu"
             "ROM":{
@@ -401,7 +401,7 @@ if __name__ == "__main__":
     shape_parameters = get_multiple_shape_params_by_Halton(NumberOfTrainShapes+NumberOfTestShapes,tmax_range,m_range,p_range)
     GenerateMeshes(shape_parameters,NumberOfTestShapes,plot_airfoils=True)
 
-    NumberofMuTrain = 5 # Minimo 5 por las cuatro esquinas y un punto interno
+    NumberofMuTrain = 15 # Minimo 5 por las cuatro esquinas y un punto interno
     NumberOfMuTest  = 1
 
     # Definir rango de valores de mach y angulo de ataque
