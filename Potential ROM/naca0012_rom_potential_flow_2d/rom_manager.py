@@ -264,8 +264,6 @@ if __name__ == "__main__":
     mu_train = select_upwind_factor_constant(mu_train)
     mu_test  = select_upwind_factor_constant(mu_test)
 
-    input("Pause")
-
     general_rom_manager_parameters = GetRomManagerParameters()
 
     project_parameters_name = "ProjectParametersPrimalROM.json"
