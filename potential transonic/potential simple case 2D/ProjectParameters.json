@@ -52,6 +52,7 @@
         },
         "maximum_iterations"       : 300,
         "echo_level"               : 1,
+        "solving_scheme": "load_stepping_scheme",
         "linear_solver_settings"  : {
                 "solver_type"             : "LinearSolversApplication.sparse_lu",
                 "verbosity"               : 0

@@ -4,8 +4,6 @@ import importlib
 import numpy as np
 import matplotlib.pyplot as plt
 import KratosMultiphysics.CompressiblePotentialFlowApplication as CPFApp
-import KratosMultiphysics.FluidDynamicsApplication as FDApp
-import KratosMultiphysics.MeshingApplication as MeshingApplication
 import matplotlib
 matplotlib.use('Agg')
 import KratosMultiphysics
@@ -66,52 +64,6 @@ def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
             
             physics = CPFApp.ShockCapturingPhysicsProcess(modelpart, parameters)
             physics.Execute()
-            
-            gradient = KratosMultiphysics.ComputeNodalGradientProcess(modelpart, KratosMultiphysics.PRESSURE_COEFFICIENT, KratosMultiphysics.PRESSURE_GRADIENT)
-            gradient.Execute()
-
-
-
-            if (modelpart.ProcessInfo[KratosMultiphysics.STEP] > 200):
-                metric_parameters = KratosMultiphysics.Parameters( """
-                    {
-                            "minimal_size"                        : 0.001,
-                            "maximal_size"                        : 10.0,
-                            "enforce_current"                     : false,
-                            "hessian_strategy_parameters":
-                            {
-                                "non_historical_metric_variable"  : true,
-                                "estimate_interpolation_error"    : false,
-                                "interpolation_error"             : 0.01
-                            },
-                            "anisotropy_remeshing"                : false
-                    }  """ )
-                
-                mmg_parameters = KratosMultiphysics.Parameters( """
-                    {
-                            "discretization_type"              : "STANDARD",
-                            "save_external_files"              : false,
-                            "initialize_entities"              : false,
-                            "interpolate_nodal_values"         : false,
-                            "interpolate_non_historical"       : true,
-                            "save_mdpa_file"                   : true,
-                            "debug_result_mesh"                : false,
-                            "echo_level"                       : 5
-                    }  """ )
-
-                find_nodal_h = KratosMultiphysics.FindNodalHNonHistoricalProcess(modelpart)
-                find_nodal_h.Execute()
-
-                metric_x = MeshingApplication.ComputeHessianSolMetricProcess(modelpart,FDApp.SHOCK_SENSOR, metric_parameters)
-                metric_x.Execute()
-                # metric_x = MeshingApplication.ComputeHessianSolMetricProcess(modelpart,KratosMultiphysics.VELOCITY_Y, metric_parameters)
-                # metric_x.Execute()
-
-
-                MmgProcess = MeshingApplication.MmgProcess2D(modelpart, mmg_parameters)
-                MmgProcess.Execute()
-
-
 
             if self.parallel_type == "OpenMP":
                 now = time.time()
@@ -135,11 +87,12 @@ if __name__ == "__main__":
 
 
     mach_infinity   = 0.8
-    angle_of_attack = 0.0
+    angle_of_attack = -0.01
     critical_mach   = transonic_parameters(mach_infinity)
-    
     mach_number_limit      = np.sqrt(3)
-    upwind_factor_constant = 0.1#(68*angle_of_attack+540*mach_infinity-399)/60
+
+    upwind_factor_constant = 0.8
+
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach_infinity)
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["critical_mach"].SetDouble(critical_mach)
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_number_limit"].SetDouble(mach_number_limit)
@@ -147,23 +100,36 @@ if __name__ == "__main__":
     
     convergence_ratio = 1.0
     step = 0
+    reset = False
 
-    while (convergence_ratio > 0.01):
-        print("NEW SIMULATION ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+    while (convergence_ratio > 1e-10):
+
+        if reset:
+            parameters["solver_settings"]["maximum_iterations"].SetInt(500)
+        else:
+            parameters["solver_settings"]["maximum_iterations"].SetInt(80)
+
+        print("::::::::::::::::::::::::::::::::::::::::::::::::::::::NEW SIMULATION ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
         parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["upwind_factor_constant"].SetDouble(upwind_factor_constant)
         global_model = KratosMultiphysics.Model()
         simulation = CreateAnalysisStageWithFlushInstance(analysis_stage_class, global_model, parameters)
         simulation.Run()
+
         convergence_ratio = global_model["FluidModelPart"].ProcessInfo[KratosMultiphysics.CONVERGENCE_RATIO]
-        if convergence_ratio > 0.01:
+
+        if convergence_ratio > 0.5:
+            reset = False
             step += 1
             upwind_factor_constant += 0.1
             print("New UPWIND:", upwind_factor_constant, "  ::::::::::::::::::::::::::::::::::::::::")
             print("Convergence ratio:", convergence_ratio, "  ::::::::::::::::::::::::::::::::::::::::")
+        else:
+            reset = True
+            print(":::::::::::::::::::::::::::::: RESTART ::::::::::::::::::::::::::::::::")
 
-            if upwind_factor_constant > 5.0:
-                KratosMultiphysics.Logger.Print("               NON CONVERGENCE")
-                # sys.exit('               STOP')
+        if upwind_factor_constant > 5.0:
+            KratosMultiphysics.Logger.Print("               NON CONVERGENCE")
+            sys.exit('               STOP')
 
     print("FINAL UPWIND:", upwind_factor_constant, "  ::::::::::::::::::::::::::::::::::::::::")
     print("FINAL STEPS :", step, "  ::::::::::::::::::::::::::::::::::::::::")
