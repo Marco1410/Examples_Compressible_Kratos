@@ -24,7 +24,7 @@
                         },
                         "file_label"                  : "step",
                         "output_control_type"         : "step",
-                        "output_interval"             : 20,
+                        "output_interval"             : 50,
                         "body_output"                 : true,
                         "node_output"                 : false,
                         "skin_output"                 : false,
@@ -56,22 +56,23 @@
         "volume_model_part_name"   : "FluidParts_Fluid",
         "skin_parts"               : ["Slip2D","DensityBC2D_Left","EnergyBC2D_Left","MomentumConstraints2D_Left"],
         "no_skin_parts"            : [],
-        "time_scheme"              : "RK4",
+        "time_scheme"              : "forward_euler",
         "time_stepping"            : {
             "automatic_time_step" : true,
             "CFL_number"          : 1.0,
             "minimum_delta_time"  : 1e-5,
             "maximum_delta_time"  : 0.01
         },
-        "reform_dofs_at_each_step" : true,
+        "reform_dofs_at_each_step" : false,
         "shock_capturing_settings" : {
             "type" : "physics_based",
             "Parameters": {
-                "artificial_bulk_viscosity_constant": 2.5,
+                "artificial_bulk_viscosity_constant": 1.5,
                 "artificial_conductivity_constant": 1.0,
-                "artificial_dynamic_viscosity_constant": 1.0,
+                "artificial_dynamic_viscosity_constant": 0.0,
                 "calculate_nodal_area_at_each_step": false,
                 "far_field_prandtl_number": 0.0,
+                "model_part_name": "",
                 "shear_sensor": true,
                 "shock_sensor": true,
                 "thermal_sensor": true,
@@ -167,31 +168,30 @@
                 "strategy"                         : "Hessian",
                 "hessian_strategy_parameters"              :{
                     "metric_variable"                  : ["VELOCITY"],
-                    "non_historical_metric_variable"   : [false],
-                    "interpolation_error"              : 0.011,
-                    "mesh_dependent_constant"              : 0.2222222
-                }, 
-                "initial_remeshing"                : false,
-                "enforce_current"                  : false,
-                "initial_step"                     : 10,
-                "step_frequency"                   : 100,
-                "echo_level"                       : 5,
+                    "interpolation_error"              : 0.0001
+                },
+                "automatic_remesh"                 : false,
                 "automatic_remesh_parameters"      :{
                     "automatic_remesh_type"            : "Ratio",
-                    "min_size_ratio"                   : 0.1,
-                    "max_size_ratio"                   : 5.0,
+                    "min_size_ratio"                   : 0.001,
+                    "max_size_ratio"                   : 10.0,
                     "refer_type"                       : "Mean"
                 },
                 "anisotropy_remeshing"                 : false,
                 "use_mapper_if_available"              : false,
                 "mapping_parameters"                   : {
                     "mapper_type"                      : "nearest_element",
-                    "echo_level"                       : 3,
+                    "echo_level"                       : 0,
                     "search_settings" : {
                         "max_num_search_iterations"    : 8,
-                        "echo_level"                   : 3
+                        "echo_level"                   : 0
                     }
-                }
+                }, 
+                "initial_remeshing"                : false,
+                "enforce_current"                  : false,
+                "initial_step"                     : 10,
+                "step_frequency"                   : 20,
+                "echo_level"                       : 0
             }
         }
         ]

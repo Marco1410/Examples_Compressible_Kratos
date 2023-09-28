@@ -63,7 +63,7 @@
             "minimum_delta_time"  : 1e-5,
             "maximum_delta_time"  : 0.01
         },
-        "reform_dofs_at_each_step" : true,
+        "reform_dofs_at_each_step" : false,
         "shock_capturing_settings" : {
             "type" : "physics_based",
             "Parameters": {

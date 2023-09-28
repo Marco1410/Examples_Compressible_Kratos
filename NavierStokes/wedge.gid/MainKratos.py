@@ -25,11 +25,11 @@ class FluidDynamicsAnalysisWithFlush(FluidDynamicsAnalysis):
                 sys.stdout.flush()
                 self.last_flush = now
     
-    # def _GetOrderOfProcessesInitialization(self):
-    #     """This function is overridden in order to set 
-    #     the initialization order of the processes.
-    #     """
-    #     return ["initial_conditions_process_list", "boundary_conditions_process_list", "mesh_adaptivity_processes"]
+    def _GetOrderOfProcessesInitialization(self):
+        """This function is overridden in order to set 
+        the initialization order of the processes.
+        """
+        return ["mesh_adaptivity_processes", "initial_conditions_process_list", "boundary_conditions_process_list"]
 
 if __name__ == "__main__":
 
