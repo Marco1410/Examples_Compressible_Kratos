@@ -50,10 +50,21 @@
         "formulation": {
                     "element_type":"perturbation_transonic"
         },
-        "maximum_iterations"       : 100,
+        "maximum_iterations"       : 300,
         "echo_level"               : 1,
+        "solving_strategy_settings": {
+            "advanced_settings": {
+                "first_alpha_value"         : 0.1,
+                "second_alpha_value"        : 1.0,            
+                "line_search_tolerance"     : 0.5,
+                "min_alpha"                 : 0.1,
+                "max_alpha"                 : 2.0,
+                "max_line_search_iterations": 5
+            },
+            "type": "line_search"
+        },
         "linear_solver_settings"  : {
-                "solver_type"             : "LinearSolversApplication.sparse_lu",
+                "solver_type"             : "LinearSolversApplication.pardiso_lu",
                 "verbosity"               : 0
         },
         "volume_model_part_name"   : "FluidParts_Fluid",
@@ -68,15 +79,14 @@
             "process_name"  : "FarFieldProcess",
             "Parameters"    : {
                 "model_part_name" : "FluidModelPart.PotentialWallCondition3D_FarField",
-                "angle_of_attack" : 0.0349,
+                "angle_of_attack" : 0.0,
                 "free_stream_density"  : 1.225,
-                "mach_infinity"   : 0.75,
+                "mach_infinity"   : 0.78,
                 "critical_mach": 0.71,
-                "initialize_flow_field": false,
+                "initialize_flow_field": true,
                 "perturbation_field": true, 
-                "upwind_factor_constant": 3.0, 
-                "mach_number_limit": 1.7320,
-                "mach_number_squared_limit": -1
+                "upwind_factor_constant": 0.8, 
+                "mach_number_squared_limit": 3
             }
         },{
             "python_module" : "define_wake_process_3d",
