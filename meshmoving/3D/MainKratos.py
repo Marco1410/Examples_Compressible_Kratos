@@ -11,4 +11,4 @@ if __name__ == "__main__":
     mesh_simulation.Run()
 
 main_model_part = global_model.GetModelPart("MainModelPart")
-KratosMultiphysics.ModelPartIO("naca0012_3D_0aoa_01", KratosMultiphysics.IO.WRITE | KratosMultiphysics.IO.MESH_ONLY).WriteModelPart(main_model_part)
+KratosMultiphysics.ModelPartIO("naca0012_3D_0aoa_00_new", KratosMultiphysics.IO.WRITE | KratosMultiphysics.IO.MESH_ONLY).WriteModelPart(main_model_part)

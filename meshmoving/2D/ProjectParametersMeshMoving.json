@@ -12,7 +12,7 @@
             "model_part_name"    : "MainModelPart",
             "model_import_settings"              : {
                 "input_type"     : "mdpa",
-                "input_filename" : "naca0012_0aoa"
+                "input_filename" : "naca0012_2D_1aoa_00"
             },
             "echo_level": 0,
             "time_stepping" : {
@@ -41,9 +41,9 @@
                 "model_part_name"       : "MainModelPart.Body2D_Body",
                 "rotation_definition"   : "rotation_axis",
                 "rotation_axis"         : [0.0, 0.0, 1.0],
-                "reference_point"       : [0.4980974, -0.04357787, 0.0],
-                "translation_vector"    : ["1-0.498098", 0.04357787, 0.0],
-                "rotation_angle"        : 0.0
+                "reference_point"       : [1.0, 0.0, 0.0],
+                "translation_vector"    : [0.0, 0.0, 0.0],
+                "rotation_angle"        : "1.0*3.1415926/180"
             }
         },{
             "python_module" : "fix_vector_variable_process",
@@ -52,7 +52,7 @@
             "Parameters"    : {
                 "model_part_name"      : "MainModelPart.Body2D_Body",
                 "variable_name"        : "MESH_DISPLACEMENT",
-                "constrained"          : [true,true,true]
+                "constrained"          : [true,true,false]
             }
         },{
             "python_module" : "assign_vector_variable_process",
@@ -61,7 +61,7 @@
             "Parameters"    : {
                 "model_part_name" : "MainModelPart.PotentialWallCondition2D_Far_field_Auto1",
                 "variable_name"   : "MESH_DISPLACEMENT",
-                "value"           : [0.0,0.0,0.0]
+                "value"           : [0.0,0.0,null]
             }
         }
     ]
