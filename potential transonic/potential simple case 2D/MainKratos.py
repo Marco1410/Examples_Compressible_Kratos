@@ -24,16 +24,6 @@ def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
 
         def FinalizeSolutionStep(self):
             super().FinalizeSolutionStep()
-
-            # modelpart = global_model["FluidModelPart"]
-            # heat_capacity_ratio = modelpart.ProcessInfo.GetValue(KratosMultiphysics.FluidDynamicsApplication.HEAT_CAPACITY_RATIO)
-            # for node in modelpart.Nodes:
-            #     density  = node.GetValue(KratosMultiphysics.DENSITY)
-            #     cp       = node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
-            #     velocity = node.GetValue(KratosMultiphysics.VELOCITY)
-            #     pressure = 0.5 * density * (velocity[1]**2+velocity[2]**2) * cp
-            #     entropy  = (density / (heat_capacity_ratio - 1.0)) * np.log(np.abs(pressure) / density**heat_capacity_ratio)
-            #     node.SetValue(KratosMultiphysics.FluidDynamicsApplication.NUMERICAL_ENTROPY,entropy)
     
             if self.parallel_type == "OpenMP":
                 now = time.time()
@@ -54,20 +44,6 @@ if __name__ == "__main__":
 
     analysis_stage_module = importlib.import_module(analysis_stage_module_name)
     analysis_stage_class = getattr(analysis_stage_module, analysis_stage_class_name)
-
-
-    mach_infinity = 0.8
-    angle_of_attack = 0.0 * np.pi / 180
-
-    upwind_factor_constant = 2.5
-    critical_mach = 0.7
-    mach_number_limit = 1.25
-    
-    parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach_infinity)
-    parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["critical_mach"].SetDouble(critical_mach)
-    parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_number_limit"].SetDouble(mach_number_limit)
-    parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(angle_of_attack)
-    parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["upwind_factor_constant"].SetDouble(upwind_factor_constant)
     
     global_model = KratosMultiphysics.Model()
     simulation = CreateAnalysisStageWithFlushInstance(analysis_stage_class, global_model, parameters)
@@ -95,3 +71,4 @@ if __name__ == "__main__":
     ax.invert_yaxis()
     plt.tight_layout()
     fig.savefig("Airfoils_Cp_x.png")
+    plt.close()

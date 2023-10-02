@@ -24,7 +24,7 @@
                         },
                         "file_label"                  : "step",
                         "output_control_type"         : "step",
-                        "output_interval"             : 500,
+                        "output_interval"             : 20,
                         "body_output"                 : true,
                         "node_output"                 : false,
                         "skin_output"                 : false,
@@ -70,23 +70,22 @@
         "volume_model_part_name"   : "FluidParts_Fluid",
         "skin_parts"               : ["Slip2D","DensityBC2D_Left"],
         "no_skin_parts"            : [],
-        "time_scheme"              : "forward_euler",
+        "time_scheme"              : "RK4",
         "time_stepping"            : {
             "automatic_time_step" : true,
-            "CFL_number"          : 1.0,
+            "CFL_number"          : 0.5,
             "minimum_delta_time"  : 1e-5,
-            "maximum_delta_time"  : 0.0001
+            "maximum_delta_time"  : 0.001
         },
         "reform_dofs_at_each_step" : true,
         "shock_capturing_settings" : {
             "type" : "physics_based",
             "Parameters": {
                 "artificial_bulk_viscosity_constant": 1.5,
-                "artificial_conductivity_constant": 1.0,
-                "artificial_dynamic_viscosity_constant": 1.0,
+                "artificial_conductivity_constant": 300000.0,
+                "artificial_dynamic_viscosity_constant": 30.0,
                 "calculate_nodal_area_at_each_step": false,
                 "far_field_prandtl_number": 0.0,
-                "model_part_name": "",
                 "shear_sensor": true,
                 "shock_sensor": true,
                 "thermal_sensor": true,
@@ -188,7 +187,7 @@
                 "automatic_remesh"                 : true,
                 "automatic_remesh_parameters"      :{
                     "automatic_remesh_type"            : "Ratio",
-                    "min_size_ratio"                   : 0.1,
+                    "min_size_ratio"                   : 0.05,
                     "max_size_ratio"                   : 5.0,
                     "refer_type"                       : "Mean"
                 },
