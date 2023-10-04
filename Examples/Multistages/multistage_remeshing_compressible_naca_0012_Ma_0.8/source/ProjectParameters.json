@@ -39,10 +39,10 @@
                 "solving_strategy_settings"         : {
                     "type" : "line_search",
                     "advanced_settings": {
-                        "first_alpha_value"         : 0.1,
-                        "second_alpha_value"        : 0.5,
+                        "first_alpha_value"         : 0.5,
+                        "second_alpha_value"        : 1.0,
                         "min_alpha"                 : 0.1,
-                        "max_alpha"                 : 1.0,
+                        "max_alpha"                 : 2.0,
                         "line_search_tolerance"     : 0.5,
                         "max_line_search_iterations": 5
                     }
@@ -135,7 +135,7 @@
                 "material_import_settings" : {
                     "materials_filename" : "FluidMaterials.json"
                 },
-                "echo_level"            : 0,
+                "echo_level"            : 1,
                 "compute_reactions"     : false,
                 "volume_model_part_name": "FluidParts_Fluid",
                 "skin_parts"            : ["AutomaticInlet2D_Left","Outlet2D_Right","NoSlip2D_Aerofoil","NoSlip2D_Top","NoSlip2D_Bottom"],
@@ -229,9 +229,9 @@
                         "anisotropy_remeshing"             : false,
                         "initial_remeshing"                : false,
                         "enforce_current"                  : false,
-                        "initial_step"                     : 5,
+                        "initial_step"                     : 2,
                         "step_frequency"                   : 10,
-                        "echo_level"                       : 0
+                        "echo_level"                       : 3
                     }
                 }
                 ]
@@ -249,7 +249,7 @@
                                     "GiDPostMode"           : "GiD_PostBinary",
                                     "WriteDeformedMeshFlag" : "WriteDeformed",
                                     "WriteConditionsFlag"   : "WriteConditions",
-                                    "MultiFileFlag"         : "SingleFile"
+                                    "MultiFileFlag"         : "MultipleFiles"
                                 },
                                 "file_label"                  : "step",
                                 "output_control_type"         : "step",
@@ -264,7 +264,7 @@
                             },
                             "point_data_configuration"  : []
                         },
-                        "output_name"            : "naca_0012_navier_stokes_stage"
+                        "output_name"            : "output/naca_0012_navier_stokes_stage"
                     }
                 }]
             }
