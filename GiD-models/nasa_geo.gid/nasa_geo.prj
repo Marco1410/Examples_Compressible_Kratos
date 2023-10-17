@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gid version="15.0">
+  <pre>
+    <layer_to_use name="Layer0"/>
+    <groups>
+      <group id="1" name="farfield" color="#ffaaaaff"/>
+      <group id="3" name="fuselaje" color="#623d99ff"/>
+      <group id="4" name="empenaje" color="#00ffffff"/>
+      <group id="5" name="ala" color="#a60021ff"/>
+      <group id="6" name="motor" color="#00ff00ff"/>
+      <group id="7" name="fluid" color="#996600ff"/>
+    </groups>
+    <entities_groups>
+      <entities_group name="points">
+        <vector name="entity_ids" length="106" type="integer">1 4 5 7:39 46:49 97:103 107 142:155 157 158 160 161 163 165 167:170 174 263:266 268 281:288 290 292 293 295:305 310 315 318:321</vector>
+        <vector name="entity_num_groups" length="106" type="ushort">1x106</vector>
+        <vector name="entity_groups" length="106" type="ushort">6x5 3x3 6x6 5x3 3x4 6x3 4x3 5 5 3x3 4 4 3 3 6x4 3x4 5 5 6 6 3x6 4x3 5 5 3 5 3 6x6 5 5 3 3 6 3 3 4 3 6 5 6 6 5x3 3 4 5 3 4 5 5 1x8 6 5 5 3x4</vector>
+      </entities_group>
+      <entities_group name="lines">
+        <vector name="entity_ids" length="174" type="integer">3 4 6 7 10 12:16 18 21:47 55:57 105:112 114 115 120 156:158 160:174 176 181 186:191 193 195:197 214 293:306 321 322 324:336 338 339 341 342 344:346 352 353 359:370 372 375 379 382 397 399 402 412:416 468 515 588 593:595 606 608 609 611:614 620 626 630 634:636 640:643 648 650 654 657:659</vector>
+        <vector name="entity_num_groups" length="174" type="ushort">1x174</vector>
+        <vector name="entity_groups" length="174" type="ushort">6x5 3 3 6x4 5x3 3x3 6x3 4x4 5x3 3x3 4x3 3x4 6x4 3x5 5x3 6x3 3x4 5 5 3 5 3x3 5x3 4 4 3 3 6 6 4 4 5 3x3 5 3x3 6 3x3 6 6 4x3 3x3 4x3 3 6x3 3 5 3x4 5x4 6 6 3 5 5 3 5 6 5 5 1x12 6x9 5 6x15 5x6 3x10</vector>
+      </entities_group>
+      <entities_group name="surfaces">
+        <vector name="entity_ids" length="69" type="integer">62 63 65:68 70:132</vector>
+        <vector name="entity_num_groups" length="69" type="ushort">1x69</vector>
+        <vector name="entity_groups" length="69" type="ushort">1x6 3x3 4 4 3x14 5x6 4x5 5x5 6x22 5 5 3x4</vector>
+      </entities_group>
+      <entities_group name="volumes">
+        <vector name="entity_ids" length="1" type="integer">1</vector>
+        <vector name="entity_num_groups" length="1" type="ushort">1</vector>
+        <vector name="entity_groups" length="1" type="ushort">7</vector>
+      </entities_group>
+    </entities_groups>
+  </pre>
+</gid>
