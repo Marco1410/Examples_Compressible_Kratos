@@ -127,7 +127,7 @@ for i in range(iterations):
     # size distribution, matrix of sizes [level_set, size]
     metric_parameters = KratosMultiphysics.Parameters("""
     {
-        "minimal_size"                         : 0.0001,
+        "minimal_size"                         : 0.0005,
         "maximal_size"                         : 10.0,
         "sizing_parameters": {
             "reference_variable_name"               : "DISTANCE",
@@ -151,7 +151,7 @@ for i in range(iterations):
             "force_max": true,
             "force_min": true,
             "maximal_size": 10.0,
-            "minimal_size": 0.0001
+            "minimal_size": 0.0005
         }
     }
     """)
@@ -227,7 +227,7 @@ KratosMultiphysics.VariableUtils().SetNonHistoricalVariableToZero(KratosMultiphy
 # size distribution, matrix of sizes [level_set, size]
 metric_parameters = KratosMultiphysics.Parameters("""
 {
-    "minimal_size"                         : 0.001,
+    "minimal_size"                         : 0.0005,
     "maximal_size"                         : 10.0,
     "sizing_parameters": {
         "reference_variable_name"               : "DISTANCE",
@@ -249,7 +249,7 @@ mmg_parameters = KratosMultiphysics.Parameters("""
             "force_max": true,
             "force_min": true,
             "maximal_size": 10.0,
-            "minimal_size": 0.001
+            "minimal_size": 0.0005
         },
         "advanced_parameters"                  : {
             "normal_regularization_mesh"       : true,
