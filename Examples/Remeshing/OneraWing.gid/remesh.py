@@ -127,7 +127,7 @@ for i in range(iterations):
     # size distribution, matrix of sizes [level_set, size]
     metric_parameters = KratosMultiphysics.Parameters("""
     {
-        "minimal_size"                         : 0.0005,
+        "minimal_size"                         : 0.005,
         "maximal_size"                         : 10.0,
         "sizing_parameters": {
             "reference_variable_name"               : "DISTANCE",
@@ -151,7 +151,7 @@ for i in range(iterations):
             "force_max": true,
             "force_min": true,
             "maximal_size": 10.0,
-            "minimal_size": 0.0005
+            "minimal_size": 0.005
         }
     }
     """)
@@ -160,12 +160,6 @@ for i in range(iterations):
     mmg_process = KratosMultiphysics.MeshingApplication.MmgProcess3D(model_part, mmg_parameters)
     # We remesh
     mmg_process.Execute()
-
-    tmoc = KratosMultiphysics.TetrahedralMeshOrientationCheck
-    throw_errors = True
-    flags = (tmoc.COMPUTE_NODAL_NORMALS).AsFalse() | (tmoc.COMPUTE_CONDITION_NORMALS).AsFalse()
-    flags |= tmoc.ASSIGN_NEIGHBOUR_ELEMENTS_TO_CONDITIONS
-    KratosMultiphysics.TetrahedralMeshOrientationCheck(model_part,throw_errors, flags).Execute()
 
     for node in model_part.Nodes:
         tensor_3d = node.GetValue(KratosMultiphysics.MeshingApplication.METRIC_TENSOR_3D)
@@ -227,7 +221,7 @@ KratosMultiphysics.VariableUtils().SetNonHistoricalVariableToZero(KratosMultiphy
 # size distribution, matrix of sizes [level_set, size]
 metric_parameters = KratosMultiphysics.Parameters("""
 {
-    "minimal_size"                         : 0.0005,
+    "minimal_size"                         : 0.005,
     "maximal_size"                         : 10.0,
     "sizing_parameters": {
         "reference_variable_name"               : "DISTANCE",
@@ -249,7 +243,7 @@ mmg_parameters = KratosMultiphysics.Parameters("""
             "force_max": true,
             "force_min": true,
             "maximal_size": 10.0,
-            "minimal_size": 0.0005
+            "minimal_size": 0.005
         },
         "advanced_parameters"                  : {
             "normal_regularization_mesh"       : true,
@@ -269,12 +263,6 @@ mmg_parameters = KratosMultiphysics.Parameters("""
 mmg_process = KratosMultiphysics.MeshingApplication.MmgProcess3D(model_part, mmg_parameters)
 # We remesh
 mmg_process.Execute()
-
-tmoc = KratosMultiphysics.TetrahedralMeshOrientationCheck
-throw_errors = True
-flags = (tmoc.COMPUTE_NODAL_NORMALS).AsFalse() | (tmoc.COMPUTE_CONDITION_NORMALS).AsFalse()
-flags |= tmoc.ASSIGN_NEIGHBOUR_ELEMENTS_TO_CONDITIONS
-KratosMultiphysics.TetrahedralMeshOrientationCheck(model_part,throw_errors, flags).Execute()
 
 for node in model_part.Nodes:
     tensor_3d = node.GetValue(KratosMultiphysics.MeshingApplication.METRIC_TENSOR_3D)

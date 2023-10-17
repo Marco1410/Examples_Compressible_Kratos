@@ -11,7 +11,7 @@ from pathlib import Path
 
 class RomManager(object):
 
-    def __init__(self,project_parameters_name, general_rom_manager_parameters, CustomizeSimulation, UpdateProjectParameters,UpdateMaterialParametersFile):
+    def __init__(self,project_parameters_name, general_rom_manager_parameters, CustomizeSimulation, UpdateProjectParameters):
         #FIXME:
         # - Use a method (upcoming) for smothly retrieving solutions. In here we are using the RomBasisOutput process in order to store the solutions
         # - There is some redundancy between the methods that launch the simulations. Can we create a single method?
@@ -23,7 +23,6 @@ class RomManager(object):
         self.hrom_training_parameters = self.SetHromTrainingParameters()
         self.CustomizeSimulation = CustomizeSimulation
         self.UpdateProjectParameters = UpdateProjectParameters
-        self.UpdateMaterialParametersFile = UpdateMaterialParametersFile
 
 
 
@@ -100,7 +99,7 @@ class RomManager(object):
 
 
 
-    def Test(self, mu_test=[None]):
+    def Test(self, mu_test=[None], store_all_snapshots=False, store_fom_test_snapshots=False, store_rom_test_snapshots=False, store_hrom_test_snapshots=False):
         chosen_projection_strategy = self.general_rom_manager_parameters["projection_strategy"].GetString()
         testing_stages = self.general_rom_manager_parameters["rom_stages_to_test"].GetStringArray()
         #######################
@@ -108,14 +107,20 @@ class RomManager(object):
         if chosen_projection_strategy == "galerkin":
             if any(item == "ROM" for item in testing_stages):
                 fom_snapshots = self.__LaunchTestFOM(mu_test)
+                if store_all_snapshots or store_fom_test_snapshots:
+                    self._StoreSnapshotsMatrix('fom_test_snapshots', fom_snapshots)
                 self._ChangeRomFlags(simulation_to_run = "GalerkinROM")
                 rom_snapshots = self.__LaunchTestROM(mu_test)
+                if store_all_snapshots or store_rom_test_snapshots:
+                    self._StoreSnapshotsMatrix('rom_test_snapshots', rom_snapshots)
                 self.ROMvsFOM_test = np.linalg.norm(fom_snapshots - rom_snapshots)/ np.linalg.norm(fom_snapshots)
 
             if any(item == "HROM" for item in testing_stages):
                 #FIXME there will be an error if we only test HROM, but not ROM
                 self._ChangeRomFlags(simulation_to_run = "runHROMGalerkin")
                 hrom_snapshots = self.__LaunchTestHROM(mu_test)
+                if store_all_snapshots or store_hrom_test_snapshots:
+                    self._StoreSnapshotsMatrix('hrom_test_snapshots', hrom_snapshots)
                 self.ROMvsHROM_test = np.linalg.norm(rom_snapshots - hrom_snapshots) / np.linalg.norm(rom_snapshots)
 
 
@@ -124,8 +129,12 @@ class RomManager(object):
         elif chosen_projection_strategy == "lspg":
             if any(item == "ROM" for item in testing_stages):
                 fom_snapshots = self.__LaunchTestFOM(mu_test)
+                if store_all_snapshots or store_fom_test_snapshots:
+                    self._StoreSnapshotsMatrix('fom_test_snapshots', fom_snapshots)
                 self._ChangeRomFlags(simulation_to_run = "lspg")
                 rom_snapshots = self.__LaunchTestROM(mu_test)
+                if store_all_snapshots or store_rom_test_snapshots:
+                    self._StoreSnapshotsMatrix('rom_test_snapshots', rom_snapshots)
                 self.ROMvsFOM_test = np.linalg.norm(fom_snapshots - rom_snapshots)/ np.linalg.norm(fom_snapshots)
             if any(item == "HROM" for item in testing_stages):
                 raise Exception('Sorry, Hyper Reduction not yet implemented for lspg')
@@ -137,13 +146,19 @@ class RomManager(object):
         elif chosen_projection_strategy == "petrov_galerkin":
             if any(item == "ROM" for item in testing_stages):
                 fom_snapshots = self.__LaunchTestFOM(mu_test)
+                if store_all_snapshots or store_fom_test_snapshots:
+                    self._StoreSnapshotsMatrix('fom_test_snapshots', fom_snapshots)
                 self._ChangeRomFlags(simulation_to_run = "PG")
                 rom_snapshots = self.__LaunchTestROM(mu_test)
+                if store_all_snapshots or store_rom_test_snapshots:
+                    self._StoreSnapshotsMatrix('rom_test_snapshots', rom_snapshots)
                 self.ROMvsFOM_test = np.linalg.norm(fom_snapshots - rom_snapshots)/ np.linalg.norm(fom_snapshots)
             if any(item == "HROM" for item in testing_stages):
                 #FIXME there will be an error if we only train HROM, but not ROM
                 self._ChangeRomFlags(simulation_to_run = "runHROMPetrovGalerkin")
                 hrom_snapshots = self.__LaunchTestHROM(mu_test)
+                if store_all_snapshots or store_hrom_test_snapshots:
+                    self._StoreSnapshotsMatrix('hrom_test_snapshots', hrom_snapshots)
                 self.ROMvsHROM_test = np.linalg.norm(rom_snapshots - hrom_snapshots) / np.linalg.norm(rom_snapshots)
         ##########################
         else:
@@ -222,8 +237,6 @@ class RomManager(object):
             parameters_copy = self.UpdateProjectParameters(parameters.Clone(), mu)
             parameters_copy = self._AddBasisCreationToProjectParameters(parameters_copy) #TODO stop using the RomBasisOutputProcess to store the snapshots. Use instead the upcoming build-in function
             parameters_copy = self._StoreResultsByName(parameters_copy,'FOM_Fit',mu,Id)
-            materials_file_name = parameters_copy["solver_settings"]["material_import_settings"]["materials_filename"].GetString()
-            self.UpdateMaterialParametersFile(materials_file_name, mu)
             
             upwind_factor_constant = self.upwind_aprox(mu[0],mu[1])
             convergence_ratio = 1.0
@@ -268,6 +281,7 @@ class RomManager(object):
                 if isinstance(process, CalculateRomBasisOutputProcess):
                     BasisOutputProcess = process
             SnapshotsMatrix.append(BasisOutputProcess._GetSnapshotsMatrix()) #TODO add a CustomMethod() as a standard method in the Analysis Stage to retrive some solution
+            self._StoreStepSnapshots('trainStepSolution_'+str(mu[0])+"_"+str(mu[1])+"_"+str(np.round(mu[2],2)), SnapshotsMatrix)
         SnapshotsMatrix = np.block(SnapshotsMatrix)
         BasisOutputProcess._PrintRomBasis(SnapshotsMatrix) #Calling the RomOutput Process for creating the RomParameter.json
 
@@ -286,8 +300,6 @@ class RomManager(object):
             parameters_copy = self.UpdateProjectParameters(parameters.Clone(), mu)
             parameters_copy = self._AddBasisCreationToProjectParameters(parameters_copy)  #TODO stop using the RomBasisOutputProcess to store the snapshots. Use instead the upcoming build-in function
             parameters_copy = self._StoreResultsByName(parameters_copy,'ROM_Fit',mu,Id)
-            materials_file_name = parameters_copy["solver_settings"]["material_import_settings"]["materials_filename"].GetString()
-            self.UpdateMaterialParametersFile(materials_file_name, mu)
             model = KratosMultiphysics.Model()
             analysis_stage_class = type(SetUpSimulationInstance(model, parameters_copy))
             simulation = self.CustomizeSimulation(analysis_stage_class,model,parameters_copy)
@@ -313,8 +325,6 @@ class RomManager(object):
             parameters_copy = self.UpdateProjectParameters(parameters.Clone(), mu)
             parameters_copy = self._AddBasisCreationToProjectParameters(parameters_copy)
             parameters_copy = self._StoreNoResults(parameters_copy)
-            materials_file_name = parameters_copy["solver_settings"]["material_import_settings"]["materials_filename"].GetString()
-            self.UpdateMaterialParametersFile(materials_file_name, mu)
             
             upwind_factor_constant = self.upwind_aprox(mu[0],mu[1])
             convergence_ratio = 1.0
@@ -353,7 +363,9 @@ class RomManager(object):
             # analysis_stage_class = self._GetAnalysisStageClass(parameters_copy)
             # simulation = self.CustomizeSimulation(analysis_stage_class,model,parameters_copy)
             # simulation.Run()
-    
+
+            self._StoreStepSnapshots('trainStepSolution_'+str(mu[0])+"_"+str(mu[1])+"_"+str(np.round(mu[2],2)), simulation.GetPetrovGalerkinTrainUtility()._GetSnapshotsMatrix())
+
             PetrovGalerkinTrainMatrix.append(simulation.GetPetrovGalerkinTrainUtility()._GetSnapshotsMatrix()) #TODO is the best way of extracting the Projected Residuals calling the HROM residuals utility?
         simulation.GetPetrovGalerkinTrainUtility().CalculateAndSaveBasis(np.block(PetrovGalerkinTrainMatrix))
 
@@ -370,8 +382,6 @@ class RomManager(object):
             parameters_copy = self.UpdateProjectParameters(parameters.Clone(), mu)
             parameters_copy = self._AddBasisCreationToProjectParameters(parameters_copy)
             parameters_copy = self._StoreNoResults(parameters_copy)
-            materials_file_name = parameters_copy["solver_settings"]["material_import_settings"]["materials_filename"].GetString()
-            self.UpdateMaterialParametersFile(materials_file_name, mu)
             model = KratosMultiphysics.Model()
             analysis_stage_class = type(SetUpSimulationInstance(model, parameters_copy))
             simulation = self.CustomizeSimulation(analysis_stage_class,model,parameters_copy)
@@ -405,8 +415,6 @@ class RomManager(object):
             parameters_copy = self.UpdateProjectParameters(parameters.Clone(), mu)
             parameters_copy = self._AddBasisCreationToProjectParameters(parameters_copy)
             parameters_copy = self._StoreResultsByName(parameters_copy,'HROM_Fit',mu,Id)
-            materials_file_name = parameters_copy["solver_settings"]["material_import_settings"]["materials_filename"].GetString()
-            self.UpdateMaterialParametersFile(materials_file_name, mu)
             model = KratosMultiphysics.Model()
             analysis_stage_class = type(SetUpSimulationInstance(model, parameters_copy))
             simulation = self.CustomizeSimulation(analysis_stage_class,model,parameters_copy)
@@ -432,8 +440,6 @@ class RomManager(object):
             parameters_copy = self.UpdateProjectParameters(parameters.Clone(), mu)
             parameters_copy = self._AddBasisCreationToProjectParameters(parameters_copy) #TODO stop using the RomBasisOutputProcess to store the snapshots. Use instead the upcoming build-in function
             parameters_copy = self._StoreResultsByName(parameters_copy,'FOM_Test',mu,Id)
-            materials_file_name = parameters_copy["solver_settings"]["material_import_settings"]["materials_filename"].GetString()
-            self.UpdateMaterialParametersFile(materials_file_name, mu)
             
             upwind_factor_constant = self.upwind_aprox(mu[0],mu[1])
             convergence_ratio = 1.0
@@ -477,6 +483,7 @@ class RomManager(object):
                 if isinstance(process, CalculateRomBasisOutputProcess):
                     BasisOutputProcess = process
             SnapshotsMatrix.append(BasisOutputProcess._GetSnapshotsMatrix()) #TODO add a CustomMethod() as a standard method in the Analysis Stage to retrive some solution
+            self._StoreStepSnapshots('testStepSolution_'+str(mu[0])+"_"+str(mu[1])+"_"+str(np.round(mu[2],2)), SnapshotsMatrix)
         SnapshotsMatrix = np.block(SnapshotsMatrix)
 
 
@@ -495,8 +502,6 @@ class RomManager(object):
             parameters_copy = self.UpdateProjectParameters(parameters.Clone(), mu)
             parameters_copy = self._AddBasisCreationToProjectParameters(parameters_copy)  #TODO stop using the RomBasisOutputProcess to store the snapshots. Use instead the upcoming build-in function
             parameters_copy = self._StoreResultsByName(parameters_copy,'ROM_Test',mu,Id)
-            materials_file_name = parameters_copy["solver_settings"]["material_import_settings"]["materials_filename"].GetString()
-            self.UpdateMaterialParametersFile(materials_file_name, mu)
             model = KratosMultiphysics.Model()
             analysis_stage_class = type(SetUpSimulationInstance(model, parameters_copy))
             simulation = self.CustomizeSimulation(analysis_stage_class,model,parameters_copy)
@@ -523,8 +528,6 @@ class RomManager(object):
             parameters_copy = self.UpdateProjectParameters(parameters.Clone(), mu)
             parameters_copy = self._AddBasisCreationToProjectParameters(parameters_copy)
             parameters_copy = self._StoreResultsByName(parameters_copy,'HROM_Test',mu,Id)
-            materials_file_name = parameters_copy["solver_settings"]["material_import_settings"]["materials_filename"].GetString()
-            self.UpdateMaterialParametersFile(materials_file_name, mu)
             model = KratosMultiphysics.Model()
             analysis_stage_class = type(SetUpSimulationInstance(model, parameters_copy))
             simulation = self.CustomizeSimulation(analysis_stage_class,model,parameters_copy)
@@ -548,8 +551,6 @@ class RomManager(object):
         for Id, mu in enumerate(mu_run):
             parameters_copy = self.UpdateProjectParameters(parameters.Clone(), mu)
             parameters_copy = self._StoreResultsByName(parameters_copy,'FOM_Run',mu,Id)
-            materials_file_name = parameters_copy["solver_settings"]["material_import_settings"]["materials_filename"].GetString()
-            self.UpdateMaterialParametersFile(materials_file_name, mu)
             model = KratosMultiphysics.Model()
             analysis_stage_class = self._GetAnalysisStageClass(parameters_copy)
             simulation = self.CustomizeSimulation(analysis_stage_class,model,parameters_copy)
@@ -566,8 +567,6 @@ class RomManager(object):
         for Id, mu in enumerate(mu_run):
             parameters_copy = self.UpdateProjectParameters(parameters.Clone(), mu)
             parameters_copy = self._StoreResultsByName(parameters_copy,'ROM_Run',mu,Id)
-            materials_file_name = parameters_copy["solver_settings"]["material_import_settings"]["materials_filename"].GetString()
-            self.UpdateMaterialParametersFile(materials_file_name, mu)
             model = KratosMultiphysics.Model()
             analysis_stage_class = type(SetUpSimulationInstance(model, parameters_copy))
             simulation = self.CustomizeSimulation(analysis_stage_class,model,parameters_copy)
@@ -587,8 +586,6 @@ class RomManager(object):
         for Id, mu in enumerate(mu_run):
             parameters_copy = self.UpdateProjectParameters(parameters.Clone(), mu)
             parameters_copy = self._StoreResultsByName(parameters_copy,'HROM_Run',mu,Id)
-            materials_file_name = parameters_copy["solver_settings"]["material_import_settings"]["materials_filename"].GetString()
-            self.UpdateMaterialParametersFile(materials_file_name, mu)
             model = KratosMultiphysics.Model()
             analysis_stage_class = type(SetUpSimulationInstance(model, parameters_copy))
             simulation = self.CustomizeSimulation(analysis_stage_class,model,parameters_copy)
@@ -703,17 +700,12 @@ class RomManager(object):
             parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString('Results/'+ results_name +  case_name)
         else:
             parameters["output_processes"].RemoveValue("gid_output")
-        if self.general_rom_manager_parameters["save_vtk_output"].GetBool():
-            parameters["output_processes"]["vtk_output"][0]["Parameters"]["output_path"].SetString('Results/vtk_output_'+ results_name + case_name)
-        else:
-            parameters["output_processes"].RemoveValue("vtk_output")
 
         return parameters
 
 
     def _StoreNoResults(self, parameters):
         parameters["output_processes"].RemoveValue("gid_output")
-        parameters["output_processes"].RemoveValue("vtk_output")
 
         return parameters
 
@@ -810,6 +802,21 @@ class RomManager(object):
         # Define the directory and file path
         rom_output_folder_name = self.rom_training_parameters["Parameters"]["rom_basis_output_folder"].GetString()
         directory = Path(rom_output_folder_name) / 'SnapshotsMatrices'
+        file_path = directory / f'{string_numpy_array_name}.npy'
+
+        # Create the directory if it doesn't exist
+        directory.mkdir(parents=True, exist_ok=True)
+
+        #save the array inside the chosen directory
+        np.save(file_path, numpy_array)
+
+
+
+    def _StoreStepSnapshots(self, string_numpy_array_name, numpy_array):
+
+        # Define the directory and file path
+        rom_output_folder_name = self.rom_training_parameters["Parameters"]["rom_basis_output_folder"].GetString()
+        directory = Path(rom_output_folder_name) / 'SnapshotsSteps'
         file_path = directory / f'{string_numpy_array_name}.npy'
 
         # Create the directory if it doesn't exist

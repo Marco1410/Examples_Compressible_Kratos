@@ -13,7 +13,7 @@ from KratosMultiphysics.MeshMovingApplication.mesh_moving_analysis import MeshMo
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def GenerateMeshe(id, angle, typename):
+def GenerateMeshes(id, angle, typename):
 
     angle = -1.0 * angle * np.pi / 180.0 #Negativo porque se lo paso a la meshmoving app y lo paso a radianes
                 
@@ -51,7 +51,7 @@ def CustomizeSimulation(cls, global_model, parameters):
                 nametype = parameters["solver_settings"]["model_import_settings"]["input_filename"].GetString()
                 typename = nametype.split('/')[-1].split('_')[0]
                 id       = nametype.split('/')[1].split('_')[-1]
-                # guardar aqui datos directamente de la skin y plotea
+                # guardar aqui datos directamente de la skin
                 if typename == "test":
                     fout=open("Data/"+simulationtype+"_"+typename+"_"+str(id)+".dat",'w')
                 else:
@@ -85,20 +85,14 @@ def UpdateProjectParameters(parameters, mu=None):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def UpdateMaterialParametersFile(material_parametrs_file_name, mu):
-    pass
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 def GetRomManagerParameters():
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
             "rom_stages_to_train" : ["ROM"],      // ["ROM","HROM"]
             "rom_stages_to_test"  : ["ROM"],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
-            "projection_strategy": "lspg",               // "lspg", "galerkin", "petrov_galerkin"
-            "assembling_strategy": "global",                                                       
+            "projection_strategy": "galerkin",               // "lspg", "galerkin", "petrov_galerkin"
+            "assembling_strategy": "elemental",          // "global", "elemental"                                              
             "save_gid_output": true,                     // false, true #if true, it must exits previously in the ProjectParameters.json
-            "save_vtk_output": false,                    // false, true #if true, it must exits previously in the ProjectParameters.json
             "output_name": "mu",                         // "id" , "mu"
             "ROM":{
                 "svd_truncation_tolerance": 1e-30,
@@ -129,36 +123,29 @@ def GetRomManagerParameters():
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-# mult params
+# get multiple parameters
 #
-def get_multiple_params_by_Halton_test(number_of_values,angle,mach):
+def get_multiple_params_by_Halton_sequence(number_of_values,angle,mach,name,fix_corners_of_parametric_space):
     sampler = qmc.Halton(d=2)
     sample = sampler.random(number_of_values)
     mu = []
     values = qmc.scale(sample, [angle[0],mach[0]], [angle[1],mach[1]])
+    if fix_corners_of_parametric_space and number_of_values < 4:
+        print("Setting number of values to 4.")
+        number_of_values = 4
+    if fix_corners_of_parametric_space and number_of_values >= 4:
+        values[0,0] = angle[0]
+        values[0,1] = mach[0]
+        values[1,0] = angle[0]
+        values[1,1] = mach[1]
+        values[number_of_values-1,0] = angle[1]
+        values[number_of_values-1,1] = mach[1]
+        values[number_of_values-2,0] = angle[1]
+        values[number_of_values-2,1] = mach[0]
     for i in range(number_of_values):
         #Angle of attack , Mach infinit, Upwind factor constant
-        mu.append([np.round(values[i,0],3), np.round(values[i,1],3), np.round(1.000,3), i, "test"])
-        GenerateMeshe(i, np.round(values[i,0],3), "test")
-    return mu
-
-def get_multiple_params_by_Halton_train(number_of_values,angle,mach):
-    sampler = qmc.Halton(d=2)
-    sample = sampler.random(number_of_values)
-    mu = []
-    values = qmc.scale(sample, [angle[0],mach[0]], [angle[1],mach[1]])
-    values[0,0] = angle[0]
-    values[0,1] = mach[0]
-    values[1,0] = angle[0]
-    values[1,1] = mach[1]
-    values[number_of_values-1,0] = angle[1]
-    values[number_of_values-1,1] = mach[1]
-    values[number_of_values-2,0] = angle[1]
-    values[number_of_values-2,1] = mach[0]
-    for i in range(number_of_values):
-        #Angle of attack , Mach infinit
-        mu.append([np.round(values[i,0],3), np.round(values[i,1],3), np.round(1.000,3), i, "train"])
-        GenerateMeshe(i, np.round(values[i,0],3), "train")
+        mu.append([np.round(values[i,0],3), np.round(values[i,1],3), np.round(1.000,3), i, name])
+        GenerateMeshes(i, np.round(values[i,0],3), name)
     return mu
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -276,9 +263,9 @@ def plot_Cps(mu_train,mu_test):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-# save / load
+# save / load parameters
 # 
-def save_mu_parameters(mu_train,mu_test):
+def save_mu_parameters(mu_train, mu_test):
     archivo = open('Data/mu_train.dat', 'wb')
     pickle.dump(mu_train, archivo)
     archivo.close()
@@ -293,7 +280,7 @@ def load_mu_parameters():
     archivo = open('Data/mu_test.dat', 'rb')
     mu_test = pickle.load(archivo)
     archivo.close()
-    return mu_train,mu_test
+    return mu_train, mu_test
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 def CleanFolder():
@@ -301,19 +288,20 @@ def CleanFolder():
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Data')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Captures')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Meshes')
-    # KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('rom_data')
     os.mkdir("Results")
     os.mkdir("Data")
     os.mkdir("Captures")
     os.mkdir("Meshes")
+    os.mkdir("rom_data")
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 if __name__ == "__main__":
 
     # Minimo 5 por las cuatro esquinas y un punto interno para entrenar
-    NumberofMuTrain = 40
-    NumberOfMuTest  = 40
+    NumberofMuTrain = 5
+    NumberOfMuTest  = 5
 
     load_old_mu_parameters = False
 
@@ -334,8 +322,8 @@ if __name__ == "__main__":
     else:
         CleanFolder()
         
-        mu_train = get_multiple_params_by_Halton_train(NumberofMuTrain,angle_range,mach_range) 
-        mu_test  = get_multiple_params_by_Halton_test(NumberOfMuTest,angle_range,mach_range) 
+        mu_train = get_multiple_params_by_Halton_sequence(NumberofMuTrain, angle_range, mach_range, "train", fix_corners_of_parametric_space = True ) 
+        mu_test  = get_multiple_params_by_Halton_sequence(NumberOfMuTest , angle_range, mach_range, "test" , fix_corners_of_parametric_space = False) 
 
         save_mu_parameters(mu_train,mu_test)
         plot_mu_values(mu_train,mu_test)
@@ -344,7 +332,7 @@ if __name__ == "__main__":
 
     project_parameters_name = "ProjectParametersPrimalROM.json"
 
-    rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,CustomizeSimulation,UpdateProjectParameters, UpdateMaterialParametersFile)
+    rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,CustomizeSimulation,UpdateProjectParameters)
 
     rom_manager.Fit(mu_train, store_all_snapshots=True, store_fom_snapshots=False, store_rom_snapshots=False, store_hrom_snapshots=False, store_residuals_projected = False)
 
