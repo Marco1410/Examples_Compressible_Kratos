@@ -243,6 +243,8 @@ class RomManager(object):
             absolute_norm = 1.0
             tolerancia = 1e-10
             parameters_copy["solver_settings"]["maximum_iterations"].SetInt(100)
+            # parameters_copy["solver_settings"]["convergence_criterion"].SetString("solution_criterion")
+            # parameters_copy["solver_settings"]["solving_strategy_settings"]["type"].SetString("line_search")
             while (convergence_ratio > tolerancia and absolute_norm > tolerancia):
                 parameters_copy["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["first_alpha_value"].SetDouble(0.1)
                 parameters_copy["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["second_alpha_value"].SetDouble(1.0)
@@ -331,6 +333,8 @@ class RomManager(object):
             absolute_norm = 1.0
             tolerancia = 1e-10
             parameters_copy["solver_settings"]["maximum_iterations"].SetInt(100)
+            # parameters_copy["solver_settings"]["convergence_criterion"].SetString("solution_criterion")
+            # parameters_copy["solver_settings"]["solving_strategy_settings"]["type"].SetString("line_search")
             while (convergence_ratio > tolerancia and absolute_norm > tolerancia):
                 parameters_copy["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["first_alpha_value"].SetDouble(0.1)
                 parameters_copy["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["second_alpha_value"].SetDouble(1.0)
@@ -446,6 +450,8 @@ class RomManager(object):
             absolute_norm = 1.0
             tolerancia = 1e-10
             parameters_copy["solver_settings"]["maximum_iterations"].SetInt(100)
+            # parameters_copy["solver_settings"]["convergence_criterion"].SetString("solution_criterion")
+            # parameters_copy["solver_settings"]["solving_strategy_settings"]["type"].SetString("line_search")
             while (convergence_ratio > tolerancia and absolute_norm > tolerancia):
                 parameters_copy["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["first_alpha_value"].SetDouble(0.1)
                 parameters_copy["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["second_alpha_value"].SetDouble(1.0)

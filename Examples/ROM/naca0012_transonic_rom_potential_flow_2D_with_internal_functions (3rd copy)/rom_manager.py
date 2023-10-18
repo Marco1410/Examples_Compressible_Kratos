@@ -90,8 +90,8 @@ def GetRomManagerParameters():
             "rom_stages_to_train" : ["ROM"],      // ["ROM","HROM"]
             "rom_stages_to_test"  : ["ROM"],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
-            "projection_strategy": "galerkin",               // "lspg", "galerkin", "petrov_galerkin"
-            "assembling_strategy": "elemental",          // "global", "elemental"                                              
+            "projection_strategy": "lspg",               // "lspg", "galerkin", "petrov_galerkin"
+            "assembling_strategy": "global",          // "global", "elemental"                                              
             "save_gid_output": true,                     // false, true #if true, it must exits previously in the ProjectParameters.json
             "output_name": "mu",                         // "id" , "mu"
             "ROM":{
@@ -299,15 +299,14 @@ def CleanFolder():
 
 if __name__ == "__main__":
 
-    # Minimo 5 por las cuatro esquinas y un punto interno para entrenar
-    NumberofMuTrain = 5
+    NumberofMuTrain = 10
     NumberOfMuTest  = 5
 
     load_old_mu_parameters = False
 
     # Definir rango de valores de mach y angulo de ataque
-    mach_range  = [0.70, 0.80]
-    angle_range = [0.00, 2.00] 
+    mach_range  = [0.65, 0.78]
+    angle_range = [1.00, 1.50] 
 
     #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -322,7 +321,7 @@ if __name__ == "__main__":
     else:
         CleanFolder()
         
-        mu_train = get_multiple_params_by_Halton_sequence(NumberofMuTrain, angle_range, mach_range, "train", fix_corners_of_parametric_space = True ) 
+        mu_train = get_multiple_params_by_Halton_sequence(NumberofMuTrain, angle_range, mach_range, "train", fix_corners_of_parametric_space = False ) 
         mu_test  = get_multiple_params_by_Halton_sequence(NumberOfMuTest , angle_range, mach_range, "test" , fix_corners_of_parametric_space = False) 
 
         save_mu_parameters(mu_train,mu_test)
@@ -334,9 +333,9 @@ if __name__ == "__main__":
 
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,CustomizeSimulation,UpdateProjectParameters)
 
-    rom_manager.Fit(mu_train, store_all_snapshots=True, store_fom_snapshots=False, store_rom_snapshots=False, store_hrom_snapshots=False, store_residuals_projected = False)
+    rom_manager.Fit(mu_train, store_all_snapshots=True)
 
-    rom_manager.Test(mu_test)
+    rom_manager.Test(mu_test, store_all_snapshots=True)
 
     rom_manager.PrintErrors()
 
