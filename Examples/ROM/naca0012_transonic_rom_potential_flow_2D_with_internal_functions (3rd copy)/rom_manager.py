@@ -299,7 +299,7 @@ def CleanFolder():
 
 if __name__ == "__main__":
 
-    NumberofMuTrain = 10
+    NumberofMuTrain = 5
     NumberOfMuTest  = 5
 
     load_old_mu_parameters = False
@@ -321,7 +321,7 @@ if __name__ == "__main__":
     else:
         CleanFolder()
         
-        mu_train = get_multiple_params_by_Halton_sequence(NumberofMuTrain, angle_range, mach_range, "train", fix_corners_of_parametric_space = False ) 
+        mu_train = get_multiple_params_by_Halton_sequence(NumberofMuTrain, angle_range, mach_range, "train", fix_corners_of_parametric_space = True ) 
         mu_test  = get_multiple_params_by_Halton_sequence(NumberOfMuTest , angle_range, mach_range, "test" , fix_corners_of_parametric_space = False) 
 
         save_mu_parameters(mu_train,mu_test)
