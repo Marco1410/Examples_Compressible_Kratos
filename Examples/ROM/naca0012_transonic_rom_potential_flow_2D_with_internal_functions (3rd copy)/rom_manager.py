@@ -68,6 +68,25 @@ def CustomizeSimulation(cls, global_model, parameters):
 
     return CustomSimulation(global_model, parameters)
 
+def CustomizeSimulation2(cls, global_model, parameters):
+
+    class CustomSimulation(cls):
+
+        def __init__(self, model,project_parameters, custom_param = None):
+            super().__init__(model,project_parameters)
+            self.custom_param  = custom_param
+
+        def Initialize(self):
+            super().Initialize()
+
+        def FinalizeSolutionStep(self):
+            super().FinalizeSolutionStep()
+
+        def CustomMethod(self):
+            return self.custom_param
+
+    return CustomSimulation(global_model, parameters)
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 def UpdateProjectParameters(parameters, mu=None):
@@ -87,7 +106,7 @@ def UpdateProjectParameters(parameters, mu=None):
 
 def GetRomManagerParameters():
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
-            "rom_stages_to_train" : ["ROM"],      // ["ROM","HROM"]
+            "rom_stages_to_train" : [],      // ["ROM","HROM"]
             "rom_stages_to_test"  : ["ROM"],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
             "projection_strategy": "lspg",               // "lspg", "galerkin", "petrov_galerkin"
@@ -299,13 +318,13 @@ def CleanFolder():
 
 if __name__ == "__main__":
 
-    NumberofMuTrain = 5
+    NumberofMuTrain = 15
     NumberOfMuTest  = 5
 
-    load_old_mu_parameters = False
+    load_old_mu_parameters = True
 
     # Definir rango de valores de mach y angulo de ataque
-    mach_range  = [0.65, 0.78]
+    mach_range  = [0.72, 0.78]
     angle_range = [1.00, 1.50] 
 
     #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -331,7 +350,7 @@ if __name__ == "__main__":
 
     project_parameters_name = "ProjectParametersPrimalROM.json"
 
-    rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,CustomizeSimulation,UpdateProjectParameters)
+    rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,CustomizeSimulation,UpdateProjectParameters,CustomizeSimulation2)
 
     rom_manager.Fit(mu_train, store_all_snapshots=True)
 

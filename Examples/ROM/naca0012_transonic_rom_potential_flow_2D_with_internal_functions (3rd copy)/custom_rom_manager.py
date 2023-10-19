@@ -1,5 +1,4 @@
 import KratosMultiphysics
-import KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis
 from KratosMultiphysics.RomApplication.rom_testing_utilities import SetUpSimulationInstance
 from KratosMultiphysics.RomApplication.calculate_rom_basis_output_process import CalculateRomBasisOutputProcess
 from KratosMultiphysics.RomApplication.randomized_singular_value_decomposition import RandomizedSingularValueDecomposition
@@ -12,7 +11,7 @@ from pathlib import Path
 
 class RomManager(object):
 
-    def __init__(self,project_parameters_name, general_rom_manager_parameters, CustomizeSimulation, UpdateProjectParameters):
+    def __init__(self,project_parameters_name, general_rom_manager_parameters, CustomizeSimulation, UpdateProjectParameters, CustomizeSimulation2):
         #FIXME:
         # - Use a method (upcoming) for smothly retrieving solutions. In here we are using the RomBasisOutput process in order to store the solutions
         # - There is some redundancy between the methods that launch the simulations. Can we create a single method?
@@ -23,6 +22,7 @@ class RomManager(object):
         self.rom_training_parameters = self._SetRomTrainintParameters()
         self.hrom_training_parameters = self.SetHromTrainingParameters()
         self.CustomizeSimulation = CustomizeSimulation
+        self.CustomizeSimulation2 = CustomizeSimulation2
         self.UpdateProjectParameters = UpdateProjectParameters
 
 
@@ -234,6 +234,7 @@ class RomManager(object):
         with open(self.project_parameters_name,'r') as parameter_file:
             parameters = KratosMultiphysics.Parameters(parameter_file.read())
         SnapshotsMatrix = []
+        SnapshotsMatrixError = []
         for Id, mu in enumerate(mu_train):
             parameters_copy = self.UpdateProjectParameters(parameters.Clone(), mu)
             parameters_copy = self._AddBasisCreationToProjectParameters(parameters_copy) #TODO stop using the RomBasisOutputProcess to store the snapshots. Use instead the upcoming build-in function
@@ -278,16 +279,17 @@ class RomManager(object):
                 if isinstance(process, CalculateRomBasisOutputProcess):
                     BasisOutputProcess = process
             SnapshotsMatrix.append(BasisOutputProcess._GetSnapshotsMatrix()) #TODO add a CustomMethod() as a standard method in the Analysis Stage to retrive some solution
+            SnapshotsMatrixError.append(BasisOutputProcess._GetSnapshotsMatrix())
             self._StoreStepSnapshots('trainStepSolution_'+str(mu[0])+"_"+str(mu[1])+"_"+str(np.round(mu[2],2)), SnapshotsMatrix)
 
-            tolerances_lists = [1e-10,1e-9,1e-8,1e-7,1e-6,1e-5]
+            tolerances_lists = [1e-10,5e-10,1e-9,5e-9,1e-8,5e-8,1e-7,5e-7,1e-6,5e-6,1e-5,5e-5]
             count = 0
             for tolerance in tolerances_lists:
                 count += 1
                 parameters_copy["solver_settings"]["relative_tolerance"].SetDouble(tolerance)
                 model = KratosMultiphysics.Model()
                 analysis_stage_class = self._GetAnalysisStageClass(parameters_copy)
-                simulation = CompressiblePotentialFlow.potential_flow_analysis(model,parameters_copy)
+                simulation = self.CustomizeSimulation2(analysis_stage_class,model,parameters_copy)
                 simulation.Run()
                 
                 for process in simulation._GetListOfOutputProcesses():
@@ -297,9 +299,10 @@ class RomManager(object):
                 self._StoreStepSnapshots('trainStepSolution_'+str(mu[0])+"_"+str(mu[1])+"_"+str(np.round(mu[2],2))+"_"+str(count), SnapshotsMatrix)
 
         SnapshotsMatrix = np.block(SnapshotsMatrix)
+        SnapshotsMatrixError = np.block(SnapshotsMatrixError)
         BasisOutputProcess._PrintRomBasis(SnapshotsMatrix) #Calling the RomOutput Process for creating the RomParameter.json
-
-        return SnapshotsMatrix
+        self._StoreSnapshotsMatrix('full_fom_snapshots', SnapshotsMatrix)
+        return SnapshotsMatrixError
 
 
     def __LaunchROM(self, mu_train):
@@ -377,19 +380,7 @@ class RomManager(object):
 
             self._StoreStepSnapshots('trainStepSolution_'+str(mu[0])+"_"+str(mu[1])+"_"+str(np.round(mu[2],2)), simulation.GetPetrovGalerkinTrainUtility()._GetSnapshotsMatrix())
             PetrovGalerkinTrainMatrix.append(simulation.GetPetrovGalerkinTrainUtility()._GetSnapshotsMatrix())
-            
-            tolerances_lists = [1e-10,1e-9,1e-8,1e-7,1e-6,1e-5]
-            count = 0
-            for tolerance in tolerances_lists:
-                count += 1
-                parameters_copy["solver_settings"]["relative_tolerance"].SetDouble(tolerance)
-                model = KratosMultiphysics.Model()
-                analysis_stage_class = self._GetAnalysisStageClass(parameters_copy)
-                simulation = CompressiblePotentialFlowAnalysis(model,parameters_copy)
-                simulation.Run()
-                self._StoreStepSnapshots('trainStepSolution_'+str(mu[0])+"_"+str(mu[1])+"_"+str(np.round(mu[2],2))+"_"+str(count), simulation.GetPetrovGalerkinTrainUtility()._GetSnapshotsMatrix())
-                PetrovGalerkinTrainMatrix.append(simulation.GetPetrovGalerkinTrainUtility()._GetSnapshotsMatrix()) #TODO is the best way of extracting the Projected Residuals calling the HROM residuals utility?
-
+ 
         simulation.GetPetrovGalerkinTrainUtility().CalculateAndSaveBasis(np.block(PetrovGalerkinTrainMatrix))
 
 
@@ -505,24 +496,8 @@ class RomManager(object):
             SnapshotsMatrix.append(BasisOutputProcess._GetSnapshotsMatrix()) #TODO add a CustomMethod() as a standard method in the Analysis Stage to retrive some solution
             self._StoreStepSnapshots('testStepSolution_'+str(mu[0])+"_"+str(mu[1])+"_"+str(np.round(mu[2],2)), SnapshotsMatrix)
 
-            tolerances_lists = [1e-10,1e-9,1e-8,1e-7,1e-6,1e-5]
-            count = 0
-            for tolerance in tolerances_lists:
-                count += 1
-                parameters_copy["solver_settings"]["relative_tolerance"].SetDouble(tolerance)
-                model = KratosMultiphysics.Model()
-                analysis_stage_class = self._GetAnalysisStageClass(parameters_copy)
-                simulation = CompressiblePotentialFlowAnalysis(model,parameters_copy)
-                simulation.Run()
-                
-                for process in simulation._GetListOfOutputProcesses():
-                    if isinstance(process, CalculateRomBasisOutputProcess):
-                        BasisOutputProcess = process
-                SnapshotsMatrix.append(BasisOutputProcess._GetSnapshotsMatrix())
-                self._StoreStepSnapshots('testStepSolution_'+str(mu[0])+"_"+str(mu[1])+"_"+str(np.round(mu[2],2))+"_"+str(count), SnapshotsMatrix)
-
         SnapshotsMatrix = np.block(SnapshotsMatrix)
-
+        self._StoreSnapshotsMatrix('full_fom_test_snapshots', SnapshotsMatrix)
         return SnapshotsMatrix
 
 

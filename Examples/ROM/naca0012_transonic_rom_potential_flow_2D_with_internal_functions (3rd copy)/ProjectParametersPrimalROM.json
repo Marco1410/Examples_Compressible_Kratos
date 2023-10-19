@@ -16,17 +16,17 @@
             "input_filename" : "naca0012_0aoa_00"
         },
         "maximum_iterations"     : 500,
-        "echo_level"             : 1,
+        "echo_level"             : 0,
         "solving_strategy_settings": {
-            "type": "newton_raphson",
+            "type": "line_search",
             "advanced_settings": {
-                "first_alpha_value"          : 0.5,
+                "first_alpha_value"          : 0.1,
                 "second_alpha_value"         : 1.0,
                 "max_alpha"                  : 2.0
                 }
         }, 
         "relative_tolerance"       : 1e-12,
-        "absolute_tolerance"       : 1e-18,
+        "absolute_tolerance"       : 1e-12,
         "material_import_settings": {
             "materials_filename": ""
         },
