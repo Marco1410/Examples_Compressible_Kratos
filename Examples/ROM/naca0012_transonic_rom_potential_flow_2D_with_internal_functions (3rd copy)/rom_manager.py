@@ -106,8 +106,8 @@ def UpdateProjectParameters(parameters, mu=None):
 
 def GetRomManagerParameters():
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
-            "rom_stages_to_train" : [],      // ["ROM","HROM"]
-            "rom_stages_to_test"  : ["ROM"],      // ["ROM","HROM"]
+            "rom_stages_to_train" : ["ROM","HROM"],      // ["ROM","HROM"]
+            "rom_stages_to_test"  : ["ROM","HROM"],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
             "projection_strategy": "lspg",               // "lspg", "galerkin", "petrov_galerkin"
             "assembling_strategy": "global",          // "global", "elemental"                                              
@@ -318,14 +318,14 @@ def CleanFolder():
 
 if __name__ == "__main__":
 
-    NumberofMuTrain = 15
-    NumberOfMuTest  = 5
+    NumberofMuTrain = 20
+    NumberOfMuTest  = 1
 
-    load_old_mu_parameters = True
+    load_old_mu_parameters = False
 
     # Definir rango de valores de mach y angulo de ataque
-    mach_range  = [0.72, 0.78]
-    angle_range = [1.00, 1.50] 
+    mach_range  = [0.60, 0.80]
+    angle_range = [0.00, 3.50] 
 
     #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

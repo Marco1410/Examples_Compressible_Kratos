@@ -16,11 +16,11 @@
             "input_filename" : "naca0012_0aoa_00"
         },
         "maximum_iterations"     : 500,
-        "echo_level"             : 0,
+        "echo_level"             : 1,
         "solving_strategy_settings": {
             "type": "line_search",
             "advanced_settings": {
-                "first_alpha_value"          : 0.1,
+                "first_alpha_value"          : 0.5,
                 "second_alpha_value"         : 1.0,
                 "max_alpha"                  : 2.0
                 }
@@ -34,7 +34,7 @@
         {
             "element_type": "perturbation_transonic"
         },
-        "convergence_criterion": "residual_criterion",
+        "convergence_criterion": "Or_criterion",
         "linear_solver_settings"  : {
                 "solver_type"             : "LinearSolversApplication.pardiso_lu"
         },
