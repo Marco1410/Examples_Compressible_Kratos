@@ -61,7 +61,7 @@
         "solving_strategy_settings": {
             "advanced_settings": {
                 "max_line_search_iterations" : 5,
-                "first_alpha_value"          : 0.1,
+                "first_alpha_value"          : 0.5,
                 "second_alpha_value"         : 1.0,
                 "min_alpha"                  : 0.1,
                 "max_alpha"                  : 1.0,
@@ -87,7 +87,7 @@
                 "mach_infinity": 0.84,
                 "mach_number_squared_limit": 3,
                 "perturbation_field": true,
-                "upwind_factor_constant": 1.0
+                "upwind_factor_constant": 0.8
             
             }
         },
@@ -98,17 +98,7 @@
             "Parameters"    : {
                 "model_part_name" : "FluidModelPart.Wake3D_Wake_Auto1",
                 "body_model_part_name" : "FluidModelPart.Body3D_Body_Auto1",
-                "wake_stl_file_name" : "wake3d.stl",
-                "wake_process_cpp_parameters": {
-                    "echo_level": 3,
-                    "shed_wake_from_trailing_edge": false,
-                    "shedded_wake_distance": 0.0,
-                    "shedded_wake_element_size": 0.001,
-                    "switch_wake_normal": false,
-                    "tolerance": 1e-9,
-                    "wake_direction": [1.0, 0.0, 0.0],
-                    "wake_normal": [ 0.0, 0.0, 1.0 ]
-                }
+                "wake_stl_file_name" : "wake3d.stl"
              }
         },
         {
