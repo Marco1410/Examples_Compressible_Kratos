@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gráfica de Datos</title>
+    <style>
+        #header-row {
+            background-color: #ccc;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+        }
+        .header-column {
+            width: 30%;
+        }
+        #container {
+            display: flex;
+            flex-direction: column;
+        }
+        #main-content {
+            display: flex;
+        }
+        #chart-container {
+            width: 75%;
+            overflow: hidden;
+            position: relative;
+        }
+        #sidebar {
+            width: 25%;
+            background-color: green;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #fileInput {
+            margin-top: 20px;
+        }
+        #fileList {
+            text-align: left;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div id="header-row">
+        <div class="header-column">CIMNE</div>
+        <div class="header-column">KratosMultiphysics</div>
+        <div class="header-column">plot-airfoil</div>
+    </div>
+    <div id="container">
+        <div id="main-content">
+            <div id="chart-container">
+                <canvas id="myChart"></canvas>
+            </div>
+            <div id="sidebar">
+                <input type="file" id="fileInput" accept=".txt, .dat" multiple>
+                <div id="fileList">
+                    <p><strong>Archivos Seleccionados:</strong></p>
+                    <ul id="selectedFiles"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.0.1/chartjs-plugin-zoom.min.js"></script>
+    <script>
+        const chartOptions = {
+            scales: {
+                x: {
+                    grid: {
+                        display: true,
+                        color: 'gray'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Eje X'
+                    }
+                },
+                y: {
+                    grid: {
+                        display: true,
+                        color: 'gray'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Eje Y'
+                    }
+                }
+            },
+            plugins: {
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'xy',
+                    },
+                    zoom: {
+                        wheel: {
+                            enabled: true,
+                        },
+                        pinch: {
+                            enabled: true,
+                        },
+                    },
+                },
+            },
+        };
+
+        document.getElementById('fileInput').addEventListener('change', function() {
+            const fileInput = this;
+            const selectedFiles = fileInput.files;
+            const fileList = document.getElementById('selectedFiles');
+
+            fileList.innerHTML = ''; // Limpiar la lista anterior
+
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                const listItem = document.createElement('li');
+                listItem.textContent = file.name;
+                listItem.addEventListener('click', function() {
+                    // Al hacer clic en un archivo de la lista, cargar y graficar su contenido
+                    loadAndPlotFile(file);
+                });
+                fileList.appendChild(listItem);
+            }
+        });
+
+        function loadAndPlotFile(file) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const fileContent = e.target.result;
+                const lines = fileContent.split('\n');
+                const data = lines.map(line => {
+                    const [x, y] = line.split(' ').map(parseFloat);
+                    return { x, y };
+                });
+
+                const ctx = document.getElementById('myChart').getContext('2d');
+                ctx.canvas.width = ctx.canvas.width; // Limpiar la gráfica anterior
+                const myChart = new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: file.name,
+                            data: data,
+                            pointRadius: 5,
+                            pointBackgroundColor: 'blue',
+                        }]
+                    },
+                    options: chartOptions
+                });
+            };
+
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
