@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gid version="15.0">
+  <pre>
+    <layer_to_use name="Fluid"/>
+    <groups>
+      <group id="3" name="Body" color="#42eb71ff" allowed_types="#7f" allowed_element_types="#7fe"/>
+    </groups>
+    <entities_groups>
+      <entities_group name="surfaces">
+        <vector name="entity_ids" length="2" type="integer">2 3</vector>
+        <vector name="entity_num_groups" length="2" type="ushort">1 1</vector>
+        <vector name="entity_groups" length="2" type="ushort">3 3</vector>
+      </entities_group>
+      <entities_group name="nodes">
+        <vector name="entity_ids" length="60400" type="integer">1:60400</vector>
+        <vector name="entity_num_groups" length="60400" type="ushort">1x60400</vector>
+        <vector name="entity_groups" length="60400" type="ushort">3x60400</vector>
+      </entities_group>
+      <entities_group name="elements">
+        <vector name="entity_ids" length="60000" type="integer">1:60000</vector>
+        <vector name="entity_num_groups" length="60000" type="ushort">1x60000</vector>
+        <vector name="entity_groups" length="60000" type="ushort">3x60000</vector>
+      </entities_group>
+    </entities_groups>
+  </pre>
+</gid>

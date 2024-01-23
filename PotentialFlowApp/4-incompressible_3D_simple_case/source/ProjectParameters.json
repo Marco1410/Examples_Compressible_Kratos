@@ -1,0 +1,109 @@
+{
+    "analysis_stage"   : "KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis",
+    "problem_data"     : {
+        "problem_name"  : "naca0012_3D",
+        "parallel_type" : "OpenMP",
+        "echo_level"    : 0,
+        "start_time"    : 0.0,
+        "end_time"      : 1.0
+    },
+    "output_processes" : {
+        "gid_output" : [{
+            "python_module" : "gid_output_process",
+            "kratos_module" : "KratosMultiphysics",
+            "process_name"  : "GiDOutputProcess",
+            "Parameters"    : {
+                "model_part_name"        : "FluidModelPart.fluid_computational_model_part",
+                "postprocess_parameters" : {
+                    "result_file_configuration" : {
+                        "gidpost_flags"               : {
+                            "GiDPostMode"           : "GiD_PostBinary",
+                            "WriteDeformedMeshFlag" : "WriteDeformed",
+                            "WriteConditionsFlag"   : "WriteConditions",
+                            "MultiFileFlag"         : "SingleFile"
+                        },
+                        "file_label"                  : "step",
+                        "output_control_type"         : "step",
+                        "output_interval"             : 1,
+                        "body_output"                 : true,
+                        "node_output"                 : false,
+                        "skin_output"                 : false,
+                        "plane_output"                : [],
+                        "nodal_results"               : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
+                        "nodal_nonhistorical_results" : ["PRESSURE_COEFFICIENT","VELOCITY","MACH","DENSITY"],
+                        "gauss_point_results"         : ["WAKE"]
+                    },
+                    "point_data_configuration"  : []
+                },
+                "output_name"            : "gid_output/naca0012_3D"
+            }
+        }]
+    },
+    "solver_settings"  : {
+        "model_part_name"          : "FluidModelPart",
+        "domain_size"              : 3,
+        "solver_type"              : "potential_flow",
+        "model_import_settings"    : {
+            "input_type"     : "mdpa",
+            "input_filename" : "naca0012_3D_0aoa_00"
+        },
+        "formulation": {
+                    "element_type":"perturbation_incompressible"
+        },
+        "maximum_iterations"       : 30,
+        "echo_level"               : 0,
+        "linear_solver_settings"  : {
+                "solver_type"             : "LinearSolversApplication.sparse_lu",
+                "verbosity"               : 0
+        },
+        "volume_model_part_name"   : "FluidParts_Fluid",
+        "skin_parts"               : ["PotentialWallCondition3D_FarField","Body3D_Body"],
+        "no_skin_parts"            : ["Wake3D_Wake","Tip3D_WingTips"],
+        "reform_dofs_at_each_step" : false
+    },
+    "processes"        : {
+        "boundary_conditions_process_list" : [{
+            "python_module" : "apply_far_field_process",
+            "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
+            "process_name"  : "FarFieldProcess",
+            "Parameters"    : {
+                "model_part_name" : "FluidModelPart.PotentialWallCondition3D_FarField",
+                "angle_of_attack" : 0.0349,
+                "free_stream_density"  : 1.225,
+                "mach_infinity"   : 0.2,
+                "perturbation_field": true
+            }
+        },{
+            "python_module" : "define_wake_process_3d",
+            "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
+            "process_name"  : "DefineWakeProcess3D",
+            "Parameters"    : {
+                "model_part_name" : "FluidModelPart.Wake3D_Wake",
+                "body_model_part_name" : "FluidModelPart.Body3D_Body",
+                "wake_stl_file_name" : "wake3d.stl",
+                "output_wake": false,
+                "wake_process_cpp_parameters":    {
+                    "tolerance"                     : 1e-9,
+                    "wake_normal"                   : [0.0,0.0,1.0],
+                    "wake_direction"                : [1.0,0.0,0.0],
+                    "switch_wake_normal"            : false,
+                    "count_elements_number"         : false,
+                    "write_elements_ids_to_file"    : false,
+                    "shed_wake_from_trailing_edge"  : false,
+                    "shedded_wake_distance"         : 12.5,
+                    "shedded_wake_element_size"     : 0.2,
+                    "echo_level": 1
+                }
+            }
+        },{
+            "python_module" : "compute_nodal_value_process",
+            "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
+            "process_name"  : "ComputeNodalValueProcess",
+            "Parameters"    : {
+                "model_part_name" : "FluidModelPart",
+                "elemental_variables_list_to_project": ["PRESSURE_COEFFICIENT","VELOCITY","MACH","DENSITY"]
+            }
+        }],
+        "auxiliar_process_list"            : []
+    }
+}
