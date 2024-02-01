@@ -25,6 +25,7 @@
 
 # HDF5 files
 *.h5
+*.hdf
 *.hdf5
 
 # Output of tests of meshing application (MMG)
