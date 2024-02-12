@@ -27,6 +27,7 @@
 *.h5
 *.hdf
 *.hdf5
+*.med
 
 # Output of tests of meshing application (MMG)
 *.sol

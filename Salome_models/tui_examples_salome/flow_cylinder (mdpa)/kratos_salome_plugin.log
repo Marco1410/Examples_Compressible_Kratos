@@ -1,0 +1,121 @@
+[2024-02-07 11:45:51] [INFO    ] KRATOS SALOME PLUGIN : Plugin version: 1.0.0
+[2024-02-07 11:45:51] [INFO    ] KRATOS SALOME PLUGIN : Running in Salome; version: 9.11.0; mode: TUI
+[2024-02-07 11:45:51] [DEBUG   ] KRATOS SALOME PLUGIN : Python version: 3.10.12
+[2024-02-07 11:45:51] [DEBUG   ] KRATOS SALOME PLUGIN : Operating system: linux
+[2024-02-07 11:45:51] [DEBUG   ] create_kratos_input_tui : Calling "CreateMdpaFile"
+[2024-02-07 11:45:51] [DEBUG   ] create_kratos_input_tui : Calling "CreateModelPart"
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "domain"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.domain"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 843 Nodes from Mesh "domain" of type "MeshProxy" took 0.00148 [s]
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 1496 Geometrical Entities from Mesh "domain" of type "MeshProxy" took 0.003 [s]
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new Properties with Id 0 for "Element2D3N"
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : No entities with name "Element2D3N" exist already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : 1496 new entities were created and 0 existed already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "inlet"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.inlet"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 21 Nodes from Mesh "mesh_inlet" of type "SubMeshProxy" took 0.000316 [s]
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 20 Geometrical Entities from Mesh "mesh_inlet" of type "SubMeshProxy" took 0.001 [s]
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : No entities with name "WallCondition2D2N" exist already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : 20 new entities were created and 0 existed already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "outlet"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.outlet"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 21 Nodes from Mesh "mesh_outlet" of type "SubMeshProxy" took 0.000492 [s]
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 20 Geometrical Entities from Mesh "mesh_outlet" of type "SubMeshProxy" took 0.002 [s]
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Entities with name "WallCondition2D2N" exist already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : 20 new entities were created and 0 existed already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "walls"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.walls"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 142 Nodes from Mesh "mesh_walls" of type "SubMeshProxy" took 0.000455 [s]
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 140 Geometrical Entities from Mesh "mesh_walls" of type "SubMeshProxy" took 0.001 [s]
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Entities with name "WallCondition2D2N" exist already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : 140 new entities were created and 0 existed already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "cyl_boundary"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.cyl_boundary"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 10 Nodes from Mesh "mesh_cyl_boundary" of type "SubMeshProxy" took 0.00017 [s]
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 10 Geometrical Entities from Mesh "mesh_cyl_boundary" of type "SubMeshProxy" took 0.001 [s]
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Entities with name "WallCondition2D2N" exist already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : 10 new entities were created and 0 existed already
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.write_mdpa : Starting to write ModelPart "default" to file "/media/marco-kratos-pc/datos/Examples_Compressible_Kratos/Salome_models/tui_examples_salome/flow_cylinder/flow_cylinder_2.0.mdpa"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.write_mdpa : Writing ModelPart took 0.01 [s]
+[2024-02-07 11:45:51] [DEBUG   ] create_kratos_input_tui : Calling "CreateMdpaFile"
+[2024-02-07 11:45:51] [DEBUG   ] create_kratos_input_tui : Calling "CreateModelPart"
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "domain"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.domain"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 1577 Nodes from Mesh "domain" of type "MeshProxy" took 0.00231 [s]
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 2955 Geometrical Entities from Mesh "domain" of type "MeshProxy" took 0.007 [s]
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new Properties with Id 0 for "Element2D3N"
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : No entities with name "Element2D3N" exist already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : 2955 new entities were created and 0 existed already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "inlet"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.inlet"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 21 Nodes from Mesh "mesh_inlet" of type "SubMeshProxy" took 0.000225 [s]
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 20 Geometrical Entities from Mesh "mesh_inlet" of type "SubMeshProxy" took 0.001 [s]
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : No entities with name "WallCondition2D2N" exist already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : 20 new entities were created and 0 existed already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "outlet"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.outlet"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 21 Nodes from Mesh "mesh_outlet" of type "SubMeshProxy" took 0.000259 [s]
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 20 Geometrical Entities from Mesh "mesh_outlet" of type "SubMeshProxy" took 0.001 [s]
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Entities with name "WallCondition2D2N" exist already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : 20 new entities were created and 0 existed already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "walls"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.walls"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 142 Nodes from Mesh "mesh_walls" of type "SubMeshProxy" took 0.000397 [s]
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 140 Geometrical Entities from Mesh "mesh_walls" of type "SubMeshProxy" took 0.001 [s]
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Entities with name "WallCondition2D2N" exist already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : 140 new entities were created and 0 existed already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "cyl_boundary"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.cyl_boundary"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 19 Nodes from Mesh "mesh_cyl_boundary" of type "SubMeshProxy" took 0.000184 [s]
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 19 Geometrical Entities from Mesh "mesh_cyl_boundary" of type "SubMeshProxy" took 0.001 [s]
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Entities with name "WallCondition2D2N" exist already
+[2024-02-07 11:45:51] [DEBUG   ] kratos_salome_plugin.geometries_io : 19 new entities were created and 0 existed already
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.write_mdpa : Starting to write ModelPart "default" to file "/media/marco-kratos-pc/datos/Examples_Compressible_Kratos/Salome_models/tui_examples_salome/flow_cylinder/flow_cylinder_1.0.mdpa"
+[2024-02-07 11:45:51] [INFO    ] kratos_salome_plugin.write_mdpa : Writing ModelPart took 0.01 [s]
+[2024-02-07 11:45:52] [DEBUG   ] create_kratos_input_tui : Calling "CreateMdpaFile"
+[2024-02-07 11:45:52] [DEBUG   ] create_kratos_input_tui : Calling "CreateModelPart"
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "domain"
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.domain"
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 3195 Nodes from Mesh "domain" of type "MeshProxy" took 0.00456 [s]
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 6172 Geometrical Entities from Mesh "domain" of type "MeshProxy" took 0.013 [s]
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new Properties with Id 0 for "Element2D3N"
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : No entities with name "Element2D3N" exist already
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : 6172 new entities were created and 0 existed already
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "inlet"
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.inlet"
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 21 Nodes from Mesh "mesh_inlet" of type "SubMeshProxy" took 0.000276 [s]
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 20 Geometrical Entities from Mesh "mesh_inlet" of type "SubMeshProxy" took 0.001 [s]
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : No entities with name "WallCondition2D2N" exist already
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : 20 new entities were created and 0 existed already
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "outlet"
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.outlet"
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 21 Nodes from Mesh "mesh_outlet" of type "SubMeshProxy" took 0.0002 [s]
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 20 Geometrical Entities from Mesh "mesh_outlet" of type "SubMeshProxy" took 0.001 [s]
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Entities with name "WallCondition2D2N" exist already
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : 20 new entities were created and 0 existed already
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "walls"
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.walls"
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 142 Nodes from Mesh "mesh_walls" of type "SubMeshProxy" took 0.000395 [s]
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 140 Geometrical Entities from Mesh "mesh_walls" of type "SubMeshProxy" took 0.001 [s]
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Entities with name "WallCondition2D2N" exist already
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : 140 new entities were created and 0 existed already
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "cyl_boundary"
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.cyl_boundary"
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 38 Nodes from Mesh "mesh_cyl_boundary" of type "SubMeshProxy" took 0.000221 [s]
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 38 Geometrical Entities from Mesh "mesh_cyl_boundary" of type "SubMeshProxy" took 0.001 [s]
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Entities with name "WallCondition2D2N" exist already
+[2024-02-07 11:45:52] [DEBUG   ] kratos_salome_plugin.geometries_io : 38 new entities were created and 0 existed already
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.write_mdpa : Starting to write ModelPart "default" to file "/media/marco-kratos-pc/datos/Examples_Compressible_Kratos/Salome_models/tui_examples_salome/flow_cylinder/flow_cylinder_0.5.mdpa"
+[2024-02-07 11:45:52] [INFO    ] kratos_salome_plugin.write_mdpa : Writing ModelPart took 0.02 [s]
