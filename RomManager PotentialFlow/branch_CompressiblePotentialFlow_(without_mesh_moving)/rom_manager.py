@@ -21,8 +21,9 @@ def CustomizeSimulation(cls, global_model, parameters):
 
         def ModifyInitialProperties(self):
             if self._GetSimulationName() == "::[ROM Simulation]:: ":
+                parameters["solver_settings"]["scheme_settings"]["update_transonic_tolerance"].SetDouble(0.1)
                 parameters["solver_settings"]["solving_strategy_settings"]["type"].SetString("newton_raphson")
-                parameters["solver_settings"]["maximum_iterations"].SetInt(5)
+                parameters["solver_settings"]["maximum_iterations"].SetInt(50)
         
         def Initialize(self):
             super().Initialize()
@@ -74,7 +75,7 @@ def UpdateMaterialParametersFile(material_parametrs_file_name, mu):
 #
 # get multiple parameters
 #
-def get_multiple_params_by_Halton_sequence(number_of_values,angle,mach,name,fix_corners_of_parametric_space):
+def get_multiple_params_by_Halton_sequence(number_of_values,angle,mach,fix_corners_of_parametric_space):
     if fix_corners_of_parametric_space and number_of_values < 4:
         print("Setting number of values to 4.")
         number_of_values = 4
@@ -94,7 +95,7 @@ def get_multiple_params_by_Halton_sequence(number_of_values,angle,mach,name,fix_
             values[number_of_values-2,0] = angle[1]
             values[number_of_values-2,1] = mach[0]
         for i in range(number_of_values):
-            #Angle of attack , Mach infinit, id, name
+            #Angle of attack , Mach infinit
             mu.append([np.round(values[i,0],2), np.round(values[i,1],3)])
     return mu
 
@@ -280,7 +281,7 @@ def GetRomManagerParameters():
             "save_vtk_output": false,
             "output_name": "id",                         // "id" , "mu"
             "ROM":{
-                "svd_truncation_tolerance": 1e-30,
+                "svd_truncation_tolerance": 1e-9,
                 "model_part_name": "MainModelPart",
                 "nodal_unknowns": ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"], // Main unknowns. Snapshots are taken from these
                 "rom_basis_output_format": "numpy",                                       // "json" "numpy"
@@ -291,10 +292,10 @@ def GetRomManagerParameters():
                     "monotonicity_preserving": false
                 },
                 "lspg_rom_bns_settings": {
-                    "train_petrov_galerkin": false,
+                    "train_petrov_galerkin": true,
                     "basis_strategy": "reactions",                        // 'residuals', 'jacobian', 'reactions'
                     "include_phi": false,
-                    "svd_truncation_tolerance": 1e-30,
+                    "svd_truncation_tolerance": 1e-9,
                     "solving_technique": "normal_equations",              // 'normal_equations', 'qr_decomposition'
                     "monotonicity_preserving": false
                 },
@@ -305,7 +306,7 @@ def GetRomManagerParameters():
             "HROM":{
                 "element_selection_type": "empirical_cubature",
                 "initial_candidate_elements_model_part_list": [],
-                "element_selection_svd_truncation_tolerance": 1e-30,
+                "element_selection_svd_truncation_tolerance": 1e-9,
                 "create_hrom_visualization_model_part" : false,
                 "echo_level" : 0
             }
@@ -316,12 +317,12 @@ def GetRomManagerParameters():
 
 if __name__ == "__main__":
 
-    NumberofMuTrain = 1
+    NumberofMuTrain = 3
     NumberOfMuTest  = 0
 
-    load_old_mu_parameters    = True
+    load_old_mu_parameters    = False
     only_test                 = False
-    load_fom_snapshots_matrix = True
+    load_fom_snapshots_matrix = False
 
     # Definir rango de valores de mach y angulo de ataque
     mach_range  = [ 0.72, 0.74]
@@ -343,10 +344,10 @@ if __name__ == "__main__":
         CleanToTest()
 
         fix_corners_of_parametric_space = False
-        mu_train = get_multiple_params_by_Halton_sequence(NumberofMuTrain, angle_range, mach_range, "train",
+        mu_train = get_multiple_params_by_Halton_sequence(NumberofMuTrain, angle_range, mach_range,
                                                            fix_corners_of_parametric_space)
         
-        mu_test  = get_multiple_params_by_Halton_sequence(NumberOfMuTest , angle_range, mach_range, "test" ,
+        mu_test  = get_multiple_params_by_Halton_sequence(NumberOfMuTest , angle_range, mach_range,
                                                           fix_corners_of_parametric_space)
 
         save_mu_parameters(mu_train,mu_test)
@@ -356,11 +357,11 @@ if __name__ == "__main__":
         CleanFolder()
 
         fix_corners_of_parametric_space = False
-        mu_train = get_multiple_params_by_Halton_sequence(NumberofMuTrain, angle_range, mach_range, "train",
+        mu_train = get_multiple_params_by_Halton_sequence(NumberofMuTrain, angle_range, mach_range,
                                                            fix_corners_of_parametric_space)
         
         fix_corners_of_parametric_space = False
-        mu_test  = get_multiple_params_by_Halton_sequence(NumberOfMuTest , angle_range, mach_range, "test" ,
+        mu_test  = get_multiple_params_by_Halton_sequence(NumberOfMuTest , angle_range, mach_range,
                                                           fix_corners_of_parametric_space)
 
         save_mu_parameters(mu_train,mu_test)
