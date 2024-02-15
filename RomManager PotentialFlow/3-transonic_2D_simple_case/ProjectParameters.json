@@ -43,7 +43,7 @@
                                     "line_search_tolerance"      : 0.5     
             }
         }, 
-        "convergence_criterion": "solution_criterion",
+        "convergence_criterion": "residual_criterion",
         "relative_tolerance"       : 1e-12,
         "absolute_tolerance"       : 1e-12,
         "linear_solver_settings"  : {
@@ -66,8 +66,6 @@
                 "free_stream_density"           : 1.225,
                 "mach_infinity"                 : 0.03,
                 "angle_of_attack"               : 0.0,
-                "inlet_potential"               : 0.0,
-                "initialize_flow_field"         : false,
                 "perturbation_field"            : true 
             }
         },{

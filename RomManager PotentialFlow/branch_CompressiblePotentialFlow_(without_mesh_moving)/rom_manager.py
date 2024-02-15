@@ -7,6 +7,7 @@ import numpy as np
 from scipy.stats import qmc
 import KratosMultiphysics
 import KratosMultiphysics.kratos_utilities
+import KratosMultiphysics.CompressiblePotentialFlowApplication as CPFApp
 from KratosMultiphysics.RomApplication.rom_manager import RomManager
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -22,9 +23,28 @@ def CustomizeSimulation(cls, global_model, parameters):
         def ModifyInitialProperties(self):
             if self._GetSimulationName() == "::[ROM Simulation]:: ":
                 parameters["solver_settings"]["solving_strategy_settings"]["type"].SetString("newton_raphson")
+                parameters["solver_settings"]["maximum_iterations"].SetInt(50)
         
         def Initialize(self):
             super().Initialize()
+
+        def InitializeSolutionStep(self):
+            super().InitializeSolutionStep()
+            # if self._GetSimulationName() == "::[ROM Simulation]:: ":
+            #     nametype = parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].GetString()
+            #     simulation_name = nametype.split('/')[1]
+            
+            #     # guardar aqui datos
+            #     if not os.path.exists("nodal_data"):
+            #         os.mkdir("nodal_data")
+            #     fout = open("nodal_data/" + simulation_name + ".dat",'w')
+            #     modelpart = self.model["MainModelPart"]
+            #     for node in modelpart.Nodes:
+            #         id   = node.Id
+            #         Vel  = node.GetSolutionStepValue(CPFApp.VELOCITY_POTENTIAL)
+            #         AuxV = node.GetSolutionStepValue(CPFApp.AUXILIARY_VELOCITY_POTENTIAL)
+            #         fout.write("%s %s %s\n" %(id,Vel,AuxV))
+            #     fout.close() 
 
         def FinalizeSolutionStep(self):
             super().FinalizeSolutionStep()
@@ -89,7 +109,7 @@ def get_multiple_params_by_Halton_sequence(number_of_values,angle,mach,name,fix_
             values[number_of_values-2,1] = mach[0]
         for i in range(number_of_values):
             #Angle of attack , Mach infinit, id, name
-            mu.append([values[i,0], values[i,1]])
+            mu.append([np.round(values[i,0],2), np.round(values[i,1],3)])
     return mu
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -128,7 +148,7 @@ def plot_Cps(mu_train,mu_test):
         fig.set_figwidth(12.0)
         fig.set_figheight(8.0)
         for n, name in enumerate(case_names):
-            casename = "Fit" + str(j)
+            casename = "Fit" + str(j)#mu_train[j][0]) + ", " + str(mu_train[j][1])
             if os.path.exists("Data/" + name + "_" + casename + ".dat"):
                 x  = np.loadtxt("Data/" + name + "_" + casename + ".dat",usecols=(0,))
                 cp = np.loadtxt("Data/" + name + "_" + casename + ".dat",usecols=(3,))
@@ -154,7 +174,7 @@ def plot_Cps(mu_train,mu_test):
         fig.set_figwidth(12.0)
         fig.set_figheight(8.0)
         for n, name in enumerate(case_names):
-            casename = "Test" + str(j)
+            casename = "Test" + str(j)#mu_test[j][0]) + ", " + str(mu_test[j][1])
             if os.path.exists("Data/" + name + "_" + casename + ".dat"):
                 x  = np.loadtxt("Data/" + name + "_" + casename + ".dat",usecols=(0,))
                 cp = np.loadtxt("Data/" + name + "_" + casename + ".dat",usecols=(3,))
@@ -234,16 +254,16 @@ def GetRomManagerParameters():
             "rom_stages_to_train" : ["ROM"],      // ["ROM","HROM"]
             "rom_stages_to_test"  : [],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
-            "projection_strategy": "galerkin",           // "lspg", "galerkin", "petrov_galerkin"
+            "projection_strategy": "petrov_galerkin",           // "lspg", "galerkin", "petrov_galerkin"
             "assembling_strategy": "global",             // "global", "elemental"
             "save_gid_output": true,                     // false, true #if true, it must exits previously in the ProjectParameters.json
             "save_vtk_output": false,
             "output_name": "id",                         // "id" , "mu"
             "ROM":{
-                "svd_truncation_tolerance": 1e-9,
+                "svd_truncation_tolerance": 1e-12,
                 "model_part_name": "MainModelPart",
                 "nodal_unknowns": ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"], // Main unknowns. Snapshots are taken from these
-                "rom_basis_output_format": "json",                                       // "json" "numpy"
+                "rom_basis_output_format": "numpy",                                       // "json" "numpy"
                 "rom_basis_output_name": "RomParameters",
                 "snapshots_control_type": "step",                                        // "step", "time"
                 "snapshots_interval": 1,
@@ -254,7 +274,7 @@ def GetRomManagerParameters():
                     "train_petrov_galerkin": false,
                     "basis_strategy": "reactions",                        // 'residuals', 'jacobian', 'reactions'
                     "include_phi": false,
-                    "svd_truncation_tolerance": 1e-9,
+                    "svd_truncation_tolerance": 1e-12,
                     "solving_technique": "normal_equations",              // 'normal_equations', 'qr_decomposition'
                     "monotonicity_preserving": false
                 },
@@ -265,7 +285,7 @@ def GetRomManagerParameters():
             "HROM":{
                 "element_selection_type": "empirical_cubature",
                 "initial_candidate_elements_model_part_list": [],
-                "element_selection_svd_truncation_tolerance": 1e-9,
+                "element_selection_svd_truncation_tolerance": 1e-12,
                 "create_hrom_visualization_model_part" : false,
                 "echo_level" : 0
             }
@@ -276,12 +296,12 @@ def GetRomManagerParameters():
 
 if __name__ == "__main__":
 
-    NumberofMuTrain = 30
+    NumberofMuTrain = 6
     NumberOfMuTest  = 0
 
-    load_old_mu_parameters    = True
+    load_old_mu_parameters    = False
     only_test                 = False
-    load_fom_snapshots_matrix = True
+    load_fom_snapshots_matrix = False
 
     # Definir rango de valores de mach y angulo de ataque
     mach_range  = [ 0.72, 0.74]
@@ -315,7 +335,7 @@ if __name__ == "__main__":
     else:
         CleanFolder()
 
-        fix_corners_of_parametric_space = True
+        fix_corners_of_parametric_space = False
         mu_train = get_multiple_params_by_Halton_sequence(NumberofMuTrain, angle_range, mach_range, "train",
                                                            fix_corners_of_parametric_space)
         
