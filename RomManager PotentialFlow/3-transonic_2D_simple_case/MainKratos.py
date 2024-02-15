@@ -20,8 +20,8 @@ def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
             sys.stdout.flush()
 
         def ModifyInitialProperties(self):
-            angle_of_attack = 1.629358495674461
-            mach_infinity   = 0.7340870665167455
+            angle_of_attack = 1.4
+            mach_infinity   = 0.728
             parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(angle_of_attack)
             parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach_infinity)
 

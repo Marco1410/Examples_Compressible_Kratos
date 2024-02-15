@@ -7,7 +7,6 @@ import numpy as np
 from scipy.stats import qmc
 import KratosMultiphysics
 import KratosMultiphysics.kratos_utilities
-import KratosMultiphysics.CompressiblePotentialFlowApplication as CPFApp
 from KratosMultiphysics.RomApplication.rom_manager import RomManager
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -23,28 +22,13 @@ def CustomizeSimulation(cls, global_model, parameters):
         def ModifyInitialProperties(self):
             if self._GetSimulationName() == "::[ROM Simulation]:: ":
                 parameters["solver_settings"]["solving_strategy_settings"]["type"].SetString("newton_raphson")
-                parameters["solver_settings"]["maximum_iterations"].SetInt(50)
+                parameters["solver_settings"]["maximum_iterations"].SetInt(5)
         
         def Initialize(self):
             super().Initialize()
 
         def InitializeSolutionStep(self):
             super().InitializeSolutionStep()
-            # if self._GetSimulationName() == "::[ROM Simulation]:: ":
-            #     nametype = parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].GetString()
-            #     simulation_name = nametype.split('/')[1]
-            
-            #     # guardar aqui datos
-            #     if not os.path.exists("nodal_data"):
-            #         os.mkdir("nodal_data")
-            #     fout = open("nodal_data/" + simulation_name + ".dat",'w')
-            #     modelpart = self.model["MainModelPart"]
-            #     for node in modelpart.Nodes:
-            #         id   = node.Id
-            #         Vel  = node.GetSolutionStepValue(CPFApp.VELOCITY_POTENTIAL)
-            #         AuxV = node.GetSolutionStepValue(CPFApp.AUXILIARY_VELOCITY_POTENTIAL)
-            #         fout.write("%s %s %s\n" %(id,Vel,AuxV))
-            #     fout.close() 
 
         def FinalizeSolutionStep(self):
             super().FinalizeSolutionStep()
@@ -60,7 +44,9 @@ def CustomizeSimulation(cls, global_model, parameters):
                     x = node.X ; y = node.Y ; z = node.Z
                     cp = node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
                     fout.write("%s %s %s %s\n" %(x,y,z,cp))
-                fout.close()            
+                fout.close()
+
+                plot_Cps(simulation_name)            
 
         def CustomMethod(self):
             return self.custom_param
@@ -138,60 +124,94 @@ def plot_mu_values(mu_train,mu_test):
 #
 # plot
 #
-def plot_Cps(mu_train,mu_test):
+def plot_Cps(name):
+    simulation = name.split('_')[1]
+    case_names = ["FOM","ROM","HROM"]
+    markercolor = ["ob","xr","+g"]
+    if os.path.exists("Data/" + name + ".dat"):
+        cp_min = 0
+        cp_max = 0
+        fig = plt.figure()
+        fig.set_figwidth(12.0)
+        fig.set_figheight(8.0)
+        for n, name in enumerate(case_names):
+            if os.path.exists("Data/" + name + "_" + simulation + ".dat"):
+                x  = np.loadtxt("Data/" + name + "_" + simulation + ".dat",usecols=(0,))
+                cp = np.loadtxt("Data/" + name + "_" + simulation + ".dat",usecols=(3,))
+                fig = plt.plot(x, cp, markercolor[n], markersize = 3.0, label = name)
+                if np.min(cp) < cp_min:
+                    cp_min = np.min(cp)
+                if np.max(cp) > cp_max:
+                    cp_max = np.max(cp)
+        fig = plt.title('Cp vs x - ' + simulation)
+        fig = plt.axis([-0.05,1.35,cp_max+0.1,cp_min-0.1])
+        fig = plt.ylabel('Cp')
+        fig = plt.xlabel('x')
+        fig = plt.grid()
+        fig = plt.legend()
+        fig = plt.tight_layout()
+        fig = plt.savefig("Captures/" + simulation + ".png")
+        fig = plt.close('all')
+
+def plot_all_Cps():
+    mu_train, mu_test = load_mu_parameters()
     case_names = ["FOM","ROM","HROM"]
     markercolor = ["ob","xr","+g"]
     for j in range(len(mu_train)):
-        cp_min = 0
-        cp_max = 0
-        fig = plt.figure()
-        fig.set_figwidth(12.0)
-        fig.set_figheight(8.0)
-        for n, name in enumerate(case_names):
-            casename = "Fit" + str(j)#mu_train[j][0]) + ", " + str(mu_train[j][1])
-            if os.path.exists("Data/" + name + "_" + casename + ".dat"):
-                x  = np.loadtxt("Data/" + name + "_" + casename + ".dat",usecols=(0,))
-                cp = np.loadtxt("Data/" + name + "_" + casename + ".dat",usecols=(3,))
-                fig = plt.plot(x, cp, markercolor[n], markersize = 3.0, label = name)
-                if np.min(cp) < cp_min:
-                    cp_min = np.min(cp)
-                if np.max(cp) > cp_max:
-                    cp_max = np.max(cp)
-        fig = plt.title('Cp vs x - ' + casename)
-        fig = plt.axis([-0.05,1.35,cp_max+0.1,cp_min-0.1])
-        fig = plt.ylabel('Cp')
-        fig = plt.xlabel('x')
-        fig = plt.grid()
-        fig = plt.legend()
-        fig = plt.tight_layout()
-        fig = plt.savefig("Captures/" + casename + ".png")
-        fig = plt.close('all')
+        if os.path.exists("Data/FOM_Train" + str(j) + ".dat"):
+            cp_min = 0
+            cp_max = 0
+            fig = plt.figure()
+            fig.set_figwidth(12.0)
+            fig.set_figheight(8.0)
+            for n, name in enumerate(case_names):
+                casename = "Test" + str(j)
+                # case_name = mu_train[j][0]) + ", " + str(mu_train[j][1])
+                if os.path.exists("Data/" + name + "_" + casename + ".dat"):
+                    x  = np.loadtxt("Data/" + name + "_" + casename + ".dat",usecols=(0,))
+                    cp = np.loadtxt("Data/" + name + "_" + casename + ".dat",usecols=(3,))
+                    fig = plt.plot(x, cp, markercolor[n], markersize = 3.0, label = name)
+                    if np.min(cp) < cp_min:
+                        cp_min = np.min(cp)
+                    if np.max(cp) > cp_max:
+                        cp_max = np.max(cp)
+            fig = plt.title('Cp vs x - ' + casename)
+            fig = plt.axis([-0.05,1.35,cp_max+0.1,cp_min-0.1])
+            fig = plt.ylabel('Cp')
+            fig = plt.xlabel('x')
+            fig = plt.grid()
+            fig = plt.legend()
+            fig = plt.tight_layout()
+            fig = plt.savefig("Captures/" + casename + ".png")
+            fig = plt.close('all')
 
     for j in range(len(mu_test)):
-        cp_min = 0
-        cp_max = 0
-        fig = plt.figure()
-        fig.set_figwidth(12.0)
-        fig.set_figheight(8.0)
-        for n, name in enumerate(case_names):
-            casename = "Test" + str(j)#mu_test[j][0]) + ", " + str(mu_test[j][1])
-            if os.path.exists("Data/" + name + "_" + casename + ".dat"):
-                x  = np.loadtxt("Data/" + name + "_" + casename + ".dat",usecols=(0,))
-                cp = np.loadtxt("Data/" + name + "_" + casename + ".dat",usecols=(3,))
-                fig = plt.plot(x, cp, markercolor[n], markersize = 3.0, label = name)
-                if np.min(cp) < cp_min:
-                    cp_min = np.min(cp)
-                if np.max(cp) > cp_max:
-                    cp_max = np.max(cp)
-        fig = plt.title('Cp vs x - ' + casename)
-        fig = plt.axis([-0.05,1.35,cp_max+0.1,cp_min-0.1])
-        fig = plt.ylabel('Cp')
-        fig = plt.xlabel('x')
-        fig = plt.grid()
-        fig = plt.legend()
-        fig = plt.tight_layout()
-        fig = plt.savefig("Captures/" + casename + ".png")
-        fig = plt.close('all')
+        if os.path.exists("Data/FOM_Test" + str(j) + ".dat"):
+            cp_min = 0
+            cp_max = 0
+            fig = plt.figure()
+            fig.set_figwidth(12.0)
+            fig.set_figheight(8.0)
+            for n, name in enumerate(case_names):
+                casename = "Test" + str(j)
+                # case_name = mu_test[j][0]) + ", " + str(mu_test[j][1])
+                if os.path.exists("Data/" + name + "_" + casename + ".dat"):
+                    x  = np.loadtxt("Data/" + name + "_" + casename + ".dat",usecols=(0,))
+                    cp = np.loadtxt("Data/" + name + "_" + casename + ".dat",usecols=(3,))
+                    fig = plt.plot(x, cp, markercolor[n], markersize = 3.0, label = name)
+                    if np.min(cp) < cp_min:
+                        cp_min = np.min(cp)
+                    if np.max(cp) > cp_max:
+                        cp_max = np.max(cp)
+            fig = plt.title('Cp vs x - ' + casename)
+            fig = plt.axis([-0.05,1.35,cp_max+0.1,cp_min-0.1])
+            fig = plt.ylabel('Cp')
+            fig = plt.xlabel('x')
+            fig = plt.grid()
+            fig = plt.legend()
+            fig = plt.tight_layout()
+            fig = plt.savefig("Captures/" + casename + ".png")
+            fig = plt.close('all')
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
@@ -254,13 +274,13 @@ def GetRomManagerParameters():
             "rom_stages_to_train" : ["ROM"],      // ["ROM","HROM"]
             "rom_stages_to_test"  : [],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
-            "projection_strategy": "petrov_galerkin",           // "lspg", "galerkin", "petrov_galerkin"
+            "projection_strategy": "galerkin",           // "lspg", "galerkin", "petrov_galerkin"
             "assembling_strategy": "global",             // "global", "elemental"
             "save_gid_output": true,                     // false, true #if true, it must exits previously in the ProjectParameters.json
             "save_vtk_output": false,
             "output_name": "id",                         // "id" , "mu"
             "ROM":{
-                "svd_truncation_tolerance": 1e-12,
+                "svd_truncation_tolerance": 1e-30,
                 "model_part_name": "MainModelPart",
                 "nodal_unknowns": ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"], // Main unknowns. Snapshots are taken from these
                 "rom_basis_output_format": "numpy",                                       // "json" "numpy"
@@ -274,7 +294,7 @@ def GetRomManagerParameters():
                     "train_petrov_galerkin": false,
                     "basis_strategy": "reactions",                        // 'residuals', 'jacobian', 'reactions'
                     "include_phi": false,
-                    "svd_truncation_tolerance": 1e-12,
+                    "svd_truncation_tolerance": 1e-30,
                     "solving_technique": "normal_equations",              // 'normal_equations', 'qr_decomposition'
                     "monotonicity_preserving": false
                 },
@@ -285,7 +305,7 @@ def GetRomManagerParameters():
             "HROM":{
                 "element_selection_type": "empirical_cubature",
                 "initial_candidate_elements_model_part_list": [],
-                "element_selection_svd_truncation_tolerance": 1e-12,
+                "element_selection_svd_truncation_tolerance": 1e-30,
                 "create_hrom_visualization_model_part" : false,
                 "echo_level" : 0
             }
@@ -296,12 +316,12 @@ def GetRomManagerParameters():
 
 if __name__ == "__main__":
 
-    NumberofMuTrain = 6
+    NumberofMuTrain = 1
     NumberOfMuTest  = 0
 
-    load_old_mu_parameters    = False
+    load_old_mu_parameters    = True
     only_test                 = False
-    load_fom_snapshots_matrix = False
+    load_fom_snapshots_matrix = True
 
     # Definir rango de valores de mach y angulo de ataque
     mach_range  = [ 0.72, 0.74]
@@ -359,7 +379,3 @@ if __name__ == "__main__":
     rom_manager.Test(mu_test)
 
     rom_manager.PrintErrors()
-
-    plot_Cps(mu_train,mu_test)
-
-

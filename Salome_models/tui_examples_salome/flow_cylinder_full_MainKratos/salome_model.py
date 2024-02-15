@@ -14,7 +14,7 @@ notebook = salome_notebook.NoteBook()
 
 ######### Set the path to your work folder
 ##########################################
-path_to_folder = "/home/marco-kratos-pc/Descargas/flow_cylinder/"   
+path_to_folder = "/media/marco-kratos-pc/datos/Examples_Compressible_Kratos/Salome_models/tui_examples_salome/flow_cylinder_full_MainKratos/"   
 
 ###
 ### GEOM component
