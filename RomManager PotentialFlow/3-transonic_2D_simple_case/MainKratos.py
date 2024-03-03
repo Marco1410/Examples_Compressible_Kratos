@@ -4,7 +4,6 @@ import importlib
 import numpy as np
 import matplotlib.pyplot as plt
 import KratosMultiphysics.FluidDynamicsApplication 
-import KratosMultiphysics.CompressiblePotentialFlowApplication as CPFApp
 import matplotlib
 matplotlib.use('Agg')
 
@@ -20,8 +19,8 @@ def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
             sys.stdout.flush()
 
         def ModifyInitialProperties(self):
-            angle_of_attack = 1.4
-            mach_infinity   = 0.728
+            angle_of_attack = 1.0
+            mach_infinity   = 0.73
             parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(angle_of_attack)
             parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach_infinity)
 

@@ -25,9 +25,9 @@
             "model_part_name" : "Body2D_Body",
             "critical_mach"                 : 0.85,
             "upwind_factor_constant"        : 2.0,
-            "update_critical_mach"          : -1.0,
-            "update_upwind_factor_constant" : -1.0,
-            "update_transonic_tolerance"    : 1e-3,
+            "update_critical_mach"          : 0.85,
+            "update_upwind_factor_constant" : 2.0,
+            "update_transonic_tolerance"    : 1e-30,
             "mach_number_squared_limit"     : 3.0
         },
         "maximum_iterations"       : 1000,
@@ -66,7 +66,7 @@
                 "free_stream_density"           : 1.225,
                 "mach_infinity"                 : 0.03,
                 "angle_of_attack"               : 0.0,
-                "inlet_potential"               : 0.0,
+                "inlet_potential"               : 1.0,
                 "perturbation_field"            : true 
             }
         },{
@@ -76,8 +76,7 @@
             "Parameters"    : {
                 "model_part_name" : "MainModelPart.Body2D_Body"
             }
-        }]
-        ,
+        }],
         "auxiliar_process_list"            : [{
             "python_module" : "compute_nodal_value_process",
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
@@ -86,8 +85,7 @@
                 "elemental_variables_list_to_project" : ["VELOCITY","PRESSURE_COEFFICIENT"]
             }
         }]
-    }
-    ,
+    },
     "output_processes" : {
        "gid_output" : [{
            "python_module" : "gid_output_process",

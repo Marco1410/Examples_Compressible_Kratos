@@ -22,7 +22,11 @@ def CustomizeSimulation(cls, global_model, parameters):
 
         def ModifyInitialProperties(self):
             if self._GetSimulationName() == "::[ROM Simulation]:: ":
-                parameters["solver_settings"]["maximum_iterations"].SetInt(100)
+                parameters["solver_settings"]["scheme_settings"]["update_values"].SetBool(True)
+                parameters["solver_settings"]["scheme_settings"]["update_transonic_tolerance"].SetDouble(0.5)
+                # parameters["solver_settings"]["scheme_settings"]["update_upwind_factor_constant"].SetDouble(1.0)
+                # parameters["solver_settings"]["solving_strategy_settings"]["type"].SetString("newton_raphson")
+                parameters["solver_settings"]["maximum_iterations"].SetInt(300)
         
         def Initialize(self):
             super().Initialize()
@@ -31,8 +35,8 @@ def CustomizeSimulation(cls, global_model, parameters):
             super().InitializeSolutionStep()
 
             # if self._GetSimulationName() == "::[ROM Simulation]:: ":
-            #     if parameters["output_processes"].Has("gid_output"):
-            #         nametype = parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].GetString()
+            #     if parameters["output_processes"].Has("vtk_output"):
+            #         nametype = parameters["output_processes"]["vtk_output"][0]["Parameters"]["output_path"].GetString()
             #         simulation_name = nametype.split('/')[1].split('_')[1].removeprefix("Fit").removeprefix("Test")
             #         data_name = "DataBase/Data/full_" + simulation_name + ".dat"
             #         id_nodes                     = np.loadtxt(data_name,usecols=(0,))
@@ -46,11 +50,11 @@ def CustomizeSimulation(cls, global_model, parameters):
         def FinalizeSolutionStep(self):
             super().FinalizeSolutionStep()
 
-            if parameters["output_processes"].Has("gid_output"):
-                nametype = parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].GetString()
+            if parameters["output_processes"].Has("vtk_output"):
+                nametype = parameters["output_processes"]["vtk_output"][0]["Parameters"]["output_path"].GetString()
 
                 if self._GetSimulationName() == "Analysis":
-                    simulation_name = nametype.removeprefix("DataBase/Gid_Results/")
+                    simulation_name = nametype.removeprefix("DataBase/Results/")
                     skin_data = "DataBase/Data/" + simulation_name + ".dat"
                     fout = open(skin_data,'w')
                 else:
@@ -97,6 +101,7 @@ def UpdateProjectParameters(parameters, mu=None):
 # get multiple parameters
 #
 def get_multiple_params_by_Halton_sequence(number_of_values,angle,mach,fix_corners_of_parametric_space):
+    #It still remains to verify that there are no repeated values ​​due to rounding, in this case delete them and add new values.
     if np.abs(angle[1]-angle[0])< 1e-2:
         if fix_corners_of_parametric_space and number_of_values < 2:
             print("Setting number of values to 2.")
@@ -112,7 +117,7 @@ def get_multiple_params_by_Halton_sequence(number_of_values,angle,mach,fix_corne
                 values[number_of_values-1] = mach[1]
             for i in range(number_of_values):
                 #Angle of attack , Mach infinit
-                mu.append([angle[0], values[i]])
+                mu.append([np.round(angle[0],2), np.round(values[i],3)])
     elif np.abs(mach[1]-mach[0])< 1e-3:
         if fix_corners_of_parametric_space and number_of_values < 2:
             print("Setting number of values to 2.")
@@ -128,7 +133,7 @@ def get_multiple_params_by_Halton_sequence(number_of_values,angle,mach,fix_corne
                 values[number_of_values-1] = angle[1]
             for i in range(number_of_values):
                 #Angle of attack , Mach infinit
-                mu.append([values[i], mach[0]])
+                mu.append([np.round(values[i],2), np.round(mach[0],3)])
     else:
         if fix_corners_of_parametric_space and number_of_values < 4:
             print("Setting number of values to 4.")
@@ -150,7 +155,7 @@ def get_multiple_params_by_Halton_sequence(number_of_values,angle,mach,fix_corne
                 values[number_of_values-2,1] = mach[0]
             for i in range(number_of_values):
                 #Angle of attack , Mach infinit
-                mu.append([values[i,0], values[i,1]])
+                mu.append([np.round(values[i,0],2), np.round(values[i,1],3)])
     return mu
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -407,10 +412,10 @@ def GetRomManagerParameters():
             "rom_stages_to_train" : ["ROM"],      // ["ROM","HROM"]
             "rom_stages_to_test"  : ["ROM"],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
-            "projection_strategy": "lspg",           // "lspg", "galerkin", "petrov_galerkin"
+            "projection_strategy": "galerkin",           // "lspg", "galerkin", "petrov_galerkin"
             "assembling_strategy": "global",             // "global", "elemental"
-            "save_gid_output": true,                     // false, true #if true, it must exits previously in the ProjectParameters.json
-            "save_vtk_output": false,
+            "save_gid_output": false,                     // false, true #if true, it must exits previously in the ProjectParameters.json
+            "save_vtk_output": true,
             "output_name": "mu",                         // "id" , "mu"
             "ROM":{
                 "svd_truncation_tolerance": 1e-12,
@@ -454,9 +459,10 @@ if __name__ == "__main__":
 
     load_old_mu_parameters    = False
     only_test                 = False
+    ind_errors                = False
 
     # Definir rango de valores de mach y angulo de ataque
-    mach_range  = [ 0.70, 0.75]
+    mach_range  = [ 0.72, 0.73]
     angle_range = [ 1.00, 2.00]
 
     #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -500,8 +506,25 @@ if __name__ == "__main__":
     project_parameters_name = "ProjectParameters.json"
     rom_manager = LocalRomManager(project_parameters_name,general_rom_manager_parameters,CustomizeSimulation,UpdateProjectParameters)
 
-    mu_train_errors = rom_manager.Fit(mu_train)
-    mu_test_errors  = rom_manager.Test(mu_test)
+    if ind_errors:
+        # To get the fom-rom error for each case as an isolated case.
+        mu_train_errors = []
+        if len(mu_train)>0:
+            for mu in mu_train:
+                aux_mu_train = []
+                aux_mu_train.append([mu[0],mu[1]])
+                aux_mu_train_errors = rom_manager.Fit(aux_mu_train)
+                mu_train_errors.append([mu[0],mu[1],aux_mu_train_errors[0][2]])
+        mu_test_errors  = []
+        if len(mu_test)>0:
+            for mu in mu_test:
+                aux_mu_test  = []
+                aux_mu_test.append([mu[0],mu[1]])
+                aux_mu_test_errors  = rom_manager.Test(aux_mu_test)
+                mu_test_errors.append([mu[0],mu[1],aux_mu_test_errors[0][2]])
+    else:
+        mu_train_errors = rom_manager.Fit(mu_train)
+        mu_test_errors  = rom_manager.Test(mu_test)
 
     save_mu_parameters(mu_train_errors,mu_test_errors,"mu_train_errors","mu_test_errors")
     plot_mu_values_with_errors()
