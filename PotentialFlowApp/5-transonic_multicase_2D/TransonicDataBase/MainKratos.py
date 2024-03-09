@@ -6,7 +6,6 @@ import matplotlib
 matplotlib.use('Agg')
 import KratosMultiphysics
 import KratosMultiphysics.CompressiblePotentialFlowApplication as CPFApp
-from KratosMultiphysics.MeshMovingApplication.mesh_moving_analysis import MeshMovingAnalysis
 from KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis import PotentialFlowAnalysis
 
 
@@ -21,31 +20,16 @@ class PotentialFlowAnalysisWithFlush(PotentialFlowAnalysis):
     def FinalizeSolutionStep(self):
         super().FinalizeSolutionStep()
 
-def GenerateMeshes(angle, name):
-                
-    with open("ProjectParametersMeshMoving.json",'r') as parameter_file:
-        mesh_parameters = KratosMultiphysics.Parameters(parameter_file.read())
-    mesh_parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["rotation_angle"].SetDouble(angle*-np.pi/180)
-    
-    model = KratosMultiphysics.Model()
-    mesh_simulation = MeshMovingAnalysis(model,mesh_parameters)
-    mesh_simulation.Run()
-
-    mainmodelpart = model["MainModelPart"]
-    KratosMultiphysics.ModelPartIO(name, KratosMultiphysics.IO.WRITE | KratosMultiphysics.IO.MESH_ONLY).WriteModelPart(mainmodelpart)
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 def Clean():
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Results')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Data')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Captures')
-    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Meshes')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('TransonicDataBase.post.lst')
     os.mkdir("Results")
     os.mkdir("Data")
     os.mkdir("Captures")
-    os.mkdir("Meshes")
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -61,20 +45,17 @@ if __name__ == "__main__":
 
     simulation_number = 0
 
-    angles = np.arange( 0.00, 2.501, 0.50)
-    machs  = np.arange( 0.65, 0.801, 0.05)
+    angles = np.arange( 1.50, 2.001, 0.02)
+    machs  = np.arange( 0.72, 0.761, 0.005)
+
+    critical_mach          = 0.9
+    upwind_factor_constant = 1.5
 
     snapshot_variables_list = [CPFApp.VELOCITY_POTENTIAL,CPFApp.AUXILIARY_VELOCITY_POTENTIAL]
 
     for angle_of_attack in angles:
 
         angle_of_attack = np.round(angle_of_attack,2)
-
-        name = "Meshes/" + str(angle_of_attack)
-
-        GenerateMeshes(angle_of_attack, name)
-
-        parameters["solver_settings"]["model_import_settings"]["input_filename"].SetString(name)
 
         for mach_infinity in machs:
             
@@ -91,7 +72,13 @@ if __name__ == "__main__":
 
             mach_infinity = np.round(mach_infinity,3)
 
+            parameters["solver_settings"]["scheme_settings"]["critical_mach"].SetDouble(critical_mach)
+            parameters["solver_settings"]["scheme_settings"]["upwind_factor_constant"].SetDouble(upwind_factor_constant)
+            parameters["solver_settings"]["scheme_settings"]["update_critical_mach"].SetDouble(critical_mach)
+            parameters["solver_settings"]["scheme_settings"]["update_upwind_factor_constant"].SetDouble(upwind_factor_constant)
+            parameters["solver_settings"]["scheme_settings"]["update_transonic_tolerance"].SetDouble(1e-30)
             parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach_infinity)
+            parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(angle_of_attack)
             parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString("Results/" + "FOM_" + str(angle_of_attack) + "_" + str(mach_infinity))
             model = KratosMultiphysics.Model()
             simulation = PotentialFlowAnalysisWithFlush(model,parameters)

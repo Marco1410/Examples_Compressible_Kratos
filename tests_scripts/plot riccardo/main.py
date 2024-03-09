@@ -3,7 +3,7 @@ import mount_database
 import KratosMultiphysics
 import pyvista
 
-path = 'C:\\Users\\rross\\Programming\\rocket\\data'
+path = 'data/'
 params, velocities, temperatures = mount_database.MountDatabase(path)
 # print("params",params.shape,params)
 # print("velocities",velocities.shape,velocities)

@@ -19,7 +19,7 @@ Domain_Length = 100.0
 Domain_Width = 100.0
 
 Airfoil_MeshSize = 5e-4
-FarField_MeshSize = 15.0
+FarField_MeshSize = 10.0
 Min_Airfoil_MeshSize = Airfoil_MeshSize/10.0
 Deflection           = Min_Airfoil_MeshSize/10.0
 salome_files_path = "salome_files"
