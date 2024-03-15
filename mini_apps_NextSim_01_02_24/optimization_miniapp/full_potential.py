@@ -7,7 +7,7 @@ import numpy as np
 # USER-RELATED INPUT DATA ##########
 ####################################
 # Parameters for local execution 
-mykratosfold="/home/sgho/CIMNE_Documents/11_FULL_POTENTIAL_KRATOS/021_Kratos_installation_persoHP_laptop"
+mykratosfold="../../"
 kratosenvdict={
 "PYTHONPATH": "%s/Kratos/bin/Release" %(mykratosfold),
 "LD_LIBRARY_PATH": "%s/Kratos/bin/Release/libs" %(mykratosfold)

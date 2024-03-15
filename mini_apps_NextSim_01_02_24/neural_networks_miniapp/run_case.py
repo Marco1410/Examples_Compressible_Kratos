@@ -24,7 +24,7 @@ adeg=0.5   # Angle of attack in degrees. Training done for [0.0,1.0]
 ####################################
 # Parameters for local execution 
 kratosexec="python3.10"
-mykratosfold="/home/sgho/CIMNE_Documents/11_FULL_POTENTIAL_KRATOS/021_Kratos_installation_persoHP_laptop"
+mykratosfold="../../"
 kratosenvdict={
 "PYTHONPATH": "%s/Kratos/bin/Release" %(mykratosfold),
 "LD_LIBRARY_PATH": "%s/Kratos/bin/Release/libs" %(mykratosfold)

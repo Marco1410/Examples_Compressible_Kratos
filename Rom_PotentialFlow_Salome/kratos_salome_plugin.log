@@ -1,0 +1,104 @@
+[2024-03-15 22:29:49] [INFO    ] KRATOS SALOME PLUGIN : Plugin version: 1.0.0
+[2024-03-15 22:29:49] [INFO    ] KRATOS SALOME PLUGIN : Running in Salome; version: 9.11.0; mode: TUI
+[2024-03-15 22:29:49] [DEBUG   ] KRATOS SALOME PLUGIN : Python version: 3.10.12
+[2024-03-15 22:29:49] [DEBUG   ] KRATOS SALOME PLUGIN : Operating system: linux
+[2024-03-15 22:29:51] [DEBUG   ] create_kratos_input_tui : Calling "CreateMdpaFile"
+[2024-03-15 22:29:51] [DEBUG   ] create_kratos_input_tui : Calling "CreateModelPart"
+[2024-03-15 22:29:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "Parts_Parts_Auto1"
+[2024-03-15 22:29:51] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.Parts_Parts_Auto1"
+[2024-03-15 22:29:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 4088 Nodes from Mesh "Parts_Parts_Auto1" of type "MeshProxy" took 0.00568 [s]
+[2024-03-15 22:29:51] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 7920 Geometrical Entities from Mesh "Parts_Parts_Auto1" of type "MeshProxy" took 0.077 [s]
+[2024-03-15 22:29:51] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new Properties with Id 0 for "Element2D3N"
+[2024-03-15 22:29:51] [DEBUG   ] kratos_salome_plugin.geometries_io : No entities with name "Element2D3N" exist already
+[2024-03-15 22:29:52] [DEBUG   ] kratos_salome_plugin.geometries_io : 7920 new entities were created and 0 existed already
+[2024-03-15 22:29:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "PotentialWallCondition2D_Far_field_Auto1"
+[2024-03-15 22:29:52] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.PotentialWallCondition2D_Far_field_Auto1"
+[2024-03-15 22:29:52] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 40 Nodes from Mesh "PotentialWallCondition2D_Far_field_Auto1" of type "MeshGroup" took 0.000304 [s]
+[2024-03-15 22:29:52] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 40 Geometrical Entities from Mesh "PotentialWallCondition2D_Far_field_Auto1" of type "MeshGroup" took 0.000 [s]
+[2024-03-15 22:29:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-03-15 22:29:52] [DEBUG   ] kratos_salome_plugin.geometries_io : No entities with name "WallCondition2D2N" exist already
+[2024-03-15 22:29:52] [DEBUG   ] kratos_salome_plugin.geometries_io : 40 new entities were created and 0 existed already
+[2024-03-15 22:29:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "Body2D_Body"
+[2024-03-15 22:29:52] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.Body2D_Body"
+[2024-03-15 22:29:52] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 216 Nodes from Mesh "Body2D_Body" of type "MeshGroup" took 0.000509 [s]
+[2024-03-15 22:29:52] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 216 Geometrical Entities from Mesh "Body2D_Body" of type "MeshGroup" took 0.001 [s]
+[2024-03-15 22:29:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-03-15 22:29:52] [DEBUG   ] kratos_salome_plugin.geometries_io : Entities with name "WallCondition2D2N" exist already
+[2024-03-15 22:29:52] [DEBUG   ] kratos_salome_plugin.geometries_io : 216 new entities were created and 0 existed already
+[2024-03-15 22:29:52] [INFO    ] kratos_salome_plugin.write_mdpa : Starting to write ModelPart "default" to file "/media/marco-kratos-pc/datos/Examples_Compressible_Kratos/Rom_PotentialFlow_Salome/salome_files/model_mesh_0.mdpa"
+[2024-03-15 22:29:52] [INFO    ] kratos_salome_plugin.write_mdpa : Writing ModelPart took 0.03 [s]
+[2024-03-15 22:29:53] [DEBUG   ] create_kratos_input_tui : Calling "CreateMdpaFile"
+[2024-03-15 22:29:53] [DEBUG   ] create_kratos_input_tui : Calling "CreateModelPart"
+[2024-03-15 22:29:53] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "Parts_Parts_Auto1"
+[2024-03-15 22:29:53] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.Parts_Parts_Auto1"
+[2024-03-15 22:29:53] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 6417 Nodes from Mesh "Parts_Parts_Auto1" of type "MeshProxy" took 0.0124 [s]
+[2024-03-15 22:29:53] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 12376 Geometrical Entities from Mesh "Parts_Parts_Auto1" of type "MeshProxy" took 0.023 [s]
+[2024-03-15 22:29:53] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new Properties with Id 0 for "Element2D3N"
+[2024-03-15 22:29:53] [DEBUG   ] kratos_salome_plugin.geometries_io : No entities with name "Element2D3N" exist already
+[2024-03-15 22:29:53] [DEBUG   ] kratos_salome_plugin.geometries_io : 12376 new entities were created and 0 existed already
+[2024-03-15 22:29:53] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "PotentialWallCondition2D_Far_field_Auto1"
+[2024-03-15 22:29:53] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.PotentialWallCondition2D_Far_field_Auto1"
+[2024-03-15 22:29:53] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 40 Nodes from Mesh "PotentialWallCondition2D_Far_field_Auto1" of type "MeshGroup" took 0.000256 [s]
+[2024-03-15 22:29:53] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 40 Geometrical Entities from Mesh "PotentialWallCondition2D_Far_field_Auto1" of type "MeshGroup" took 0.000 [s]
+[2024-03-15 22:29:53] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-03-15 22:29:53] [DEBUG   ] kratos_salome_plugin.geometries_io : No entities with name "WallCondition2D2N" exist already
+[2024-03-15 22:29:53] [DEBUG   ] kratos_salome_plugin.geometries_io : 40 new entities were created and 0 existed already
+[2024-03-15 22:29:53] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "Body2D_Body"
+[2024-03-15 22:29:53] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.Body2D_Body"
+[2024-03-15 22:29:53] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 418 Nodes from Mesh "Body2D_Body" of type "MeshGroup" took 0.000795 [s]
+[2024-03-15 22:29:53] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 418 Geometrical Entities from Mesh "Body2D_Body" of type "MeshGroup" took 0.001 [s]
+[2024-03-15 22:29:53] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-03-15 22:29:53] [DEBUG   ] kratos_salome_plugin.geometries_io : Entities with name "WallCondition2D2N" exist already
+[2024-03-15 22:29:53] [DEBUG   ] kratos_salome_plugin.geometries_io : 418 new entities were created and 0 existed already
+[2024-03-15 22:29:53] [INFO    ] kratos_salome_plugin.write_mdpa : Starting to write ModelPart "default" to file "/media/marco-kratos-pc/datos/Examples_Compressible_Kratos/Rom_PotentialFlow_Salome/salome_files/model_mesh_1.mdpa"
+[2024-03-15 22:29:53] [INFO    ] kratos_salome_plugin.write_mdpa : Writing ModelPart took 0.05 [s]
+[2024-03-15 22:30:01] [DEBUG   ] create_kratos_input_tui : Calling "CreateMdpaFile"
+[2024-03-15 22:30:01] [DEBUG   ] create_kratos_input_tui : Calling "CreateModelPart"
+[2024-03-15 22:30:01] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "Parts_Parts_Auto1"
+[2024-03-15 22:30:01] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.Parts_Parts_Auto1"
+[2024-03-15 22:30:01] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 24630 Nodes from Mesh "Parts_Parts_Auto1" of type "MeshProxy" took 0.0353 [s]
+[2024-03-15 22:30:01] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 47178 Geometrical Entities from Mesh "Parts_Parts_Auto1" of type "MeshProxy" took 0.117 [s]
+[2024-03-15 22:30:02] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new Properties with Id 0 for "Element2D3N"
+[2024-03-15 22:30:02] [DEBUG   ] kratos_salome_plugin.geometries_io : No entities with name "Element2D3N" exist already
+[2024-03-15 22:30:02] [DEBUG   ] kratos_salome_plugin.geometries_io : 47178 new entities were created and 0 existed already
+[2024-03-15 22:30:02] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "PotentialWallCondition2D_Far_field_Auto1"
+[2024-03-15 22:30:02] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.PotentialWallCondition2D_Far_field_Auto1"
+[2024-03-15 22:30:02] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 40 Nodes from Mesh "PotentialWallCondition2D_Far_field_Auto1" of type "MeshGroup" took 0.00025 [s]
+[2024-03-15 22:30:02] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 40 Geometrical Entities from Mesh "PotentialWallCondition2D_Far_field_Auto1" of type "MeshGroup" took 0.000 [s]
+[2024-03-15 22:30:02] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-03-15 22:30:02] [DEBUG   ] kratos_salome_plugin.geometries_io : No entities with name "WallCondition2D2N" exist already
+[2024-03-15 22:30:02] [DEBUG   ] kratos_salome_plugin.geometries_io : 40 new entities were created and 0 existed already
+[2024-03-15 22:30:02] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "Body2D_Body"
+[2024-03-15 22:30:02] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.Body2D_Body"
+[2024-03-15 22:30:02] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 2042 Nodes from Mesh "Body2D_Body" of type "MeshGroup" took 0.00347 [s]
+[2024-03-15 22:30:02] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 2042 Geometrical Entities from Mesh "Body2D_Body" of type "MeshGroup" took 0.003 [s]
+[2024-03-15 22:30:02] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-03-15 22:30:02] [DEBUG   ] kratos_salome_plugin.geometries_io : Entities with name "WallCondition2D2N" exist already
+[2024-03-15 22:30:02] [DEBUG   ] kratos_salome_plugin.geometries_io : 2042 new entities were created and 0 existed already
+[2024-03-15 22:30:02] [INFO    ] kratos_salome_plugin.write_mdpa : Starting to write ModelPart "default" to file "/media/marco-kratos-pc/datos/Examples_Compressible_Kratos/Rom_PotentialFlow_Salome/salome_files/model_mesh_2.mdpa"
+[2024-03-15 22:30:02] [INFO    ] kratos_salome_plugin.write_mdpa : Writing ModelPart took 0.20 [s]
+[2024-03-15 22:30:17] [DEBUG   ] create_kratos_input_tui : Calling "CreateMdpaFile"
+[2024-03-15 22:30:17] [DEBUG   ] create_kratos_input_tui : Calling "CreateModelPart"
+[2024-03-15 22:30:17] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "Parts_Parts_Auto1"
+[2024-03-15 22:30:17] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.Parts_Parts_Auto1"
+[2024-03-15 22:30:17] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 47608 Nodes from Mesh "Parts_Parts_Auto1" of type "MeshProxy" took 0.0651 [s]
+[2024-03-15 22:30:18] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 91094 Geometrical Entities from Mesh "Parts_Parts_Auto1" of type "MeshProxy" took 0.269 [s]
+[2024-03-15 22:30:18] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new Properties with Id 0 for "Element2D3N"
+[2024-03-15 22:30:18] [DEBUG   ] kratos_salome_plugin.geometries_io : No entities with name "Element2D3N" exist already
+[2024-03-15 22:30:18] [DEBUG   ] kratos_salome_plugin.geometries_io : 91094 new entities were created and 0 existed already
+[2024-03-15 22:30:18] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "PotentialWallCondition2D_Far_field_Auto1"
+[2024-03-15 22:30:18] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.PotentialWallCondition2D_Far_field_Auto1"
+[2024-03-15 22:30:18] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 40 Nodes from Mesh "PotentialWallCondition2D_Far_field_Auto1" of type "MeshGroup" took 0.000272 [s]
+[2024-03-15 22:30:18] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 40 Geometrical Entities from Mesh "PotentialWallCondition2D_Far_field_Auto1" of type "MeshGroup" took 0.000 [s]
+[2024-03-15 22:30:18] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-03-15 22:30:18] [DEBUG   ] kratos_salome_plugin.geometries_io : No entities with name "WallCondition2D2N" exist already
+[2024-03-15 22:30:18] [DEBUG   ] kratos_salome_plugin.geometries_io : 40 new entities were created and 0 existed already
+[2024-03-15 22:30:18] [DEBUG   ] kratos_salome_plugin.geometries_io : Creating new SubModelPart "Body2D_Body"
+[2024-03-15 22:30:18] [INFO    ] kratos_salome_plugin.geometries_io : Adding mesh to ModelPart "default.Body2D_Body"
+[2024-03-15 22:30:18] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 4082 Nodes from Mesh "Body2D_Body" of type "MeshGroup" took 0.00774 [s]
+[2024-03-15 22:30:18] [INFO    ] kratos_salome_plugin.mesh_interface : Getting 4082 Geometrical Entities from Mesh "Body2D_Body" of type "MeshGroup" took 0.006 [s]
+[2024-03-15 22:30:18] [DEBUG   ] kratos_salome_plugin.geometries_io : Using existing Properties with Id 0 for "WallCondition2D2N"
+[2024-03-15 22:30:18] [DEBUG   ] kratos_salome_plugin.geometries_io : Entities with name "WallCondition2D2N" exist already
+[2024-03-15 22:30:18] [DEBUG   ] kratos_salome_plugin.geometries_io : 4082 new entities were created and 0 existed already
+[2024-03-15 22:30:18] [INFO    ] kratos_salome_plugin.write_mdpa : Starting to write ModelPart "default" to file "/media/marco-kratos-pc/datos/Examples_Compressible_Kratos/Rom_PotentialFlow_Salome/salome_files/model_mesh_3.mdpa"
+[2024-03-15 22:30:19] [INFO    ] kratos_salome_plugin.write_mdpa : Writing ModelPart took 0.39 [s]
