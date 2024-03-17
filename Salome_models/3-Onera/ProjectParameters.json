@@ -11,7 +11,7 @@
         "name" : "KratosMultiphysics.MedApplication.modelers.import_med_modeler.ImportMedModeler",
         "parameters" : {
             "echo_level" : 0,
-            "input_filename" : "model_mesh.med",
+            "input_filename" : "Fluid.med",
             "model_part_name" : "FluidModelPart"            
         }
     },{
@@ -21,7 +21,7 @@
                 "model_part_name" : "FluidModelPart.Domain",
                 "element_name"    : "Element3D4N"
             },{
-                "model_part_name" : "FluidModelPart.Wake_TE",
+                "model_part_name" : "FluidModelPart.TE_Wing",
                 "element_name"    : "Element2D2N"
             }],
             "conditions_list" : [{
@@ -72,17 +72,7 @@
         "relative_tolerance": 1e-12,
         "absolute_tolerance": 1e-12,       
         "linear_solver_settings": {
-            // "solver_type": "LinearSolversApplication.pardiso_lu"
-            "solver_type": "amgcl",
-            "max_iteration": 600,
-            "gmres_krylov_space_dimension": 1000,
-            "smoother_type":"ilu0",
-            "coarsening_type":"ruge_stuben",
-            "coarse_enough" : 5000,
-            "krylov_type": "lgmres",
-            "tolerance": 1e-12,
-            "verbosity": 0,
-            "scaling": false
+            "solver_type": "LinearSolversApplication.pardiso_lu"
         },
         "solving_strategy_settings": {
             "advanced_settings": {
@@ -108,7 +98,7 @@
             "Parameters"    : {
                 "model_part_name" : "FluidModelPart.FarField",
                 "free_stream_density": 1.225,
-                "angle_of_attack": 0.0,
+                "angle_of_attack": 3.06,
                 "mach_infinity": 0.84,
                 "perturbation_field": true
             
@@ -119,22 +109,9 @@
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
             "process_name"  : "DefineWakeProcess",
             "Parameters"    : {
-                "model_part_name" : "FluidModelPart.Wake_TE",
+                "model_part_name" : "FluidModelPart.TE_Wing",
                 "body_model_part_name" : "FluidModelPart.Wing",
-                "wake_stl_file_name" : "wake.stl",
-                "output_wake": false,
-                "wake_process_cpp_parameters":    {
-                    "tolerance"                     : 1e-9,
-                    "wake_normal"                   : [0.0, 0.0, 1.0],
-                    "wake_direction"                : [1.0, 0.0, 0.0],
-                    "switch_wake_normal"            : false,
-                    "count_elements_number"         : false,
-                    "write_elements_ids_to_file"    : false,
-                    "shed_wake_from_trailing_edge"  : false,
-                    "shedded_wake_distance"         : 12.5,
-                    "shedded_wake_element_size"     : 0.2,
-                    "echo_level": 0
-                }
+                "wake_stl_file_name" : "Wake.stl"
              }
         },
         {
