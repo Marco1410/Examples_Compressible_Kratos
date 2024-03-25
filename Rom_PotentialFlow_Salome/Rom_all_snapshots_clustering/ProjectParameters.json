@@ -7,16 +7,39 @@
         "start_time"    : 0.0,
         "end_time"      : 1.0
     },
+    "modelers" : [{
+        "name" : "KratosMultiphysics.MedApplication.modelers.import_med_modeler.ImportMedModeler",
+        "parameters" : {
+            "echo_level" : 0,
+            "input_filename" : "../salome_files/model_mesh_2.med",
+            "model_part_name" : "MainModelPart"            
+        }
+    },{
+        "name"       : "Modelers.KratosMultiphysics.CreateEntitiesFromGeometriesModeler",
+        "parameters" : {
+            "elements_list"   : [{
+                "model_part_name" : "MainModelPart.Parts_Parts_Auto1",
+                "element_name"    : "Element2D3N"
+            }],
+            "conditions_list" : [{
+                "model_part_name" : "MainModelPart.PotentialWallCondition2D_Far_field_Auto1",
+                "condition_name"  : "WallCondition2D2N"
+            },{
+                "model_part_name" : "MainModelPart.Body2D_Body",
+                "condition_name"  : "WallCondition2D2N"
+            }]
+        }
+    }],
     "solver_settings"  : {
         "model_part_name"          : "MainModelPart",
         "domain_size"              : 2,
         "solver_type"              : "potential_flow",
         "model_import_settings"    : {
-            "input_type"     : "mdpa",
-            "input_filename" : "naca0012_0aoa_00"
+            "input_type"     : "use_input_model_part",
+            "input_filename" : "salome_model"
         },
         "material_import_settings" : {
-            "materials_filename" : "FluidMaterials.json"
+            "materials_filename" : ""
         },
         "formulation": {
                     "element_type":"perturbation_transonic"
@@ -25,6 +48,9 @@
             "model_part_name" : "Body2D_Body",
             "critical_mach"                 : 0.85,
             "upwind_factor_constant"        : 2.0,
+            // "update_critical_mach"          : 0.85,
+            // "update_upwind_factor_constant" : 2.0,
+            // "update_transonic_tolerance"    : 1e-30,
             "update_critical_mach"          : -1.0,
             "update_upwind_factor_constant" : -1.0,
             "update_transonic_tolerance"    : 1e-3,
@@ -33,10 +59,11 @@
         "maximum_iterations"       : 1000,
         "echo_level"               : 1,
         "solving_strategy_settings": {
-            "type": "line_search",
+            "type": "line_search"
+            ,
             "advanced_settings" : {
                                     "max_line_search_iterations" : 5,
-                                    "first_alpha_value"          : 0.5,
+                                    "first_alpha_value"          : 0.1,
                                     "second_alpha_value"         : 1.0,
                                     "min_alpha"                  : 0.1,
                                     "max_alpha"                  : 2.0,
@@ -66,6 +93,7 @@
                 "free_stream_density"           : 1.225,
                 "mach_infinity"                 : 0.03,
                 "angle_of_attack"               : 0.0,
+                "inlet_potential"               : 1.0,
                 "perturbation_field"            : true 
             }
         },{
@@ -75,48 +103,35 @@
             "Parameters"    : {
                 "model_part_name" : "MainModelPart.Body2D_Body"
             }
-        }]
-        ,
+        }],
         "auxiliar_process_list"            : [{
             "python_module" : "compute_nodal_value_process",
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
             "Parameters"    : {
                 "model_part_name" : "MainModelPart",
-                "elemental_variables_list_to_project" : ["VELOCITY","PRESSURE_COEFFICIENT"]
+                "elemental_variables_list_to_project" : ["VELOCITY","PRESSURE_COEFFICIENT","DENSITY","MACH"]
             }
         }]
-    }
-    ,
+    },
     "output_processes" : {
-       "gid_output" : [{
-           "python_module" : "gid_output_process",
+    "vtk_output" : [{
+           "python_module" : "vtk_output_process",
            "kratos_module" : "KratosMultiphysics",
-           "process_name"  : "GiDOutputProcess",
-           "help"          : "This process writes postprocessing files for GiD",
+           "process_name"  : "VtkOutputProcess",
+           "help"          : "This process writes postprocessing files for Paraview",
            "Parameters"    : {
-               "model_part_name"        : "MainModelPart.Parts_Parts_Auto1",
-               "output_name"            : "Results/output",
-               "postprocess_parameters" : {
-                   "result_file_configuration" : {
-                       "gidpost_flags"       : {
-                           "GiDPostMode"           : "GiD_PostBinary",
-                           "WriteDeformedMeshFlag" : "WriteDeformed",
-                           "WriteConditionsFlag"   : "WriteConditions",
-                           "MultiFileFlag"         : "SingleFile"
-                       },
-                       "file_label"          : "step",
-                       "output_control_type" : "step",
-                       "output_interval"     : 1,
-                       "body_output"         : true,
-                       "node_output"         : false,
-                       "skin_output"         : false,
-                       "plane_output"        : [],
-                       "nodal_nonhistorical_results": ["VELOCITY","PRESSURE_COEFFICIENT"],
-                       "nodal_results"       : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
-                       "gauss_point_results" : ["WAKE"]
-                   },
-                   "point_data_configuration"  : []
-               }
+               "model_part_name"                    : "MainModelPart.Parts_Parts_Auto1",
+               "output_control_type"                : "step",
+               "output_interval"                    : 1,
+               "file_format"                        : "ascii",
+               "output_precision"                   : 7,
+               "output_sub_model_parts"             : true,
+               "output_path"                        : "vtk_output",
+               "save_output_files_in_folder"        : true,
+               "nodal_solution_step_data_variables" : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
+               "nodal_data_value_variables"         : ["PRESSURE_COEFFICIENT","VELOCITY","DENSITY","MACH"],
+               "element_data_value_variables"       : [],
+               "condition_data_value_variables"     : []
            }
        }]
    }

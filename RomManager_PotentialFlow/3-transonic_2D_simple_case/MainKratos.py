@@ -28,17 +28,6 @@ def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
             super().InitializeSolutionStep()
             sys.stdout.flush()
 
-        # def ModifyAfterSolverInitialize(self):
-            # id_nodes  = np.loadtxt("nodal_data/ROM_Fit0.dat",usecols=(0,))
-            # velocity_potential  = np.loadtxt("nodal_data/ROM_Fit0.dat",usecols=(1,))
-            # auxiliary_velocity_potential  = np.loadtxt("nodal_data/ROM_Fit0.dat",usecols=(2,))
-            # for i in range(len(id_nodes)):
-            #     node = global_model["MainModelPart"].GetNode(int(id_nodes[i]))
-            #     node.SetSolutionStepValue(CPFApp.VELOCITY_POTENTIAL, 0, velocity_potential[i])
-            #     node.SetSolutionStepValue(CPFApp.VELOCITY_POTENTIAL, 1, velocity_potential[i])
-            #     node.SetSolutionStepValue(CPFApp.AUXILIARY_VELOCITY_POTENTIAL, 0, auxiliary_velocity_potential[i])
-            #     node.SetSolutionStepValue(CPFApp.AUXILIARY_VELOCITY_POTENTIAL, 1, auxiliary_velocity_potential[i])
-
         def FinalizeSolutionStep(self):
             super().FinalizeSolutionStep()
     

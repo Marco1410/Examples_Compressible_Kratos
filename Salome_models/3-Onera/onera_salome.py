@@ -10,7 +10,27 @@ import salome
 salome.salome_init()
 import salome_notebook
 notebook = salome_notebook.NoteBook()
-sys.path.insert(0, r'/home/marco/Examples_Compressible_Kratos/Salome_models/3-Onera')
+
+WingAngle        = 0.0
+########################
+DomainHeight     = 5.5  #X
+DomainWidth      = 2.4  #Y
+DomainLength     = 3.9  #Z
+########################
+MeshGrowthRate   = 0.1
+########################
+MeshMaxSize      = 1.0
+MeshMinSize      = 0.001
+########################
+MeshWingSize     = 0.005
+MeshTEWingSize   = 0.005
+MeshLEWingSize   = 0.005
+MeshTipWingSize  = 0.005
+
+Dir                     = "/media/marco-kratos-pc/datos/Examples_Compressible_Kratos/Salome_models/3-Onera"
+onera_geometry_igs_path = Dir + "/onera_m6_geometry/Onera_M6_geometry.igs"
+MeshOutPutName          = Dir + "/Fluid.med"
+
 
 ###
 ### GEOM component
@@ -28,10 +48,10 @@ O = geompy.MakeVertex(0, 0, 0)
 OX = geompy.MakeVectorDXDYDZ(1, 0, 0)
 OY = geompy.MakeVectorDXDYDZ(0, 1, 0)
 OZ = geompy.MakeVectorDXDYDZ(0, 0, 1)
-onera_geometry = geompy.ImportIGES("/home/marco/Examples_Compressible_Kratos/Salome_models/3-Onera/onera_m6_geometry/Onera_M6_geometry.igs")
-geompy.Rotate(onera_geometry, OY, 0*math.pi/180.0)
-Face_1 = geompy.MakeFaceHW(40, 40, 3)
-Extrusion_1 = geompy.MakePrismDXDYDZ(Face_1, 0, 20, 0)
+onera_geometry = geompy.ImportIGES(onera_geometry_igs_path)
+geompy.Rotate(onera_geometry, OY, WingAngle*math.pi/180.0)
+Face_1 = geompy.MakeFaceHW(DomainLength, DomainHeight, 3)
+Extrusion_1 = geompy.MakePrismDXDYDZ(Face_1, 0, DomainWidth, 0)
 Domain = geompy.MakeCutList(Extrusion_1, [onera_geometry], True)
 Inlet = geompy.CreateGroup(Domain, geompy.ShapeType["FACE"])
 geompy.UnionIDs(Inlet, [13])
@@ -45,7 +65,13 @@ FarField = geompy.CreateGroup(Domain, geompy.ShapeType["FACE"])
 geompy.UnionIDs(FarField, [42, 13, 3, 39, 20])
 TE_Wing = geompy.CreateGroup(Domain, geompy.ShapeType["EDGE"])
 geompy.UnionIDs(TE_Wing, [56])
-[Inlet, Outlet, Wing, Walls, FarField, TE_Wing] = geompy.GetExistingSubObjects(Domain, False)
+
+LE_Wing = geompy.CreateGroup(Domain, geompy.ShapeType["EDGE"])
+geompy.UnionIDs(LE_Wing, [46])
+Tip_Wing = geompy.CreateGroup(Domain, geompy.ShapeType["EDGE"])
+geompy.UnionIDs(Tip_Wing, [70, 74, 68, 72])
+
+[Inlet, Outlet, Wing, Walls, FarField, TE_Wing, LE_Wing, Tip_Wing] = geompy.GetExistingSubObjects(Domain, False)
 geompy.addToStudy( O, 'O' )
 geompy.addToStudy( OX, 'OX' )
 geompy.addToStudy( OY, 'OY' )
@@ -60,6 +86,8 @@ geompy.addToStudyInFather( Domain, Wing, 'Wing' )
 geompy.addToStudyInFather( Domain, Walls, 'Walls' )
 geompy.addToStudyInFather( Domain, FarField, 'FarField' )
 geompy.addToStudyInFather( Domain, TE_Wing, 'TE_Wing' )
+geompy.addToStudyInFather( Domain, LE_Wing, 'LE_Wing' )
+geompy.addToStudyInFather( Domain, Tip_Wing, 'Tip_Wing' )
 
 ###
 ### SMESH component
@@ -75,33 +103,38 @@ smesh = smeshBuilder.New()
 Fluid = smesh.Mesh(Domain,'Fluid')
 NETGEN_1D_2D_3D = Fluid.Tetrahedron(algo=smeshBuilder.NETGEN_1D2D3D)
 NETGEN_3D_Parameters = NETGEN_1D_2D_3D.Parameters()
-NETGEN_3D_Parameters.SetMaxSize( 6 )
-NETGEN_3D_Parameters.SetMinSize( 0.01 )
+NETGEN_3D_Parameters.SetMaxSize( MeshMaxSize )
+NETGEN_3D_Parameters.SetMinSize( MeshMinSize )
 NETGEN_3D_Parameters.SetSecondOrder( 0 )
 NETGEN_3D_Parameters.SetOptimize( 1 )
 NETGEN_3D_Parameters.SetFineness( 5 )
-NETGEN_3D_Parameters.SetGrowthRate( 0.2 )
+NETGEN_3D_Parameters.SetGrowthRate( MeshGrowthRate )
 NETGEN_3D_Parameters.SetNbSegPerEdge( 15 )
 NETGEN_3D_Parameters.SetNbSegPerRadius( 2 )
-# NETGEN_3D_Parameters.SetChordalError( -1 )
+NETGEN_3D_Parameters.SetChordalError( -1 )
 NETGEN_3D_Parameters.SetChordalErrorEnabled( 1 )
 NETGEN_3D_Parameters.SetUseSurfaceCurvature( 1 )
 NETGEN_3D_Parameters.SetFuseEdges( 1 )
 NETGEN_3D_Parameters.SetQuadAllowed( 0 )
-NETGEN_3D_Parameters.SetLocalSizeOnShape(Wing, 0.01)
+NETGEN_3D_Parameters.SetLocalSizeOnShape(Wing, MeshWingSize)
+NETGEN_3D_Parameters.SetLocalSizeOnShape(TE_Wing, MeshTEWingSize)
+NETGEN_3D_Parameters.SetLocalSizeOnShape(LE_Wing, MeshLEWingSize)
+NETGEN_3D_Parameters.SetLocalSizeOnShape(Tip_Wing, MeshTipWingSize)
 Inlet_1 = Fluid.GroupOnGeom(Inlet,'Inlet',SMESH.FACE)
 Outlet_1 = Fluid.GroupOnGeom(Outlet,'Outlet',SMESH.FACE)
 Wing_1 = Fluid.GroupOnGeom(Wing,'Wing',SMESH.FACE)
 Walls_1 = Fluid.GroupOnGeom(Walls,'Walls',SMESH.FACE)
 FarField_1 = Fluid.GroupOnGeom(FarField,'FarField',SMESH.FACE)
 TE_Wing_1 = Fluid.GroupOnGeom(TE_Wing,'TE_Wing',SMESH.EDGE)
+LE_Wing_1 = Fluid.GroupOnGeom(LE_Wing,'LE_Wing',SMESH.EDGE)
+Tip_Wing_1 = Fluid.GroupOnGeom(Tip_Wing,'Tip_Wing',SMESH.EDGE)
 isDone = Fluid.Compute()
-[ Inlet_1, Outlet_1, Wing_1, Walls_1, FarField_1, TE_Wing_1 ] = Fluid.GetGroups()
+[ Inlet_1, Outlet_1, Wing_1, Walls_1, FarField_1, TE_Wing_1, LE_Wing_1, Tip_Wing_1] = Fluid.GetGroups()
 Domain_1 = Fluid.GroupOnGeom(Domain,'Domain',SMESH.VOLUME)
 Domain_2 = Fluid.GroupOnGeom(Domain,'Domain',SMESH.NODE)
 smesh.SetName(Fluid, 'Fluid')
 try:
-  Fluid.ExportMED( r'/home/marco/Examples_Compressible_Kratos/Salome_models/3-Onera/Fluid.med', 0, 41, 1, Fluid, 1, [], '',-1, 1 )
+  Fluid.ExportMED( MeshOutPutName, 0, 41, 1, Fluid, 1, [], '',-1, 1 )
   pass
 except:
   print('ExportPartToMED() failed. Invalid file name?')
@@ -118,8 +151,16 @@ smesh.SetName(FarField_1, 'FarField')
 smesh.SetName(Fluid.GetMesh(), 'Fluid')
 smesh.SetName(Domain_1, 'Domain')
 smesh.SetName(TE_Wing_1, 'TE_Wing')
+smesh.SetName(LE_Wing_1, 'LE_Wing')
+smesh.SetName(Tip_Wing_1, 'Tip_Wing')
 smesh.SetName(Domain_2, 'Domain')
 
+
+NumberOfNodes = Fluid.NbNodes()
+NumberOfElements = Fluid.NbTetras()
+print(' Information about volume mesh:')
+print(' Number of nodes       :', NumberOfNodes)
+print(' Number of elements    :', NumberOfElements)
 
 if salome.sg.hasDesktop():
   salome.sg.updateObjBrowser()

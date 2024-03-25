@@ -11,9 +11,14 @@ def kmeans_test(test_data, n_clusters,mu):
     fig = plt.figure()
     fig.set_figwidth(12.0)
     fig.set_figheight(8.0)
+    centroids_to_plot = np.zeros([n_clusters,2])
     for j in range(n_clusters):
         fig = plt.scatter(mu[:, 1][kmeans_object.labels_==j], mu[:, 0][kmeans_object.labels_==j], label="Cluster "+str(j))
-
+        centroids_to_plot[j,:] = np.mean(mu[:, 1][kmeans_object.labels_==j]), np.mean(mu[:, 0][kmeans_object.labels_==j])
+        #save the centroid data (snapshotmatrix)
+        np.save("k-means_initial_solution_cluster_"+str(j)+"_"+str(centroids_to_plot[j,1])+"_"+str(centroids_to_plot[j,0]),
+                kmeans_object.cluster_centers_.T[:,j])
+    fig = plt.scatter(centroids_to_plot[:,0], centroids_to_plot[:,1], c='k',marker="s", s= 150)
     fig = plt.title("k-means clustering")
     fig = plt.ylabel('Alpha')
     fig = plt.xlabel('Mach')
@@ -128,11 +133,10 @@ def pebl_test(test_data,  bisection_tolerance=0.15,  POD_tolerance=1e-3, list=Fa
     fig.set_figwidth(12.0)
     fig.set_figheight(8.0)
     print("leaves: ", len(Tree.leaves()))
+    centroids_to_plot = np.zeros([len(Tree.leaves()),2])
     leaf_counter = 0
     for leaf in Tree.leaves():
         leaf_counter+=1
-        #save the centroid data (snapshotmatrix)
-        # np.save("initial_solution_cluster_"+str(leaf_counter),leaf.val[0])
         print("Number of cases in leaf "+str(leaf_counter)+": ", len(leaf.val[1][1]))
         angle = np.zeros(len(leaf.val[1][1]))
         mach  = np.zeros(len(leaf.val[1][1]))
@@ -143,6 +147,10 @@ def pebl_test(test_data,  bisection_tolerance=0.15,  POD_tolerance=1e-3, list=Fa
                     mach[j]  = list[i][1]
                     break
         fig = plt.scatter(mach, angle, label="Cluster "+str(leaf_counter))
+        centroids_to_plot[leaf_counter-1,:] = np.mean(mach), np.mean(angle)
+        #save the centroid data (snapshotmatrix)
+        np.save("pebl_initial_solution_cluster_"+str(leaf_counter)+"_"+str(np.mean(angle))+"_"+str(np.mean(mach)),leaf.val[0])
+    fig = plt.scatter(centroids_to_plot[:,0], centroids_to_plot[:,1], c='k',marker="s", s= 150)
     fig = plt.title("PEBL clustering")
     fig = plt.ylabel('Alpha')
     fig = plt.xlabel('Mach')
@@ -152,6 +160,32 @@ def pebl_test(test_data,  bisection_tolerance=0.15,  POD_tolerance=1e-3, list=Fa
     fig = plt.savefig('PEBL clustering.pdf',bbox_inches='tight' )
     # fig = plt.show()
     fig = plt.close('all')
+
+
+def kmeans_test_base(test_data):
+    n_clusters = 1
+    kmeans_object = KMeans(n_clusters=n_clusters, random_state=0).fit(test_data)
+    for j in range(n_clusters):
+        plt.scatter(test_data[:, 0][kmeans_object.labels_==j], test_data[:, 1][kmeans_object.labels_==j])
+    centroids_to_plot = (kmeans_object.cluster_centers_).T
+    plt.scatter(centroids_to_plot[0,:], centroids_to_plot[1,:], c='k',marker="s", s= 150)
+    plt.title("k-means clustering")
+    plt.savefig('k-means clustering base.pdf',bbox_inches='tight' )
+    # plt.show()
+    plt.close("all")
+
+
+def pebl_test_base(test_data):
+    Tree = PEBL(test_data.T, 0.68)
+    plt.figure()
+    for leaf in Tree.leaves():
+        plt.scatter(leaf.val[1][0,:], leaf.val[1][1,:])
+        plt.scatter(leaf.val[0][0], leaf.val[0][1], c='k',marker="s", s=150)
+    plt.title("PEBL clustering")
+    plt.savefig('PEBL clustering base.pdf',bbox_inches='tight' )
+    # plt.show()
+    plt.close("all")
+
 
 if __name__=='__main__':
 
@@ -163,6 +197,9 @@ if __name__=='__main__':
     mu_list = load_mu_parameters('mu_train.dat')
 
     #launch tests
-    kmeans_test(snapshotsmatrix.T,5,mu)
-
+    kmeans_test(snapshotsmatrix.T,1,mu)
     pebl_test(snapshotsmatrix.T, bisection_tolerance=0.15,  POD_tolerance=1e-12, list=mu_list)
+
+
+    kmeans_test_base(mu)
+    pebl_test_base(mu)

@@ -22,11 +22,12 @@ def CustomizeSimulation(cls, global_model, parameters):
             super().__init__(model,project_parameters)
             self.custom_param  = custom_param
 
-            if self._GetSimulationName() == "::[ROM Simulation]:: ":
+            # if self._GetSimulationName() == "::[ROM Simulation]:: ":
                 #just in case the residual not converge
                 # parameters["solver_settings"]["solving_strategy_settings"]["type"].SetString("newton_raphson")
-                parameters["solver_settings"]["maximum_iterations"].SetInt(250)
-                parameters["solver_settings"]["relative_tolerance"].SetDouble(1e-9)
+                # parameters["solver_settings"]["maximum_iterations"].SetInt(150)
+                # parameters["solver_settings"]["relative_tolerance"].SetDouble(1e-12)
+                # parameters["solver_settings"]["scheme_settings"]["update_transonic_tolerance"].SetDouble(1e-2)
         
         def Initialize(self):
             super().Initialize()
@@ -36,8 +37,11 @@ def CustomizeSimulation(cls, global_model, parameters):
 
             set_initial_conditions_rom_from_fom = False
             # To set initial conditions:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-            if self._GetSimulationName() == "::[ROM Simulation]:: " and set_initial_conditions_rom_from_fom:
-                if parameters["output_processes"].Has("vtk_output"):
+            if self._GetSimulationName() == "::[ROM Simulation]:: ":
+                
+                self._GetSolver()._GetBuilderAndSolver().SetCorrectWithFOM(True)
+
+                if parameters["output_processes"].Has("vtk_output") and set_initial_conditions_rom_from_fom:
                     nametype = parameters["output_processes"]["vtk_output"][0]["Parameters"]["output_path"].GetString()
                     simulation_name = nametype.split('/')[1].split('_')[1].removeprefix("Fit").removeprefix("Test")
                     data_name = "DataBase/" + simulation_name + ".npy"
@@ -68,7 +72,6 @@ def CustomizeSimulation(cls, global_model, parameters):
 
                 if self._GetSimulationName() == "Analysis":
                     simulation_name = nametype.removeprefix("DataBase/Results/").removeprefix("Results/FOM_Test")
-                    print(simulation_name)
                     skin_data = "DataBase/Data/" + simulation_name + ".dat"
                     fout = open(skin_data,'w')
                 else:
@@ -82,6 +85,20 @@ def CustomizeSimulation(cls, global_model, parameters):
                     cp = node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
                     fout.write("%s %s %s %s\n" %(x,y,z,cp))
                 fout.close()
+
+            if self._GetSimulationName() == "::[ROM Simulation]:: ":
+                if parameters["output_processes"].Has("vtk_output"):
+                    nametype = parameters["output_processes"]["vtk_output"][0]["Parameters"]["output_path"].GetString()
+                    simulation_name = nametype.split('/')[1].split('_')[1].removeprefix("Fit").removeprefix("Test")
+                    if not os.path.exists("DataBase/aux_data"):
+                        os.mkdir("DataBase/aux_data")
+                    aux_data_name = "DataBase/aux_data/" + simulation_name + ".npy"
+                    if np.array(self._GetSolver()._GetBuilderAndSolver().GetIntermediateSolutionsMatrix()).ndim >=1: 
+                        if not os.path.exists(aux_data_name):
+                            np.save(aux_data_name, np.array(self._GetSolver()._GetBuilderAndSolver().GetIntermediateSolutionsMatrix()))
+                        else:
+                            aux_list = np.concatenate((np.load(aux_data_name),np.array(self._GetSolver()._GetBuilderAndSolver().GetIntermediateSolutionsMatrix())), axis=1)
+                            np.save(aux_data_name, aux_list)
 
     return CustomSimulation(global_model, parameters)
 
@@ -402,7 +419,6 @@ def CleanFolder(database=False):
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Results')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Data')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Captures')
-    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('rom_data')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('MuValues.png')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('MuValuesWithErrors.png')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('mu_train_errors.dat')
@@ -410,7 +426,6 @@ def CleanFolder(database=False):
     os.mkdir("Results")
     os.mkdir("Data")
     os.mkdir("Captures")
-    os.mkdir("rom_data")
     if database:
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('DataBase')
 
@@ -446,6 +461,7 @@ def GetRomManagerParameters():
                 "nodal_unknowns": ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"], // Main unknowns. Snapshots are taken from these
                 "rom_basis_output_format": "numpy",                                       // "json" "numpy"
                 "rom_basis_output_name": "RomParameters",
+                "rom_basis_output_folder": "rom_data",
                 "snapshots_control_type": "step",                                        // "step", "time"
                 "snapshots_interval": 1,
                 "galerkin_rom_bns_settings": {
@@ -454,7 +470,7 @@ def GetRomManagerParameters():
                 "lspg_rom_bns_settings": {
                     "train_petrov_galerkin": false,
                     "basis_strategy": "reactions",                        // 'residuals', 'jacobian', 'reactions'
-                    "include_phi": true,
+                    "include_phi": false,
                     "svd_truncation_tolerance": 1e-12,
                     "solving_technique": "normal_equations",              // 'normal_equations', 'qr_decomposition'
                     "monotonicity_preserving": false
@@ -499,7 +515,7 @@ if __name__ == "__main__":
 
     start_time = time.time()
 
-    NumberofMuTrain = 1
+    NumberofMuTrain = 25
     NumberOfMuTest  = 0
 
     mu_from_database                   = False
@@ -508,12 +524,19 @@ if __name__ == "__main__":
     only_test                          = False
     update_database                    = False
     use_non_linear_steps               = True
+    use_aux_step                       = True
+
+    #CLUSTERING SETTINGS
+    clustering_method                  = "k-means" # PEBL - k-means - PEBL_full
+    n_clusters                         = 8
+    bisection_tolerance                = 0.15
+    POD_tolerance                      = 1e-12
 
     dir = "DataBase"
 
     # Definir rango de valores de mach y angulo de ataque
-    mach_range  = [ 0.72, 0.73]
-    angle_range = [ 1.50, 1.60]
+    mach_range  = [ 0.65, 0.75]
+    angle_range = [ 0.00, 2.50]
 
     #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -537,13 +560,13 @@ if __name__ == "__main__":
                 and mach  >=  mach_range[0]):
                 data.append([angle, mach])
 
-        if len(data) > NumberofMuTrain:
+        if len(data) >= NumberofMuTrain:
             mu_train = random.sample(data, NumberofMuTrain)
         else:
             print("mu_train size: ", len(data))
             input("pause PRESS to continue")
             mu_train = data
-        if len(data) > NumberOfMuTest:
+        if len(data) >= NumberOfMuTest:
             mu_test  = random.sample(data, NumberOfMuTest)
         else:
             print("mu_test size: ", len(data))
@@ -555,7 +578,7 @@ if __name__ == "__main__":
         else:
             mu_train, mu_test = get_multiple_params_by_Halton_sequence(NumberofMuTrain, NumberOfMuTest, angle_range, mach_range,
                                                             fix_corners_train_parametric_space)
-   
+  
     #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     save_mu_parameters(mu_train,mu_test,"mu_train","mu_test")
@@ -565,7 +588,7 @@ if __name__ == "__main__":
     general_rom_manager_parameters = GetRomManagerParameters()
     project_parameters_name = "ProjectParameters.json"
     rom_manager = LocalRomManager(project_parameters_name,general_rom_manager_parameters,CustomizeSimulation,UpdateProjectParameters)
-    mu_train_errors = rom_manager.Fit(mu_train,use_non_linear_steps)
+    mu_train_errors = rom_manager.Fit(mu_train,use_non_linear_steps, clustering_method, n_clusters, bisection_tolerance, POD_tolerance, use_aux_step)
     mu_test_errors  = rom_manager.Test(mu_test)
     #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

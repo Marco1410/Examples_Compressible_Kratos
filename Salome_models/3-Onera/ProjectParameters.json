@@ -72,7 +72,17 @@
         "relative_tolerance": 1e-12,
         "absolute_tolerance": 1e-12,       
         "linear_solver_settings": {
-            "solver_type": "LinearSolversApplication.pardiso_lu"
+            // "solver_type": "LinearSolversApplication.pardiso_lu"
+            "solver_type": "amgcl",
+            "max_iteration": 400,
+            "gmres_krylov_space_dimension": 1000,
+            "smoother_type":"ilu0",
+            "coarsening_type":"ruge_stuben",
+            "coarse_enough" : 5000,
+            "krylov_type": "lgmres",
+            "tolerance": 1e-9,
+            "verbosity": 0,
+            "scaling": false
         },
         "solving_strategy_settings": {
             "advanced_settings": {
@@ -99,7 +109,7 @@
                 "model_part_name" : "FluidModelPart.FarField",
                 "free_stream_density": 1.225,
                 "angle_of_attack": 3.06,
-                "mach_infinity": 0.84,
+                "mach_infinity": 0.839,
                 "perturbation_field": true
             
             }

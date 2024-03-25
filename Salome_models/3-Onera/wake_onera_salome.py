@@ -12,13 +12,13 @@ import salome_notebook
 notebook = salome_notebook.NoteBook()
 
 Wing_angle              = 0.0
-Wake_length             = 20.0
+Wake_length             = 5.0
 Wake_angle              = 3.06
-Wake_max_mesh_size      = 2.0
-Wake_min_mesh_size      = 0.6
+Wake_max_mesh_size      = 1.0
+Wake_min_mesh_size      = 0.001
 TE_Wing_mesh_size       = 0.001
 
-Dir                     = "/home/marco/Examples_Compressible_Kratos/Salome_models/3-Onera"
+Dir                     = "/media/marco-kratos-pc/datos/Examples_Compressible_Kratos/Salome_models/3-Onera"
 onera_geometry_igs_path = Dir + "/onera_m6_geometry/Onera_M6_geometry.igs"
 Wake_output_name        = Dir + "/Wake.stl"
 
