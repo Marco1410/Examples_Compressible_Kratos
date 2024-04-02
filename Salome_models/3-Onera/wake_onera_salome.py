@@ -11,12 +11,12 @@ salome.salome_init()
 import salome_notebook
 notebook = salome_notebook.NoteBook()
 
-Wing_angle              = 0.0
-Wake_length             = 5.0
-Wake_angle              = 3.06
-Wake_max_mesh_size      = 1.0
-Wake_min_mesh_size      = 0.001
-TE_Wing_mesh_size       = 0.001
+Wing_angle              = 3.06
+Wake_angle              = 0.0
+Wake_length             = 3.0
+Wake_max_mesh_size      = 0.5
+Wake_min_mesh_size      = 0.5
+TE_Wing_mesh_size       = 0.5
 
 Dir                     = "/media/marco-kratos-pc/datos/Examples_Compressible_Kratos/Salome_models/3-Onera"
 onera_geometry_igs_path = Dir + "/onera_m6_geometry/Onera_M6_geometry.igs"
@@ -43,6 +43,8 @@ geompy.Rotate(onera_geometry, OY, Wing_angle*math.pi/180.0)
 TE_wing_base = geompy.CreateGroup(onera_geometry, geompy.ShapeType["EDGE"])
 geompy.UnionIDs(TE_wing_base, [16])
 wake_stl = geompy.MakePrismDXDYDZ(TE_wing_base, Wake_length, 0, 0)
+TE_Wake = geompy.CreateGroup(wake_stl, geompy.ShapeType["EDGE"])
+geompy.UnionIDs(TE_Wake, [9])
 geompy.Rotate(wake_stl, TE_wing_base, Wake_angle*math.pi/180.0)
 geompy.addToStudy( O, 'O' )
 geompy.addToStudy( OX, 'OX' )
@@ -51,6 +53,7 @@ geompy.addToStudy( OZ, 'OZ' )
 geompy.addToStudy( onera_geometry, 'onera_geometry' )
 geompy.addToStudyInFather( onera_geometry, TE_wing_base, 'TE_wing_base' )
 geompy.addToStudy( wake_stl, 'wake_stl' )
+geompy.addToStudyInFather( wake_stl, TE_Wake, 'TE_Wake' )
 
 ###
 ### SMESH component
@@ -77,7 +80,7 @@ NETGEN_2D_Parameters.SetUseSurfaceCurvature( 1 )
 NETGEN_2D_Parameters.SetFuseEdges( 1 )
 NETGEN_2D_Parameters.SetWorstElemMeasure( 0 )
 NETGEN_2D_Parameters.SetQuadAllowed( 0 )
-NETGEN_2D_Parameters.SetLocalSizeOnShape(TE_wing_base, TE_Wing_mesh_size)
+NETGEN_2D_Parameters.SetLocalSizeOnShape(TE_Wake, TE_Wing_mesh_size)
 NETGEN_2D_Parameters.SetUseDelauney( 128 )
 NETGEN_2D_Parameters.SetCheckChartBoundary( 3 )
 isDone = Wake.Compute()

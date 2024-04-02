@@ -22,12 +22,10 @@ def CustomizeSimulation(cls, global_model, parameters):
             super().__init__(model,project_parameters)
             self.custom_param  = custom_param
 
-            # if self._GetSimulationName() == "::[ROM Simulation]:: ":
-                #just in case the residual not converge
+            if self._GetSimulationName() == "::[ROM Simulation]:: ":
                 # parameters["solver_settings"]["solving_strategy_settings"]["type"].SetString("newton_raphson")
-                # parameters["solver_settings"]["maximum_iterations"].SetInt(150)
-                # parameters["solver_settings"]["relative_tolerance"].SetDouble(1e-12)
-                # parameters["solver_settings"]["scheme_settings"]["update_transonic_tolerance"].SetDouble(1e-2)
+                parameters["solver_settings"]["relative_tolerance"].SetDouble(1e-9)
+                parameters["solver_settings"]["absolute_tolerance"].SetDouble(1e-9)
         
         def Initialize(self):
             super().Initialize()
@@ -450,7 +448,7 @@ def GetRomManagerParameters():
             "rom_stages_to_train" : ["ROM"],      // ["ROM","HROM"]
             "rom_stages_to_test"  : ["ROM"],      // ["ROM","HROM"]
             "paralellism" : null,                        // null, TODO: add "compss"
-            "projection_strategy": "galerkin",           // "lspg", "galerkin", "petrov_galerkin"
+            "projection_strategy": "lspg",           // "lspg", "galerkin", "petrov_galerkin"
             "assembling_strategy": "global",             // "global", "elemental"
             "save_gid_output": false,                     // false, true #if true, it must exits previously in the ProjectParameters.json
             "save_vtk_output": true,
@@ -488,7 +486,7 @@ def GetRomManagerParameters():
             }
         }""")
     return general_rom_manager_parameters
-
+0.0004541322906735117
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 def create_salome_mesh(salome_script_name):
@@ -515,27 +513,27 @@ if __name__ == "__main__":
 
     start_time = time.time()
 
-    NumberofMuTrain = 25
+    NumberofMuTrain = 0
     NumberOfMuTest  = 0
 
     mu_from_database                   = False
-    load_old_mu_parameters             = False
+    load_old_mu_parameters             = True
     fix_corners_train_parametric_space = False
-    only_test                          = False
+    only_test                          = True
     update_database                    = False
     use_non_linear_steps               = True
     use_aux_step                       = False
 
     #CLUSTERING SETTINGS
-    clustering_method                  = "k-means" # PEBL - k-means - PEBL_full
-    n_clusters                         = 8
-    bisection_tolerance                = 0.15
+    clustering_method                  = "PEBL" # PEBL - k-means - PEBL_full
+    n_clusters                         = 4
+    bisection_tolerance                = 0.01
     POD_tolerance                      = 1e-12
 
     dir = "DataBase"
 
     # Definir rango de valores de mach y angulo de ataque
-    mach_range  = [ 0.73, 0.75]
+    mach_range  = [ 0.70, 0.73]
     angle_range = [ 1.00, 2.50]
 
     #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -551,8 +549,8 @@ if __name__ == "__main__":
             files = [file.name for file in files if file.is_file() and file.name.endswith('.npy')]
         for file in files:
             name = file.removesuffix(".npy")
-            angle = np.double(name.split(",")[0])
-            mach  = np.double(name.split(",")[1].removeprefix(" "))
+            angle = np.double(name.split(",")[0].removeprefix("[").removesuffix("]"))
+            mach  = np.double(name.split(",")[1].removeprefix(" ").removeprefix("[").removesuffix("]"))
 
             if (    angle <= angle_range[1]
                 and angle >= angle_range[0] 

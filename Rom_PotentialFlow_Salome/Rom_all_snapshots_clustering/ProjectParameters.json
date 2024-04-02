@@ -11,7 +11,7 @@
         "name" : "KratosMultiphysics.MedApplication.modelers.import_med_modeler.ImportMedModeler",
         "parameters" : {
             "echo_level" : 0,
-            "input_filename" : "../salome_files/model_mesh_2.med",
+            "input_filename" : "../salome_files/model_mesh_0.med",
             "model_part_name" : "MainModelPart"            
         }
     },{

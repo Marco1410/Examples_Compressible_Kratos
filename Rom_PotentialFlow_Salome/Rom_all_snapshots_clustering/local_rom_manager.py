@@ -23,6 +23,8 @@ class LocalRomManager(object):
         self.CustomizeSimulation = CustomizeSimulation
         self.UpdateProjectParameters = UpdateProjectParameters
         self.ROMvsFOM_train=self.ROMvsHROM_train=self.ROMvsFOM_test=self.ROMvsHROM_test=0.0
+        self.train_info_steps_list = []
+        self.test_info_steps_list = []
 
 
     def Fit(self, mu_train=[None], use_non_linear_steps=False, clustering_method="k-means", n_clusters=5, bisection_tolerance=0.15,  POD_tolerance=1e-12, use_aux_step=False):
@@ -350,7 +352,6 @@ class LocalRomManager(object):
         with open(self.project_parameters_name,'r') as parameter_file:
             parameters = KratosMultiphysics.Parameters(parameter_file.read())
         SnapshotsMatrix = []
-        self.train_info_steps_list = []
         for Id, mu in enumerate(mu_train):
             self.general_rom_manager_parameters["ROM"]["rom_basis_output_folder"].SetString("rom_data_cluster_"+str(np.int0(cluster_list[0][Id])))
             self._ChangeRomFlags(simulation_to_run)
@@ -376,6 +377,15 @@ class LocalRomManager(object):
         print("Training simulations info:")
         print("Id, N Corrections, NL iterations, Convergence ratio")
         print(self.train_info_steps_list)
+
+        import openpyxl
+        wb = openpyxl.Workbook()
+        hoja = wb.active
+        hoja.append(('Id', 'N Corrections', 'NL iterations', 'Convergence ratio'))
+        for item in self.train_info_steps_list:
+            hoja.append(item)
+        wb.save('train_data.xlsx')
+
         return SnapshotsMatrix
 
 
@@ -512,7 +522,6 @@ class LocalRomManager(object):
         with open(self.project_parameters_name,'r') as parameter_file:
             parameters = KratosMultiphysics.Parameters(parameter_file.read())
         SnapshotsMatrix = []
-        self.test_info_steps_list = []
         cluster_list = np.zeros(len(mu_test))
         centroids_list = np.load("centroids_list.npy")        
         for Id, mu in enumerate(mu_test):
@@ -568,6 +577,14 @@ class LocalRomManager(object):
         fig = plt.legend(bbox_to_anchor=(1.004, 0.9, 1.0, 0.102), loc='upper left', borderaxespad=0.)
         fig = plt.savefig('mu test and clusters.png',bbox_inches='tight' )
         fig = plt.close('all')
+
+        import openpyxl
+        wb = openpyxl.Workbook()
+        hoja = wb.active
+        hoja.append(('Id', 'N Corrections', 'NL iterations', 'Convergence ratio'))
+        for item in self.test_info_steps_list:
+            hoja.append(item)
+        wb.save('test_data.xlsx')
 
         return SnapshotsMatrix
 
