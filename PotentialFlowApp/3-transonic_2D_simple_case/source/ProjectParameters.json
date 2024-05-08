@@ -45,19 +45,29 @@
         "solver_type"              : "potential_flow",
         "model_import_settings"    : {
             "input_type"     : "mdpa",
-            "input_filename" : "output"
+            "input_filename" : "naca0012_0aoa"
         },
         "formulation": {
                     "element_type":"perturbation_transonic"
         },
+        "scheme_settings"          : {
+            "model_part_name" : "Body2D_Body"
+            // ,
+            // "critical_mach"                 : 0.85,
+            // "upwind_factor_constant"        : 2.0,
+            // "update_critical_mach"          : -1.0,
+            // "update_upwind_factor_constant" : -1.0,
+            // "update_transonic_tolerance"    : 1e-3,
+            // "mach_number_squared_limit"     : 3.0
+        },
         "maximum_iterations"       : 300,
         "echo_level"               : 1,
         "solving_strategy_settings"         : {
-            "type" : "line_search",
+            "type" : "newton_raphson",
             "advanced_settings": {
-                "first_alpha_value"         : 0.1,
-                "second_alpha_value"        : 0.5,
-                "min_alpha"                 : 0.1,
+                "first_alpha_value"         : 0.5,
+                "second_alpha_value"        : 1.0,
+                "min_alpha"                 : 0.05,
                 "max_alpha"                 : 1.0,
                 "line_search_tolerance"     : 0.5,
                 "max_line_search_iterations": 5
@@ -82,9 +92,6 @@
                 "free_stream_density"   : 1.225,
                 "angle_of_attack"       : 0.0,
                 "mach_infinity"         : 0.78,
-                "critical_mach"         : 0.70,
-                "mach_number_limit"     : 1.73204,
-                "upwind_factor_constant": 0.8,
                 "perturbation_field"    : true 
             }
         },{
@@ -100,7 +107,7 @@
             "process_name"  : "ComputeNodalValueProcess",
             "Parameters"    : {
                 "model_part_name" : "FluidModelPart",
-                "elemental_variables_list_to_project": ["PRESSURE_COEFFICIENT"]
+                "elemental_variables_list_to_project": ["VELOCITY", "PRESSURE_COEFFICIENT"]
             }
         }],
         "auxiliar_process_list"            : []

@@ -24,24 +24,21 @@
                 "name" : "KratosMultiphysics.MedApplication.modelers.import_med_modeler.ImportMedModeler",
                 "parameters" : {
                     "echo_level" : 0,
-                    "input_filename" : "model_mesh.med",
+                    "input_filename" : "Fluid.med",
                     "model_part_name" : "FluidModelPart"            
                 }
             },{
                 "name"       : "Modelers.KratosMultiphysics.CreateEntitiesFromGeometriesModeler",
                 "parameters" : {
                     "elements_list"   : [{
-                        "model_part_name" : "FluidModelPart.Fluid",
+                        "model_part_name" : "FluidModelPart.Domain",
                         "element_name"    : "Element3D4N"
-                    },{
-                        "model_part_name" : "FluidModelPart.Wake",
-                        "element_name"    : "Element2D2N"
                     }],
                     "conditions_list" : [{
                         "model_part_name" : "FluidModelPart.FarField",
                         "condition_name"  : "WallCondition3D3N"
                     },{
-                        "model_part_name" : "FluidModelPart.Airfoil",
+                        "model_part_name" : "FluidModelPart.Wing",
                         "condition_name"  : "WallCondition3D3N"
                     }]
                 }
@@ -57,9 +54,9 @@
                     "element_type" : "perturbation_transonic"
                 },
                 "scheme_settings" :{
-                    "model_part_name": "Airfoil"
+                    "model_part_name": "Wing"
                 }, 
-                "maximum_iterations"       : 30,
+                "maximum_iterations"       : 500,
                 "relative_tolerance": 1e-12,
                 "absolute_tolerance": 1e-12,      
                 "linear_solver_settings": {
@@ -70,15 +67,15 @@
                         "max_line_search_iterations" : 5,
                         "first_alpha_value"          : 0.5,
                         "second_alpha_value"         : 1.0,
-                        "min_alpha"                  : 0.1,
-                        "max_alpha"                  : 2.0,
+                        "min_alpha"                  : 0.005,
+                        "max_alpha"                  : 1.0,
                         "line_search_tolerance"      : 0.5},
-                    "type": "newton_raphson"
+                    "type": "line_search"
                 },    
                 "echo_level"               : 1,
-                "volume_model_part_name"   : "Fluid",
-                "skin_parts"               : ["FarField","Airfoil"],
-                "no_skin_parts"            : [],
+                "volume_model_part_name"   : "Domain",
+                "skin_parts"               : ["FarField","Wing"],
+                "no_skin_parts"            : ["TE_Wing"],
                 "reform_dofs_at_each_step" : false
             },
             "processes"        : {
@@ -90,7 +87,7 @@
                         "model_part_name" : "FluidModelPart.FarField",
                         "free_stream_density": 1.225,
                         "angle_of_attack": 0.0,
-                        "mach_infinity": 0.84,
+                        "mach_infinity": 0.839,
                         "perturbation_field": true
                     }
                 },
@@ -99,8 +96,8 @@
                     "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
                     "process_name"  : "DefineWakeProcess",
                     "Parameters"    : {
-                        "model_part_name" : "FluidModelPart.Wake",
-                        "body_model_part_name" : "FluidModelPart.Airfoil",
+                        "model_part_name" : "FluidModelPart.TE_Wing",
+                        "body_model_part_name" : "FluidModelPart.Wing",
                         "wake_stl_file_name" : "wake.stl",
                         "output_wake": false,
                         "wake_process_cpp_parameters":    {
@@ -127,7 +124,7 @@
                 "name" : "KratosMultiphysics.MedApplication.modelers.import_med_modeler.ImportMedModeler",
                 "parameters" : {
                     "echo_level" : 0,
-                    "input_filename" : "model_mesh.med",
+                    "input_filename" : "Fluid.med",
                     "model_part_name" : "MainModelPart"            
                 }
             },{
@@ -147,7 +144,7 @@
                         "model_part_name" : "MainModelPart.Walls",
                         "condition_name"  : "WallCondition3D3N"
                     },{
-                        "model_part_name" : "MainModelPart.Airfoil",
+                        "model_part_name" : "MainModelPart.Wing",
                         "condition_name"  : "WallCondition3D3N"
                     }]
                 }
@@ -184,7 +181,7 @@
                 "echo_level"            : 0,
                 "compute_reactions"     : false,
                 "volume_model_part_name": "Fluid",
-                "skin_parts"            : ["Inlet","Outlet","Walls","Airfoil"],
+                "skin_parts"            : ["Inlet","Outlet","Walls","Wing"],
                 "time_scheme"           : "RK4",
                 "shock_capturing_settings" : {
                     "type" : "physics_based",
@@ -202,7 +199,7 @@
                 "automatic_time_step" : true,
                 "CFL_number"          : 1.0,
                 "minimum_delta_time"  : 1e-8,
-                "maximum_delta_time"  : 1e-2
+                "maximum_delta_time"  : 1e-3
                 },
                 "reform_dofs_at_each_step" : false
             },
@@ -252,7 +249,7 @@
                     "kratos_module" : "KratosMultiphysics.FluidDynamicsApplication",
                     "process_name"  : "ApplySlipProcess",
                     "Parameters"    : {
-                        "model_part_name" : "MainModelPart.Airfoil"
+                        "model_part_name" : "MainModelPart.Wing"
                     }
                 },
                 {
@@ -270,8 +267,8 @@
                     "python_module" : "restart_process",
                     "process_name"  : "RestartProcess",
                     "Parameters"    : {
-                        "save_restart"                   : false,
-                        "load_restart"                   : true,
+                        "save_restart"                   : true,
+                        "load_restart"                   : false,
                         "clean_previus_files"            : false,
                         "model_part"                     : "MainModelPart.fluid_computational_model_part",
                         "input_filename"                 : "Restart",

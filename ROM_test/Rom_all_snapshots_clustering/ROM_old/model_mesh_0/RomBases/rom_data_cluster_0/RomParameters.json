@@ -1,0 +1,29 @@
+{
+    "rom_manager": true,
+    "train_hrom": false,
+    "run_hrom": false,
+    "projection_strategy": "lspg",
+    "assembling_strategy": "global",
+    "rom_format": "numpy",
+    "rom_settings": {
+        "rom_bns_settings": {
+            "train_petrov_galerkin": false,
+            "basis_strategy": "reactions",
+            "include_phi": false,
+            "svd_truncation_tolerance": 1e-12,
+            "solving_technique": "normal_equations",
+            "monotonicity_preserving": false
+        },
+        "nodal_unknowns": [
+            "AUXILIARY_VELOCITY_POTENTIAL",
+            "VELOCITY_POTENTIAL"
+        ],
+        "number_of_rom_dofs": 327,
+        "petrov_galerkin_number_of_rom_dofs": 0
+    },
+    "hrom_settings": {
+        "hrom_format": "numpy"
+    },
+    "nodal_modes": {},
+    "elements_and_weights": {}
+}

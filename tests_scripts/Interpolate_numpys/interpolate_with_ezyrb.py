@@ -6,8 +6,8 @@ from ezyrb import ReducedOrderModel as ROM
 from ezyrb import RBF, POD
 
 #----------- (Reading all files with specific extension) ------------
-Train_Directory_Path = './solutions_train'
-Test_Directory_Path = './solutions_test'
+Train_Directory_Path = 'solutions_t/solutions_train'
+Test_Directory_Path = 'solutions_t/solutions_test'
 Files_Extension = '.npy'
 
 count = 0

@@ -1,0 +1,15 @@
+import KratosMultiphysics.kratos_utilities
+
+KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Captures')
+KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('DataBase')
+KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('__pycache__')
+KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Results')
+KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('rom_data')
+KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Skin_Data')
+KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Mu_parameters')
+KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('fom_data.xlsx')
+KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('mu_train.npy')
+KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('MuValues.png')
+KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('ROM_adaptative_space.post.lst')
+KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('rom_data.xlsx')
+KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('fom_rom_train_errors.npy')
