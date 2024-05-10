@@ -7,15 +7,36 @@
         "start_time"    : 0.0,
         "end_time"      : 1.0
     },
+    "modelers" : [{
+        "name" : "KratosMultiphysics.MedApplication.modelers.import_med_modeler.ImportMedModeler",
+        "parameters" : {
+            "echo_level" : 0,
+            "input_filename" : "",
+            "model_part_name" : "MainModelPart"            
+        }
+    },{
+        "name"       : "Modelers.KratosMultiphysics.CreateEntitiesFromGeometriesModeler",
+        "parameters" : {
+            "elements_list"   : [{
+                "model_part_name" : "MainModelPart.Parts_Parts_Auto1",
+                "element_name"    : "Element2D3N"
+            }],
+            "conditions_list" : [{
+                "model_part_name" : "MainModelPart.PotentialWallCondition2D_Far_field_Auto1",
+                "condition_name"  : "WallCondition2D2N"
+            },{
+                "model_part_name" : "MainModelPart.Body2D_Body",
+                "condition_name"  : "WallCondition2D2N"
+            }]
+        }
+    }],
     "solver_settings"  : {
         "model_part_name"          : "MainModelPart",
         "domain_size"              : 2,
         "solver_type"              : "potential_flow",
         "model_import_settings"    : {
-            "input_type"     : "mdpa",
-            "input_filename" : "Mesh/model_mesh_0"
+            "input_type"     : "use_input_model_part"
         },
-        "assign_neighbour_elements_to_conditions": true,
         "material_import_settings" : {
             "materials_filename" : ""
         },
@@ -52,8 +73,8 @@
         "linear_solver_settings"  : {
                 "solver_type"             : "LinearSolversApplication.pardiso_lu"
         },
-        "volume_model_part_name"   : "MainModelPart.Parts_Parts_Auto1",
-        "skin_parts"               : ["MainModelPart.PotentialWallCondition2D_Far_field_Auto1","MainModelPart.Body2D_Body"],
+        "volume_model_part_name"   : "Parts_Parts_Auto1",
+        "skin_parts"               : ["PotentialWallCondition2D_Far_field_Auto1","Body2D_Body"],
         "no_skin_parts"            : [],
         "reform_dofs_at_each_step" : false,
         "auxiliary_variables_list" : []

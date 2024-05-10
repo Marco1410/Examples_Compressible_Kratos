@@ -3,7 +3,7 @@
     "name" : "Orchestrators.KratosMultiphysics.SequentialOrchestrator",
     "settings" : {
         "echo_level" : 0,
-        "execution_list" : ["potential_flow_stage", "navier_stokes_stage"],
+        "execution_list" : ["potential_flow_stage","navier_stokes_stage"],
         "load_from_checkpoint" : null,
         "stage_checkpoints" : false
     }
@@ -24,7 +24,7 @@
                 "name" : "KratosMultiphysics.MedApplication.modelers.import_med_modeler.ImportMedModeler",
                 "parameters" : {
                     "echo_level" : 0,
-                    "input_filename" : "Boeing/model_mesh.med",
+                    "input_filename" : "Fluid.med",
                     "model_part_name" : "FluidModelPart"            
                 }
             },{
@@ -33,12 +33,9 @@
                     "elements_list"   : [{
                         "model_part_name" : "FluidModelPart.Domain",
                         "element_name"    : "Element3D4N"
-                    },{
-                        "model_part_name" : "FluidModelPart.Wake",
-                        "element_name"    : "Element2D2N"
                     }],
                     "conditions_list" : [{
-                        "model_part_name" : "FluidModelPart.Farfield",
+                        "model_part_name" : "FluidModelPart.FarField",
                         "condition_name"  : "WallCondition3D3N"
                     },{
                         "model_part_name" : "FluidModelPart.Plane",
@@ -56,9 +53,30 @@
                 "formulation": {
                     "element_type" : "perturbation_transonic"
                 },
-                "maximum_iterations"       : 15,
+                "maximum_iterations"       : 25,
+                "relative_tolerance"               : 1e-12,
+                "absolute_tolerance"               : 1e-12,
+                "residual_tolerance_between_steps" : 1e-12,  
+                "scheme_settings" :{
+                    "model_part_name": "Plane",
+                    "critical_mach"                 : 0.85,
+                    "upwind_factor_constant"        : 2.0,
+                    "update_critical_mach"          : -1.0,
+                    "update_upwind_factor_constant" : -1.0,
+                    "update_transonic_tolerance"    : 1e-3,
+                    "mach_number_squared_limit"     : 3.0
+                }, 
                 "linear_solver_settings": {
-                    "solver_type": "LinearSolversApplication.pardiso_lu"
+                    "solver_type": "LinearSolversApplication.pardiso_lu",
+                    "max_iteration": 400,
+                    "gmres_krylov_space_dimension": 100,
+                    "smoother_type":"ilu0",
+                    "coarsening_type":"ruge_stuben",
+                    "coarse_enough" : 5000,
+                    "krylov_type": "lgmres",
+                    "tolerance": 1e-9,
+                    "verbosity": 0,
+                    "scaling": false
                 },
                 "solving_strategy_settings": {
                     "advanced_settings": {
@@ -71,8 +89,8 @@
                     "type": "line_search"
                 },    
                 "echo_level"               : 1,
-                "volume_model_part_name"   : "Domain",
-                "skin_parts"               : ["Farfield","Plane"],
+                "volume_model_part_name"   : "FluidModelPart.Domain",
+                "skin_parts"               : ["FluidModelPart.FarField","FluidModelPart.Plane"],
                 "no_skin_parts"            : [],
                 "reform_dofs_at_each_step" : false
             },
@@ -82,42 +100,37 @@
                     "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
                     "process_name"  : "FarFieldProcess",
                     "Parameters"    : {
-                        "model_part_name" : "FluidModelPart.Farfield",
-                        "angle_of_attack": 0.0,
-                        "critical_mach": 0.70,
+                        "model_part_name" : "FluidModelPart.FarField",
+                        "angle_of_attack": 2.31,
                         "free_stream_density": 1.225,
-                        "mach_infinity": 0.85,
-                        "mach_number_squared_limit": 3,
-                        "perturbation_field": true,
-                        "upwind_factor_constant": 1.2
+                        "mach_infinity": 0.84,
+                        "perturbation_field": true
                     
                     }
-                },
-                {
-                    "python_module" : "define_wake_process_3d",
-                    "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
-                    "process_name"  : "DefineWakeProcess",
-                    "Parameters"    : {
-                        "model_part_name" : "FluidModelPart.Wake",
-                        "body_model_part_name" : "FluidModelPart.Plane",
-                        "wake_stl_file_name" : "Boeing/Wake.stl",
-                        "output_wake": false,
-                        "wake_process_cpp_parameters":    {
-                            "tolerance"                     : 1e-9,
-                            "wake_normal"                   : [0.0, 0.0, 1.0],
-                            "wake_direction"                : [1.0, 0.0, 0.0],
-                            "switch_wake_normal"            : false,
-                            "count_elements_number"         : false,
-                            "write_elements_ids_to_file"    : false,
-                            "shed_wake_from_trailing_edge"  : false,
-                            "shedded_wake_distance"         : 12.5,
-                            "shedded_wake_element_size"     : 0.2,
-                            "echo_level": 0
-                        }
-                     }
-                }]
-            }
-        },
+                }
+                // ,{
+                //     "python_module" : "define_wake_process_3d",
+                //     "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
+                //     "process_name"  : "DefineWakeProcess",
+                //     "Parameters"    : {
+                //         "model_part_name" : "FluidModelPart.Wing_TE",
+                //         "body_model_part_name" : "FluidModelPart.Plane",
+                //         "wake_stl_file_name" : "Wake1.stl",
+                //         "output_wake": false,
+                //         "wake_process_cpp_parameters":    {
+                //             "tolerance"                     : 1e-9,
+                //             "wake_normal"                   : [-0.040306184,0.0,0.999187376],
+                //             "switch_wake_normal"            : false,
+                //             "count_elements_number"         : false,
+                //             "write_elements_ids_to_file"    : false,
+                //             "shed_wake_from_trailing_edge"  : false,
+                //             "shedded_wake_distance"         : 12.5,
+                //             "shedded_wake_element_size"     : 0.2,
+                //             "echo_level": 0
+                //         }
+                //         }
+                // }
+                ]}},
         "stage_postprocess" : {}
     },
     "navier_stokes_stage" : {
@@ -126,7 +139,7 @@
                 "name" : "KratosMultiphysics.MedApplication.modelers.import_med_modeler.ImportMedModeler",
                 "parameters" : {
                     "echo_level" : 0,
-                    "input_filename" : "Boeing/model_mesh.med",
+                    "input_filename" : "Fluid.med",
                     "model_part_name" : "MainModelPart"            
                 }
             },{
@@ -140,14 +153,12 @@
                         "model_part_name" : "MainModelPart.Inlet",
                         "condition_name"  : "WallCondition3D3N"
                     },{
-                        "model_part_name" : "MainModelPart.Outlet",
-                        "condition_name"  : "WallCondition3D3N"
-                    },{
                         "model_part_name" : "MainModelPart.Plane",
                         "condition_name"  : "WallCondition3D3N"
                     }]
                 }
-            }],
+            }]
+            ,
             "operations" : [{
                 "name" : "KratosMultiphysics.CompressiblePotentialFlowApplication.PotentialToCompressibleNavierStokesOperation",
                 "Parameters" : {
@@ -178,12 +189,26 @@
                 },
                 "echo_level"            : 0,
                 "compute_reactions"     : false,
-                "volume_model_part_name": "Domain",
-                "skin_parts"            : ["Inlet","Outlet","Plane"],
+                "shock_capturing_settings": {
+                    "type" : "physics_based",
+                    "Parameters" : {
+                                    "artificial_bulk_viscosity_constant": 1.5,
+                                    "artificial_conductivity_constant": 100000.0,
+                                    "artificial_dynamic_viscosity_constant": 1.0,
+                                    "calculate_nodal_area_at_each_step": false,
+                                    "far_field_prandtl_number": 0.0,
+                                    "shear_sensor": true,
+                                    "shock_sensor": true,
+                                    "thermal_sensor": true,
+                                    "thermally_coupled_formulation": true
+                                    }
+                },
+                "volume_model_part_name": "MainModelPart.Domain",
+                "skin_parts"            : ["MainModelPart.Inlet","MainModelPart.Plane"],
                 "time_scheme"           : "RK4",
                 "time_stepping"         : {
                 "automatic_time_step" : true,
-                "CFL_number"          : 1.0,
+                "CFL_number"          : 0.7,
                 "minimum_delta_time"  : 1e-8,
                 "maximum_delta_time"  : 1e-2
                 },
@@ -198,8 +223,8 @@
                         "model_part_name" : "MainModelPart.Inlet",
                         "variable_name"   : "MOMENTUM",
                         "interval"        : [0.0,"End"],
-                        "value"           : [266.67, 0.0, null],
-                        "constrained"     : [true,true,false]
+                        "value"           : [349.86, null, 14.102],
+                        "constrained"     : [true,false,true]
                     }
                 },{
                     "python_module" : "assign_scalar_variable_process",
@@ -209,7 +234,7 @@
                         "model_part_name" : "MainModelPart.Inlet",
                         "variable_name"   : "DENSITY",
                         "interval"        : [0.0,"End"],
-                        "value"           : 1.0,
+                        "value"           : 1.225,
                         "constrained"     : true
                     }
                 },{
@@ -220,7 +245,7 @@
                         "model_part_name" : "MainModelPart.Inlet",
                         "variable_name"   : "TOTAL_ENERGY",
                         "interval"        : [0.0,"End"],
-                        "value"           : "1.0*(722.14*273 + 0.5*(266.67)**2)",
+                        "value"           : "1.225*(722.14*273 + 0.5*(285.6)**2)",
                         "constrained"     : true
                     }
                 },{
@@ -230,7 +255,42 @@
                     "Parameters"    : {
                         "model_part_name" : "MainModelPart.Plane"
                     }
-                }]
+                }],
+                "initial_conditions_process_list" : [{
+                    "python_module" : "assign_vector_variable_process",
+                    "kratos_module" : "KratosMultiphysics",
+                    "process_name"  : "AssignVectorVariableProcess",
+                    "Parameters"    : {
+                        "model_part_name" : "MainModelPart",
+                        "variable_name"   : "MOMENTUM",
+                        "interval"        : [0.0,"End"],
+                        "value"           : [349.86, null, 14.102],
+                        "constrained"     : [false,false,false]
+                    }
+                },{
+                    "python_module" : "assign_scalar_variable_process",
+                    "kratos_module" : "KratosMultiphysics",
+                    "process_name"  : "AssignScalarVariableProcess",
+                    "Parameters"    : {
+                        "model_part_name" : "MainModelPart",
+                        "variable_name"   : "DENSITY",
+                        "interval"        : [0.0,"End"],
+                        "value"           : 1.225,
+                        "constrained"     : false
+                    }
+                },{
+                    "python_module" : "assign_scalar_variable_process",
+                    "kratos_module" : "KratosMultiphysics",
+                    "process_name"  : "AssignScalarVariableProcess",
+                    "Parameters"    : {
+                        "model_part_name" : "MainModelPart",
+                        "variable_name"   : "TOTAL_ENERGY",
+                        "interval"        : [0.0,"End"],
+                        "value"           : "1.225*(722.14*273 + 0.5*(285.6)**2)",
+                        "constrained"     : false
+                    }
+                }
+            ]
             },
             "output_processes" : {
                 "vtk_output" : [{
@@ -239,14 +299,14 @@
                     "process_name"  : "VtkOutputProcess",
                     "help"          : "This process writes postprocessing files for Paraview",
                     "Parameters"    : {
-                        "model_part_name"                    : "MainModelPart.Domain",
+                        "model_part_name"                    : "MainModelPart",
                         "output_control_type"                : "step",
-                        "output_interval"                    : 1,
+                        "output_interval"                    : 5,
                         "file_format"                        : "binary",
                         "output_precision"                   : 7,
                         "output_sub_model_parts"             : true,
                         "output_path"                        : "vtk_output",
-                        "save_output_files_in_folder"        : false,
+                        "save_output_files_in_folder"        : true,
                         "nodal_solution_step_data_variables" : ["VELOCITY","PRESSURE","MOMENTUM","DENSITY","TOTAL_ENERGY","TEMPERATURE"],
                         "nodal_data_value_variables"         : ["SOUND_VELOCITY","ARTIFICIAL_BULK_VISCOSITY","ARTIFICIAL_DYNAMIC_VISCOSITY","ARTIFICIAL_CONDUCTIVITY","MACH"],
                         "gauss_point_variables_in_elements"  : ["SHOCK_SENSOR","THERMAL_SENSOR","SHEAR_SENSOR","VELOCITY_DIVERGENCE"],

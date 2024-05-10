@@ -107,6 +107,8 @@ def load_mu_parameters():
 def FakeProjectParameters(parameters, mu=None):
     angle_of_attack = mu[0]
     mach_infinity   = mu[1]
+    mesh_name       = mu[2]
+    parameters["modelers"][0]["parameters"]["input_filename"].SetString(f'Mesh/model_mesh_{np.int0(mesh_name)}.med')
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(angle_of_attack)
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach_infinity)
     parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString(f'Results/RBF_{angle_of_attack}, {mach_infinity}')

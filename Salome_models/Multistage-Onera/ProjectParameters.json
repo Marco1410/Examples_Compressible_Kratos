@@ -54,28 +54,45 @@
                     "element_type" : "perturbation_transonic"
                 },
                 "scheme_settings" :{
-                    "model_part_name": "Wing"
+                    "model_part_name": "Wing",
+                    "critical_mach"                 : 0.85,
+                    "upwind_factor_constant"        : 2.0,
+                    "update_critical_mach"          : -1.0,
+                    "update_upwind_factor_constant" : -1.0,
+                    "update_transonic_tolerance"    : 1e-3,
+                    "mach_number_squared_limit"     : 3.0
                 }, 
                 "maximum_iterations"       : 500,
                 "relative_tolerance": 1e-12,
                 "absolute_tolerance": 1e-12,      
+                "residual_tolerance_between_steps" : 1e-12,  
                 "linear_solver_settings": {
-                    "solver_type": "LinearSolversApplication.pardiso_lu"
+                    "solver_type": "LinearSolversApplication.pardiso_lu",
+                    "max_iteration": 400,
+                    "gmres_krylov_space_dimension": 100,
+                    "smoother_type":"ilu0",
+                    "coarsening_type":"ruge_stuben",
+                    "coarse_enough" : 5000,
+                    "krylov_type": "lgmres",
+                    "tolerance": 1e-9,
+                    "verbosity": 0,
+                    "scaling": false
                 },
                 "solving_strategy_settings": {
                     "advanced_settings": {
                         "max_line_search_iterations" : 5,
                         "first_alpha_value"          : 0.5,
                         "second_alpha_value"         : 1.0,
-                        "min_alpha"                  : 0.005,
+                        "min_alpha"                  : 0.05,
                         "max_alpha"                  : 1.0,
                         "line_search_tolerance"      : 0.5},
                     "type": "line_search"
                 },    
                 "echo_level"               : 1,
-                "volume_model_part_name"   : "Domain",
-                "skin_parts"               : ["FarField","Wing"],
-                "no_skin_parts"            : ["TE_Wing"],
+                "volume_model_part_name"   : "FluidModelPart.Domain",
+                "skin_parts"               : ["FluidModelPart.FarField","FluidModelPart.Wing"],
+                "no_skin_parts"            : [],
+                "auxiliary_variables_list" : [],
                 "reform_dofs_at_each_step" : false
             },
             "processes"        : {
@@ -98,7 +115,7 @@
                     "Parameters"    : {
                         "model_part_name" : "FluidModelPart.TE_Wing",
                         "body_model_part_name" : "FluidModelPart.Wing",
-                        "wake_stl_file_name" : "wake.stl",
+                        "wake_stl_file_name" : "Wake.stl",
                         "output_wake": false,
                         "wake_process_cpp_parameters":    {
                             "tolerance"                     : 1e-9,
@@ -110,6 +127,7 @@
                             "shed_wake_from_trailing_edge"  : false,
                             "shedded_wake_distance"         : 12.5,
                             "shedded_wake_element_size"     : 0.2,
+                            "decrease_wake_width_at_the_wing_tips" : false,
                             "echo_level": 0
                         }
                      }
@@ -131,17 +149,11 @@
                 "name"       : "Modelers.KratosMultiphysics.CreateEntitiesFromGeometriesModeler",
                 "parameters" : {
                     "elements_list"   : [{
-                        "model_part_name" : "MainModelPart.Fluid",
+                        "model_part_name" : "MainModelPart.Domain",
                         "element_name"    : "Element3D4N"
                     }],
                     "conditions_list" : [{
                         "model_part_name" : "MainModelPart.Inlet",
-                        "condition_name"  : "WallCondition3D3N"
-                    },{
-                        "model_part_name" : "MainModelPart.Outlet",
-                        "condition_name"  : "WallCondition3D3N"
-                    },{
-                        "model_part_name" : "MainModelPart.Walls",
                         "condition_name"  : "WallCondition3D3N"
                     },{
                         "model_part_name" : "MainModelPart.Wing",
@@ -180,8 +192,8 @@
                 },
                 "echo_level"            : 0,
                 "compute_reactions"     : false,
-                "volume_model_part_name": "Fluid",
-                "skin_parts"            : ["Inlet","Outlet","Walls","Wing"],
+                "volume_model_part_name": "MainModelPart.Domain",
+                "skin_parts"            : ["MainModelPart.Inlet","MainModelPart.Wing"],
                 "time_scheme"           : "RK4",
                 "shock_capturing_settings" : {
                     "type" : "physics_based",
@@ -192,7 +204,7 @@
                         "thermal_sensor" : true,
                         "thermally_coupled_formulation" : true,
                         "artificial_bulk_viscosity_constant": 1.5,
-                        "artificial_conductivity_constant": 1.0,
+                        "artificial_conductivity_constant": 100000.0,
                         "artificial_dynamic_viscosity_constant": 1.0,
                         "far_field_prandtl_number": 0.0}},
                 "time_stepping"         : {
@@ -212,8 +224,8 @@
                         "model_part_name" : "MainModelPart.Inlet",
                         "variable_name"   : "MOMENTUM",
                         "interval"        : [0.0,"End"],
-                        "value"           : ["1.225*0.84*340", 0.0, null],
-                        "constrained"     : [true,true,false]
+                        "value"           : ["1.225*0.839*340", null, null],
+                        "constrained"     : [true,false,false]
                     }
                 },{
                     "python_module" : "assign_scalar_variable_process",
@@ -234,7 +246,7 @@
                         "model_part_name" : "MainModelPart.Inlet",
                         "variable_name"   : "TOTAL_ENERGY",
                         "interval"        : [0.0,"End"],
-                        "value"           : "1.225*(722.14*273 + 0.5*(1.225*0.84*340)**2)",
+                        "value"           : "1.225*(722.14*273 + 0.5*(0.839*340)**2)",
                         "constrained"     : true
                     }
                 },{
@@ -242,45 +254,7 @@
                     "kratos_module" : "KratosMultiphysics.FluidDynamicsApplication",
                     "process_name"  : "ApplySlipProcess",
                     "Parameters"    : {
-                        "model_part_name" : "MainModelPart.Walls"
-                    }
-                },{
-                    "python_module" : "apply_slip_process",
-                    "kratos_module" : "KratosMultiphysics.FluidDynamicsApplication",
-                    "process_name"  : "ApplySlipProcess",
-                    "Parameters"    : {
                         "model_part_name" : "MainModelPart.Wing"
-                    }
-                },
-                {
-                    "python_module" : "convergence_monitoring_tool_process",
-                    "process_name"  : "ConvergenceMonitoringToolProcess",
-                    "Parameters"    : {
-                        "print_max_values"       : false,
-                        "variable_max_value"     : "",
-                        "print_error_estimation" : false,
-                        "print_warnings"         : true,
-                        "model_part"             : "MainModelPart.fluid_computational_model_part"
-                    }
-                },
-                {
-                    "python_module" : "restart_process",
-                    "process_name"  : "RestartProcess",
-                    "Parameters"    : {
-                        "save_restart"                   : true,
-                        "load_restart"                   : false,
-                        "clean_previus_files"            : false,
-                        "model_part"                     : "MainModelPart.fluid_computational_model_part",
-                        "input_filename"                 : "Restart",
-                        "input_output_path"              : "restart_folder",
-                        "echo_level"                     : 1,
-                        "serializer_trace"               : "no_trace",
-                        "restart_load_file_label"        : "1",
-                        "load_restart_files_from_folder" : true,
-                        "restart_save_frequency"         : 0.0,
-                        "restart_control_type"           : "step",
-                        "save_restart_files_in_folder"   : true,
-                        "max_files_to_keep"              : -1
                     }
                 }]
             },
@@ -291,9 +265,9 @@
                     "process_name"  : "VtkOutputProcess",
                     "help"          : "This process writes postprocessing files for Paraview",
                     "Parameters"    : {
-                        "model_part_name"                    : "MainModelPart.Fluid",
+                        "model_part_name"                    : "MainModelPart",
                         "output_control_type"                : "step",
-                        "output_interval"                    : 10,
+                        "output_interval"                    : 1,
                         "file_format"                        : "binary",
                         "output_precision"                   : 7,
                         "output_sub_model_parts"             : true,
