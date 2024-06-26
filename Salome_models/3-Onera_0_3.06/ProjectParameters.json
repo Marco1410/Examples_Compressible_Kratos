@@ -26,7 +26,7 @@
                 "condition_name"  : "WallCondition3D3N"
             },{
                 "model_part_name" : "FluidModelPart.Wing",
-                "condition_name"  : "WallCondition3D3N"
+                "condition_name"  : "SurfaceCondition3D3N"
             }]
         }
     }],
@@ -75,17 +75,17 @@
         "relative_tolerance": 1e-12,
         "absolute_tolerance": 1e-12,       
         "linear_solver_settings": {
-            "solver_type": "LinearSolversApplication.pardiso_lu"
+            "solver_type": "LinearSolversApplication.pardiso_lu",
             // "solver_type": "amgcl",
-            // "max_iteration": 400,
-            // "gmres_krylov_space_dimension": 1000,
-            // "smoother_type":"ilu0",
-            // "coarsening_type":"ruge_stuben",
-            // "coarse_enough" : 5000,
-            // "krylov_type": "lgmres",
-            // "tolerance": 1e-9,
-            // "verbosity": 0,
-            // "scaling": false
+            "max_iteration": 400,
+            "gmres_krylov_space_dimension": 100,
+            "smoother_type":"ilu0",
+            "coarsening_type":"ruge_stuben",
+            "coarse_enough" : 1000,
+            "krylov_type": "lgmres",
+            "tolerance": 1e-9,
+            "verbosity": 0,
+            "scaling": false
         },
         "solving_strategy_settings": {
             "advanced_settings": {
@@ -99,8 +99,8 @@
         },    
         "echo_level"               : 1,
         "reference_chord"          : 1.0,
-        "volume_model_part_name"   : "Domain",
-        "skin_parts"               : ["FarField","Wing"],
+        "volume_model_part_name"   : "FluidModelPart.Domain",
+        "skin_parts"               : ["FluidModelPart.FarField","FluidModelPart.Wing"],
         "no_skin_parts"            : [],
         "auxiliary_variables_list" : [],
         "reform_dofs_at_each_step" : false
@@ -135,8 +135,8 @@
                     "count_elements_number"         : false,
                     "write_elements_ids_to_file"    : false,
                     "shed_wake_from_trailing_edge"  : false,
-                    "shedded_wake_distance"         : 12.5,
-                    "shedded_wake_element_size"     : 0.2,
+                    "shedded_wake_distance"         : 3.0,
+                    "shedded_wake_element_size"     : 0.1,
                     "decrease_wake_width_at_the_wing_tips" : false,
                     "echo_level": 1
                 }

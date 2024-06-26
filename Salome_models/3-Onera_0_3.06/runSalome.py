@@ -4,7 +4,7 @@ import time as time
 start_time = time.time()
 
 salome_cmd = "salome -t python"
-salome_script_name = "generate_onera_m6.py"
+salome_script_name = "onera_salome.py"
 
 salome_exe = " ".join([salome_cmd, salome_script_name])
 

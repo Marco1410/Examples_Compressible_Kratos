@@ -35,7 +35,7 @@ Wake_max_mesh_size = 1.0
 Wake_min_mesh_size = 0.01
 TE_Wing_mesh_size  = 0.01
 
-Dir                     = "/media/marco-kratos-pc/datos/Examples_Compressible_Kratos/Salome_models/3-Onera(copia)"
+Dir                     = "/home/marco/Examples_Compressible_Kratos/Salome_models/3-Onera_0_3.06"
 onera_geometry_igs_path = Dir + "/onera_m6_geometry/Onera_M6_geometry.igs"
 MeshOutPutName          = Dir + "/Fluid.med"
 Wake_output_name        = Dir + "/Wake.stl"
