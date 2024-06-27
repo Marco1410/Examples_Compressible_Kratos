@@ -73,7 +73,8 @@
         }, 
         "maximum_iterations"       : 500,
         "relative_tolerance": 1e-12,
-        "absolute_tolerance": 1e-12,       
+        "absolute_tolerance": 1e-12,   
+        "residual_tolerance_between_steps" : 1e-12,     
         "linear_solver_settings": {
             "solver_type": "LinearSolversApplication.pardiso_lu"
             // "solver_type": "amgcl",

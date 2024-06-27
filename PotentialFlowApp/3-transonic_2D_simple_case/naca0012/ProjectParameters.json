@@ -53,14 +53,16 @@
         "scheme_settings"          : {
             "model_part_name" : "Body2D_Body",
             "critical_mach"                 : 0.85,
-            "upwind_factor_constant"        : 5.0,
+            "upwind_factor_constant"        : 2.0,
             "update_critical_mach"          : -1.0,
-            "update_upwind_factor_constant" : 4.5,
+            "update_upwind_factor_constant" : -1.0,
             "update_transonic_tolerance"    : 1e-3,
             "mach_number_squared_limit"     : 3.0
         },
         "maximum_iterations"       : 300,
         "echo_level"               : 1,
+        "relative_tolerance"               : 1e-8,
+        "absolute_tolerance"               : 1e-8,
         "solving_strategy_settings"         : {
             "type" : "line_search",
             "advanced_settings": {
@@ -77,7 +79,7 @@
         },
         "volume_model_part_name"   : "Parts_Parts_Auto1",
         "skin_parts"               : ["PotentialWallCondition2D_Far_field_Auto1","Body2D_Body"],
-        "no_skin_parts"            : ["Wake2D_Wake","Tip2D_WingTips"],
+        "no_skin_parts"            : [],
         "reform_dofs_at_each_step" : false,
         "auxiliary_variables_list" : []
     },
@@ -89,20 +91,20 @@
             "Parameters"    : {
                 "model_part_name" : "FluidModelPart.PotentialWallCondition2D_Far_field_Auto1",
                 "free_stream_density"   : 1.225,
-                "angle_of_attack"       : 2.0,
-                "mach_infinity"         : 0.78,
-                "inlet_potential"       : 1.0,
-                "initialize_flow_field" : false,
+                "angle_of_attack"       : 0.0,
+                "mach_infinity"         : 0.75,
                 "perturbation_field"    : true 
             }
-        },{
+        }
+        ,{
             "python_module" : "define_wake_process_2d",
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
             "process_name"  : "DefineWakeProcess2D",
             "Parameters"    : {
                 "model_part_name" : "FluidModelPart.Body2D_Body"
             }
-        },{
+        }
+        ,{
             "python_module" : "compute_nodal_value_process",
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
             "process_name"  : "ComputeNodalValueProcess",

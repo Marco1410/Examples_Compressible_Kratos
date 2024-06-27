@@ -1,0 +1,37 @@
+BeginZE
+   x 865.2574462890625 2277.927978515625
+   y 1363.1358642578125 554.0780029296875
+   z -10224.2783203125 9766.4638671875
+   e 1455.987548828125
+   v -0.309437781890552599 -0.52087364389544677 -0.701315740037679491
+   r -0.375626315339525396
+   m -0.526306211948394775 -0.204509317874908447 0.825334846973419189 0 0.849221289157867432 -0.175191015005111694 0.49812781810760498 0 0.0427194796502590179 0.963059723377227783 0.265877813100814819 0 0 0 0 1
+   c 1663.487548828125 836.09014892578125 228.907241821289062
+   pd 0
+   pno 0
+   pfo 0
+   pf 4
+   pv 0
+   NowUse 0
+   DrawingType 0
+   LightVector 90 90 150 0
+   OGLShadow(UseShadows) 0
+   OGLShadow(RenderMode) RenderNice
+   OGLShadow(ShadowBias) -0.002
+   OGLShadow(AmbientShadows) 1
+   OGLShadow(UseFBO) 1
+   OGLShadow(FBOSize) 2048
+   OGLShadow(DimmedLightFactor) 0.02
+   OGLStereo(UseStereo) 0
+   OGLStereo(RelativeEyeDistance) 1
+   OGLStereo(FlipEyes) 0
+   OGLStereo(StereoMode) AnaglyphColors
+   OGLStereo(EyeDistance) 0.075
+   OGLStereo(LeftEyeDistance) 1 0 0 1
+   OGLStereo(RightEyeDistance) 0 1 1 1
+EndZE
+
+BeginMirror
+   Mirror 0 Angle 0.0 AngleFake -15.0 SizeFactor 2.0 HeightOffset 0.25 Color #d9e5f24d Backlight Off EdgeStyle No Type Scene DrawMode Mirror
+EndMirror
+

@@ -13,9 +13,9 @@ if not os.path.exists(salome_output_path):
 
 coordinates_file_name = 'airfoilCoordinates/k1.dat'
 AOA = 0.0
-Airfoil_MeshSize = 1e-5
+Airfoil_MeshSize = 1e-3
 Domain_Size = 100
-Ratio = 1.001
+Ratio = 1.1
 Growth_Rate = 0.05
 Domain_Length = Domain_Size
 Domain_Width  = Domain_Size

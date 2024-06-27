@@ -1,5 +1,6 @@
 import os
 import time
+import random
 import openpyxl
 import numpy as np
 import matplotlib
@@ -382,8 +383,8 @@ def UpdateMaterialParametersFile(material_parametrs_file_name, mu):
 
 def GetRomManagerParameters():
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
-            "rom_stages_to_train" : ["ROM","HROM"],            // ["ROM","HROM"]
-            "rom_stages_to_test"  : ["ROM","HROM"],            // ["ROM","HROM"]
+            "rom_stages_to_train" : ["ROM"],            // ["ROM","HROM"]
+            "rom_stages_to_test"  : ["ROM"],            // ["ROM","HROM"]
             "paralellism" : null,                       // null, TODO: add "compss"
             "projection_strategy": "galerkin",          // "lspg", "galerkin", "petrov_galerkin"
             "assembling_strategy": "global",            // "global", "elemental"
@@ -434,9 +435,9 @@ if __name__ == "__main__":
 
     ###############################
     # PARAMETERS SETTINGS
-    update_parameters = True
-    number_of_mu_train = 3
-    number_of_mu_test  = 1
+    update_parameters = False
+    number_of_mu_train = 150
+    number_of_mu_test  = 300
     mach_range         = [ 0.70, 0.75]
     angle_range        = [ 1.00, 2.00]
     mesh_number        = 0
@@ -461,25 +462,47 @@ if __name__ == "__main__":
         mu_train = [(angle, mach, mesh_number) for (angle, mach, old_mesh_number) in mu_train]
         mu_test = [(angle, mach, mesh_number) for (angle, mach, old_mesh_number) in mu_test]
 
+
+    mu_train_list = random.sample(mu_train, 100)
+
+    mu_train_not_scaled = [mu_value for mu_value, mu_train_value in zip(mu_train_not_scaled, mu_train) if mu_train_value in mu_train_list]
+    
+    # mu_test_list  = random.sample(mu_test, 1)
+    # mu_test_not_scaled = [mu_value for mu_value, mu_test_value in zip(mu_test_not_scaled, mu_test) if mu_test_value in mu_test_list]
+
+    np.save('mu_train_list', mu_train_list)
+    np.save('mu_train_not_scaled_aux',mu_train_not_scaled)
+    # np.save('mu_test_list',mu_test_list)
+    # np.save('mu_test_not_scaled_aux',mu_test_not_scaled)
+
+    # mu_train_list = np.load('mu_train_list.npy')
+    # mu_train_not_scaled = np.load('mu_train_not_scaled_aux.npy')
+    # mu_test_list = np.load('mu_test_list.npy')
+    # mu_test_not_scaled = np.load('mu_test_not_scaled_aux.npy')
+    # mu_train_list = [mu.tolist() for mu in mu_train_list]
+    # mu_train_not_scaled = [mu.tolist() for mu in mu_train_not_scaled]
+    # mu_test_list = [mu.tolist() for mu in mu_test_list]
+    # mu_test_not_scaled = [mu.tolist() for mu in mu_test_not_scaled]
+
     general_rom_manager_parameters = GetRomManagerParameters()
     project_parameters_name = "ProjectParameters.json"
 
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
                              CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile)
 
-    rom_manager.Fit(mu_train)
+    rom_manager.Fit(mu_train_list)
 
     rom_manager.Test(mu_test)
 
-    RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 
-                   mu_test = mu_train + mu_test, mu_test_not_scaled  = mu_train_not_scaled + mu_test_not_scaled)
+    RBF_prediction(mu_train = mu_train_list, mu_train_not_scaled = mu_train_not_scaled, 
+                   mu_test = mu_test, mu_test_not_scaled  = mu_test_not_scaled)
 
-    Plot_Cps(mu_train, 'Train_Captures')
+    Plot_Cps(mu_train_list, 'Train_Captures')
     Plot_Cps(mu_test, 'Test_Captures')
 
     rom_manager.PrintErrors()
 
     print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
-    PEBL_error_estimation(mu_train, mu_test)
+    PEBL_error_estimation(mu_train_list, mu_test)
     print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
 

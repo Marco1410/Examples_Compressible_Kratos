@@ -52,8 +52,8 @@
         },
         "scheme_settings"          : {
             "model_part_name" : "Body2D_Body",
-            "critical_mach"                 : 0.85,
-            "upwind_factor_constant"        : 2.0,
+            "critical_mach"                 : 0.9,
+            "upwind_factor_constant"        : 1.0,
             "update_critical_mach"          : -1.0,
             "update_upwind_factor_constant" : -1.0,
             "update_transonic_tolerance"    : 1e-3,
@@ -66,7 +66,7 @@
             "advanced_settings": {
                 "first_alpha_value"         : 0.5,
                 "second_alpha_value"        : 1.0,
-                "min_alpha"                 : 0.01,
+                "min_alpha"                 : 0.05,
                 "max_alpha"                 : 1.0,
                 "line_search_tolerance"     : 0.5,
                 "max_line_search_iterations": 5
@@ -77,7 +77,7 @@
         },
         "volume_model_part_name"   : "Parts_Parts_Auto1",
         "skin_parts"               : ["PotentialWallCondition2D_Far_field_Auto1","Body2D_Body"],
-        "no_skin_parts"            : ["Wake2D_Wake","Tip2D_WingTips"],
+        "no_skin_parts"            : [],
         "reform_dofs_at_each_step" : false,
         "auxiliary_variables_list" : []
     },

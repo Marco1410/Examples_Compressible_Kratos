@@ -24,7 +24,7 @@
                 "name" : "KratosMultiphysics.MedApplication.modelers.import_med_modeler.ImportMedModeler",
                 "parameters" : {
                     "echo_level" : 0,
-                    "input_filename" : "Fluid.med",
+                    "input_filename" : "SalomeFiles/Fluid.med",
                     "model_part_name" : "FluidModelPart"            
                 }
             },{
@@ -43,6 +43,28 @@
                     }]
                 }
             }],
+            "output_processes" : {
+                "vtk_output" : [{
+                    "python_module" : "vtk_output_process",
+                    "kratos_module" : "KratosMultiphysics",
+                    "process_name"  : "VtkOutputProcess",
+                    "help"          : "This process writes postprocessing files for Paraview",
+                    "Parameters"    : {
+                        "model_part_name"                    : "FluidModelPart",
+                        "output_control_type"                : "step",
+                        "output_interval"                    : 1,
+                        "file_format"                        : "binary",
+                        "output_precision"                   : 7,
+                        "output_sub_model_parts"             : true,
+                        "output_path"                        : "vtk_potential_output",
+                        "save_output_files_in_folder"        : true,
+                        "nodal_solution_step_data_variables" : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
+                        "nodal_data_value_variables"         : ["PRESSURE_COEFFICIENT","VELOCITY","DENSITY","MACH","POTENTIAL_JUMP","TRAILING_EDGE","WAKE_DISTANCE"],
+                        "element_data_value_variables"       : ["WAKE","KUTTA"],
+                        "condition_data_value_variables"     : []
+                    }
+                }]
+            },
             "solver_settings"  : {
                 "model_part_name"          : "FluidModelPart",
                 "domain_size"              : 3,
@@ -55,16 +77,16 @@
                 },
                 "scheme_settings" :{
                     "model_part_name": "Wing",
-                    "critical_mach"                 : 0.85,
-                    "upwind_factor_constant"        : 2.0,
+                    "critical_mach"                 : 0.9,
+                    "upwind_factor_constant"        : 1.6,
                     "update_critical_mach"          : -1.0,
                     "update_upwind_factor_constant" : -1.0,
                     "update_transonic_tolerance"    : 1e-3,
                     "mach_number_squared_limit"     : 3.0
                 }, 
-                "maximum_iterations"       : 500,
-                "relative_tolerance": 1e-12,
-                "absolute_tolerance": 1e-12,      
+                "maximum_iterations"       : 50,
+                "relative_tolerance": 1e-8,
+                "absolute_tolerance": 1e-8,      
                 "residual_tolerance_between_steps" : 1e-12,  
                 "linear_solver_settings": {
                     "solver_type": "LinearSolversApplication.pardiso_lu",
@@ -72,7 +94,7 @@
                     "gmres_krylov_space_dimension": 100,
                     "smoother_type":"ilu0",
                     "coarsening_type":"ruge_stuben",
-                    "coarse_enough" : 5000,
+                    "coarse_enough" : 1000,
                     "krylov_type": "lgmres",
                     "tolerance": 1e-9,
                     "verbosity": 0,
@@ -103,24 +125,24 @@
                     "Parameters"    : {
                         "model_part_name" : "FluidModelPart.FarField",
                         "free_stream_density": 1.225,
-                        "angle_of_attack": 0.0,
+                        "angle_of_attack": 3.06,
                         "mach_infinity": 0.839,
                         "perturbation_field": true
                     }
-                },
-                {
+                },{
                     "python_module" : "define_wake_process_3d",
                     "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
                     "process_name"  : "DefineWakeProcess",
                     "Parameters"    : {
                         "model_part_name" : "FluidModelPart.TE_Wing",
                         "body_model_part_name" : "FluidModelPart.Wing",
-                        "wake_stl_file_name" : "Wake.stl",
-                        "output_wake": false,
+                        "wake_stl_file_name" : "SalomeFiles/Wake.stl",
+                        "gid_output_wake": false,
+                        "vtk_output_wake": true,
+                        "dz": 0.0,  
                         "wake_process_cpp_parameters":    {
-                            "tolerance"                     : 1e-9,
-                            "wake_normal"                   : [0.0, 0.0, 1.0],
-                            "wake_direction"                : [1.0, 0.0, 0.0],
+                            "tolerance"                     : 1e-3,
+                            "wake_normal"                   : [-0.05338174656662052,0.0,0.9985741780826786],
                             "switch_wake_normal"            : false,
                             "count_elements_number"         : false,
                             "write_elements_ids_to_file"    : false,
@@ -130,6 +152,14 @@
                             "decrease_wake_width_at_the_wing_tips" : false,
                             "echo_level": 0
                         }
+                     }
+                },{
+                    "python_module" : "compute_nodal_value_process",
+                    "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
+                    "process_name"  : "ComputeNodalValueProcess",
+                    "Parameters"    : {
+                        "model_part_name" : "FluidModelPart",
+                        "elemental_variables_list_to_project":  ["PRESSURE_COEFFICIENT","VELOCITY","MACH","DENSITY"]
                      }
                 }]
             }
@@ -142,7 +172,7 @@
                 "name" : "KratosMultiphysics.MedApplication.modelers.import_med_modeler.ImportMedModeler",
                 "parameters" : {
                     "echo_level" : 0,
-                    "input_filename" : "Fluid.med",
+                    "input_filename" : "SalomeFiles/Fluid.med",
                     "model_part_name" : "MainModelPart"            
                 }
             },{
@@ -154,6 +184,12 @@
                     }],
                     "conditions_list" : [{
                         "model_part_name" : "MainModelPart.Inlet",
+                        "condition_name"  : "WallCondition3D3N"
+                    },{
+                        "model_part_name" : "MainModelPart.Outlet",
+                        "condition_name"  : "WallCondition3D3N"
+                    },{
+                        "model_part_name" : "MainModelPart.Walls",
                         "condition_name"  : "WallCondition3D3N"
                     },{
                         "model_part_name" : "MainModelPart.Wing",
@@ -193,7 +229,8 @@
                 "echo_level"            : 0,
                 "compute_reactions"     : false,
                 "volume_model_part_name": "MainModelPart.Domain",
-                "skin_parts"            : ["MainModelPart.Inlet","MainModelPart.Wing"],
+                "skin_parts"            : ["MainModelPart.Wing","MainModelPart.Inlet",
+                                        "MainModelPart.Outlet","MainModelPart.Walls"],
                 "time_scheme"           : "RK4",
                 "shock_capturing_settings" : {
                     "type" : "physics_based",
@@ -203,13 +240,13 @@
                         "shear_sensor" : true,
                         "thermal_sensor" : true,
                         "thermally_coupled_formulation" : true,
-                        "artificial_bulk_viscosity_constant": 1.5,
-                        "artificial_conductivity_constant": 100000.0,
+                        "artificial_bulk_viscosity_constant": 2.5,
+                        "artificial_conductivity_constant": 1.0,
                         "artificial_dynamic_viscosity_constant": 1.0,
                         "far_field_prandtl_number": 0.0}},
                 "time_stepping"         : {
                 "automatic_time_step" : true,
-                "CFL_number"          : 1.0,
+                "CFL_number"          : 0.7,
                 "minimum_delta_time"  : 1e-8,
                 "maximum_delta_time"  : 1e-3
                 },
@@ -217,6 +254,13 @@
             },
             "processes"        : {
                 "boundary_conditions_process_list" : [{
+                    "python_module" : "apply_slip_process",
+                    "kratos_module" : "KratosMultiphysics.FluidDynamicsApplication",
+                    "process_name"  : "ApplySlipProcess",
+                    "Parameters"    : {
+                        "model_part_name" : "MainModelPart.Wing"
+                    }
+                },{
                     "python_module" : "assign_vector_variable_process",
                     "kratos_module" : "KratosMultiphysics",
                     "process_name"  : "AssignVectorVariableProcess",
@@ -224,8 +268,8 @@
                         "model_part_name" : "MainModelPart.Inlet",
                         "variable_name"   : "MOMENTUM",
                         "interval"        : [0.0,"End"],
-                        "value"           : ["1.225*0.839*340", null, null],
-                        "constrained"     : [true,false,false]
+                        "value"           : ["1.225*0.839*340*0.9985741780826786", 0.0, "1.225*0.839*340*0.05338174656662052"],
+                        "constrained"     : [true,true,true]
                     }
                 },{
                     "python_module" : "assign_scalar_variable_process",
@@ -249,13 +293,6 @@
                         "value"           : "1.225*(722.14*273 + 0.5*(0.839*340)**2)",
                         "constrained"     : true
                     }
-                },{
-                    "python_module" : "apply_slip_process",
-                    "kratos_module" : "KratosMultiphysics.FluidDynamicsApplication",
-                    "process_name"  : "ApplySlipProcess",
-                    "Parameters"    : {
-                        "model_part_name" : "MainModelPart.Wing"
-                    }
                 }]
             },
             "output_processes" : {
@@ -271,7 +308,7 @@
                         "file_format"                        : "binary",
                         "output_precision"                   : 7,
                         "output_sub_model_parts"             : true,
-                        "output_path"                        : "vtk_output",
+                        "output_path"                        : "vtk_NS_output",
                         "save_output_files_in_folder"        : true,
                         "nodal_solution_step_data_variables" : ["VELOCITY","PRESSURE","MOMENTUM","DENSITY","TOTAL_ENERGY","TEMPERATURE"],
                         "nodal_data_value_variables"         : ["SOUND_VELOCITY","ARTIFICIAL_BULK_VISCOSITY","ARTIFICIAL_DYNAMIC_VISCOSITY","ARTIFICIAL_CONDUCTIVITY","MACH"],

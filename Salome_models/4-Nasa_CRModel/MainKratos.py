@@ -3,6 +3,7 @@ import time
 import importlib
 
 import KratosMultiphysics
+import KratosMultiphysics.CompressiblePotentialFlowApplication as CPFApp 
 
 def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
     class AnalysisStageWithFlush(cls):
@@ -12,10 +13,47 @@ def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
             self.flush_frequency = flush_frequency
             self.last_flush = time.time()
             sys.stdout.flush()
+        
+        @classmethod
+        def distance_to_corner_top(cls, u: KratosMultiphysics.Node):
+            return (u.X - 36.467168)**2 + (u.Y - 3.006712)**2 + (u.Z - 3.513132)**2
 
+        def _find_root_node_top(self):
+            eps_2 = 1e-6
+            for node in self._GetSolver().GetComputingModelPart().Nodes:
+                if self.distance_to_corner_top(node) < eps_2:
+                    self._root_node_top = node.Id
+                    return
+            raise RuntimeError("Root node top not found")
+        
+        @classmethod
+        def distance_to_corner_bottom(cls, u: KratosMultiphysics.Node):
+            return (u.X - 36.466426)**2 + (u.Y - 3.006438)**2 + (u.Z - 3.500111)**2
+
+        def _find_root_node_bottom(self):
+            eps_2 = 1e-6
+            for node in self._GetSolver().GetComputingModelPart().Nodes:
+                if self.distance_to_corner_bottom(node) < eps_2:
+                    self._root_node_bottom = node.Id
+                    return
+            raise RuntimeError("Root node bottom not found")
+            
         def Initialize(self):
             super().Initialize()
             sys.stdout.flush()
+            # self._find_root_node_top()
+            # self._find_root_node_bottom()
+        
+        def InitializeSolutionStep(self):
+            # node = self._GetSolver().GetComputingModelPart().GetNode(self._root_node_top)
+            # node.SetSolutionStepValue(CPFApp.VELOCITY_POTENTIAL, 0.0)
+            # node.Fix(CPFApp.VELOCITY_POTENTIAL)
+            # node = self._GetSolver().GetComputingModelPart().GetNode(self._root_node_bottom)
+            # node.SetSolutionStepValue(CPFApp.VELOCITY_POTENTIAL, 0.0)
+            # node.Fix(CPFApp.VELOCITY_POTENTIAL)
+            # node.SetSolutionStepValue(CPFApp.AUXILIARY_VELOCITY_POTENTIAL, 200.0)
+            # node.Fix(CPFApp.AUXILIARY_VELOCITY_POTENTIAL)
+            super().InitializeSolutionStep()
 
         def FinalizeSolutionStep(self):
             super().FinalizeSolutionStep()
