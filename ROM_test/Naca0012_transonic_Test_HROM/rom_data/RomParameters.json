@@ -13,7 +13,7 @@
             "AUXILIARY_VELOCITY_POTENTIAL",
             "VELOCITY_POTENTIAL"
         ],
-        "number_of_rom_dofs": 15,
+        "number_of_rom_dofs": 25,
         "petrov_galerkin_number_of_rom_dofs": 0
     },
     "hrom_settings": {
@@ -25,8 +25,14 @@
         "include_condition_parents": true,
         "initial_candidate_elements_model_part_list": [],
         "initial_candidate_conditions_model_part_list": [],
-        "include_conditions_model_parts_list": [],
-        "include_elements_model_parts_list": [],
+        "include_conditions_model_parts_list": [
+            "MainModelPart.PotentialWallCondition2D_Far_field_Auto1",
+            "MainModelPart.Body2D_Body"
+        ],
+        "include_elements_model_parts_list": [
+            "MainModelPart.trailing_edge_element",
+            "MainModelPart.upwind_elements"
+        ],
         "include_nodal_neighbouring_elements_model_parts_list": [],
         "include_minimum_condition": false,
         "constraint_sum_weights": true

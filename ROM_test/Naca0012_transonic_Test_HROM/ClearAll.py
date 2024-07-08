@@ -15,6 +15,7 @@ def Clear():
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Test_Captures')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('case_data.xlsx')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('upwind_elements_list.txt')
+    KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('trailing_edge_element_id.txt')
     os.mkdir('ROM_Snapshots')
     os.mkdir('ROM_Skin_Data')
     os.mkdir('HROM_Snapshots')
@@ -54,6 +55,7 @@ def ClearAll():
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('MuValuesNotScaled.png')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('Naca0012_transonic_Test_HROM.post.lst')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('upwind_elements_list.txt')
+    KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('trailing_edge_element_id.txt')
 
 if __name__ == "__main__":
 

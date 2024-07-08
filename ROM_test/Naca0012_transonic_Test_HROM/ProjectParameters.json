@@ -44,7 +44,7 @@
                                     "line_search_tolerance"      : 0.5     
             }
         }, 
-        "convergence_criterion": "residual_criterion",
+        "convergence_criterion": "solution_criterion",
         "relative_tolerance"               : 1e-8,
         "absolute_tolerance"               : 1e-8,
         "residual_tolerance_between_steps" : 1e-5,
@@ -77,7 +77,8 @@
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
             "process_name"  : "DefineWakeProcess",
             "Parameters"    : {
-                "model_part_name" : "MainModelPart.Body2D_Body"
+                "model_part_name" : "MainModelPart.Body2D_Body",
+                "echo_level": 0
             }
         }
     ]
@@ -127,9 +128,10 @@
                        "node_output"         : false,
                        "skin_output"         : false,
                        "plane_output"        : [],
-                       "nodal_nonhistorical_results": ["VELOCITY","PRESSURE_COEFFICIENT","DENSITY","MACH"],
+                       "nodal_nonhistorical_results": ["VELOCITY","PRESSURE_COEFFICIENT","DENSITY","MACH",
+                                                        "POTENTIAL_JUMP","TRAILING_EDGE","WAKE_DISTANCE","WING_TIP"],
                        "nodal_results"       : ["VELOCITY_POTENTIAL", "AUXILIARY_VELOCITY_POTENTIAL"],
-                       "gauss_point_results" : []
+                       "gauss_point_results" : ["WAKE","KUTTA","ID_UPWIND_ELEMENT"]
                    },
                    "point_data_configuration"  : []
                }

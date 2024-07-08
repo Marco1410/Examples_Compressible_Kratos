@@ -70,6 +70,13 @@
                 "epsilon"         : 1e-9,
                 "echo_level" : 0
             }
+        },{
+            "python_module" : "compute_nodal_value_process",
+            "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
+            "Parameters"    : {
+                "model_part_name" : "MainModelPart",
+                "elemental_variables_list_to_project" : ["VELOCITY","PRESSURE_COEFFICIENT","DENSITY","MACH"]
+            }
         }]
     },
     "output_processes" : {
@@ -96,7 +103,8 @@
                         "node_output"         : false,
                         "skin_output"         : false,
                         "plane_output"        : [],
-                        "nodal_nonhistorical_results" : ["TRAILING_EDGE"],
+                        "nodal_nonhistorical_results": ["VELOCITY","PRESSURE_COEFFICIENT","DENSITY","MACH",
+                                                         "POTENTIAL_JUMP","TRAILING_EDGE","WAKE_DISTANCE","WING_TIP"],
                         "nodal_results"       : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
                         "gauss_point_results" : ["PRESSURE_COEFFICIENT","VELOCITY","WAKE","KUTTA"],
                         "elemental_conditional_flags_results": ["STRUCTURE"]
@@ -121,7 +129,8 @@
                 "output_path"                        : "vtk_output",
                 "save_output_files_in_folder"        : true,
                 "nodal_solution_step_data_variables" : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
-                "nodal_data_value_variables"         : ["TRAILING_EDGE"],
+                "nodal_data_value_variables"         : ["PRESSURE_COEFFICIENT","VELOCITY","DENSITY",
+                                                        "MACH","POTENTIAL_JUMP","TRAILING_EDGE","WAKE_DISTANCE","WING_TIP"],
                 "gauss_point_variables_in_elements"  : ["PRESSURE_COEFFICIENT","VELOCITY","WAKE","KUTTA"],
                 "condition_data_value_variables"     : []
             }

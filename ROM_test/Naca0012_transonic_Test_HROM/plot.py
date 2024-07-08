@@ -68,8 +68,13 @@ def FakeSimulation(cls, global_model, parameters, data_set):
         def FinalizeSolutionStep(self):
             super().FinalizeSolutionStep()
             nametype = parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].GetString()
-            simulation_name = nametype.removeprefix(f"Results/RBF_")
-            skin_data_filename = f"RBF_Skin_Data/{simulation_name}.dat"
+            if 'HHROM' in nametype:
+                simulation_name = nametype.removeprefix(f"Results/HHROM_")
+                skin_data_filename = f"HHROM_Skin_Data/{simulation_name}.dat"
+            else:
+                simulation_name = nametype.removeprefix(f"Results/RBF_")
+                skin_data_filename = f"RBF_Skin_Data/{simulation_name}.dat"
+
             fout = open(skin_data_filename,'w')
             modelpart = self.model["MainModelPart.Body2D_Body"]
             for node in modelpart.Nodes:
@@ -109,7 +114,7 @@ def FakeProjectParameters(parameters, mu=None):
     mach_infinity   = mu[1]
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(angle_of_attack)
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach_infinity)
-    parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString(f'Results/RBF_{angle_of_attack}, {mach_infinity}')
+    parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString(f'Results/{mu[2]}_{angle_of_attack}, {mach_infinity}')
     return parameters
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -128,7 +133,7 @@ def _GetAnalysisStageClass(parameters):
 #
 # save parameters
 #
-def Plot_Cps(mu_list, capture_directory, use_hhrom_model_part):
+def Plot_Cps(mu_list, capture_directory):
 
     for mu in mu_list:
         case_name = f'{mu[0]}, {mu[1]}'
@@ -142,33 +147,28 @@ def Plot_Cps(mu_list, capture_directory, use_hhrom_model_part):
         fig.set_figheight(8.0)
 
         #### FOM ######
-        fom_name = f'FOM_Snapshots/{case_name}.npy'
-        if os.path.exists(fom_name):
-            fom = np.load(fom_name)
-            fom_skin_data_filename = f"FOM_Skin_Data/{case_name}.dat"
+        fom_skin_data_filename = f"FOM_Skin_Data/{case_name}.dat"
+        if os.path.exists(fom_skin_data_filename):
             x_fom  = np.loadtxt(fom_skin_data_filename, usecols=(0,))
             cp_fom = np.loadtxt(fom_skin_data_filename, usecols=(3,))
             fig = plt.plot(x_fom, cp_fom, 's', markersize = 5.0, label = 'FOM')
         #### ROM ######
-        rom_name = f'ROM_Snapshots/{case_name}.npy'
-        if os.path.exists(rom_name):
-            rom = np.load(rom_name)
-            rom_skin_data_filename = f"ROM_Skin_Data/{case_name}.dat"
+        rom_skin_data_filename = f"ROM_Skin_Data/{case_name}.dat"
+        if os.path.exists(rom_skin_data_filename):
             x_rom  = np.loadtxt(rom_skin_data_filename, usecols=(0,))
             cp_rom = np.loadtxt(rom_skin_data_filename, usecols=(3,))
             fig = plt.plot(x_rom, cp_rom, 'o', markersize = 3.0, label = f'ROM-FOM e: {(np.linalg.norm(cp_fom-cp_rom)/np.linalg.norm(cp_fom)):.2E}')
         #### HROM ######
-        hrom_name = f'HROM_Snapshots/{case_name}.npy'
-        if os.path.exists(hrom_name):
-            hrom = np.load(hrom_name)
-            hrom_skin_data_filename = f"HROM_Skin_Data/{case_name}.dat"
+        hrom_skin_data_filename = f"HROM_Skin_Data/{case_name}.dat"
+        if os.path.exists(hrom_skin_data_filename):
             x_hrom  = np.loadtxt(hrom_skin_data_filename, usecols=(0,))
             cp_hrom = np.loadtxt(hrom_skin_data_filename, usecols=(3,))
             fig = plt.plot(x_hrom, cp_hrom, '+', markersize = 6.0, label = f'HROM-FOM e: {(np.linalg.norm(cp_fom-cp_hrom)/np.linalg.norm(cp_fom)):.2E}')
         #### HHROM ######
-        hhrom_name = f'HHROM_Snapshots/{case_name}.npy'
+        hhrom_name = f"HHROM_Snapshots/{case_name}.npy"
         if os.path.exists(hhrom_name):
             hhrom = np.load(hhrom_name)
+            LaunchFakeSimulation(hhrom, [mu[0], mu[1], 'HHROM'])
             hhrom_skin_data_filename = f"HHROM_Skin_Data/{case_name}.dat"
             x_hhrom  = np.loadtxt(hhrom_skin_data_filename, usecols=(0,))
             cp_hhrom = np.loadtxt(hhrom_skin_data_filename, usecols=(3,))
@@ -177,7 +177,7 @@ def Plot_Cps(mu_list, capture_directory, use_hhrom_model_part):
         rbf_name = f"RBF_Snapshots/{case_name}.npy"
         if os.path.exists(rbf_name):
             rbf = np.load(rbf_name).T
-            LaunchFakeSimulation(rbf, mu)
+            LaunchFakeSimulation(rbf, [mu[0], mu[1], 'RBF'])
             rbf_skin_data_filename = f"RBF_Skin_Data/{case_name}.dat"
             x_rbf  = np.loadtxt(rbf_skin_data_filename, usecols=(0,))
             cp_rbf = np.loadtxt(rbf_skin_data_filename, usecols=(3,))

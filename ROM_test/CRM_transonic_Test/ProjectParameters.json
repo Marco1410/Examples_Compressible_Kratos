@@ -1,0 +1,192 @@
+{
+    "analysis_stage"   : "KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis",
+    "problem_data"     : {
+        "problem_name"  : "KratosFpotentialtransonic",
+        "parallel_type" : "OpenMP",
+        "echo_level"    : 1,
+        "start_time"    : 0.0,
+        "end_time"      : 1.0
+    },
+    "solver_settings"  : {
+        "model_part_name"          : "MainModelPart",
+        "domain_size"              : 3,
+        "solver_type"              : "potential_flow",
+        "model_import_settings"    : {
+            "input_type"     : "mdpa",
+            "input_filename" : "Mesh/Fluid"
+        },
+        "material_import_settings" : {
+            "materials_filename" : ""
+        },
+        "formulation": {
+                    "element_type":"perturbation_transonic"
+        },
+        "scheme_settings"          : {
+            "model_part_name" : "Plane",
+            "critical_mach"                 : 0.85,
+            "upwind_factor_constant"        : 2.0,
+            "update_critical_mach"          : -1.0,
+            "update_upwind_factor_constant" : -1.0,
+            "update_transonic_tolerance"    : 1e-30,
+            "mach_number_squared_limit"     : 3.0
+        },
+        "maximum_iterations"       : 100,
+        "echo_level"               : 1,
+        "solving_strategy_settings": {
+            "type": "newton_raphson"
+            ,
+            "advanced_settings" : {
+                                    "max_line_search_iterations" : 5,
+                                    "first_alpha_value"          : 0.5,
+                                    "second_alpha_value"         : 1.0,
+                                    "min_alpha"                  : 0.1,
+                                    "max_alpha"                  : 2.0,
+                                    "line_search_tolerance"      : 0.5     
+            }
+        }, 
+        "convergence_criterion": "residual_criterion",
+        "relative_tolerance"               : 1e-8,
+        "absolute_tolerance"               : 1e-8,
+        "residual_tolerance_between_steps" : 1e-5,
+        "linear_solver_settings"  : {
+                "solver_type": "LinearSolversApplication.pardiso_lu",
+                "max_iteration": 400,
+                "gmres_krylov_space_dimension": 100,
+                "smoother_type":"ilu0",
+                "coarsening_type":"ruge_stuben",
+                "coarse_enough" : 1000,
+                "krylov_type": "lgmres",
+                "tolerance": 1e-9,
+                "verbosity": 0,
+                "scaling": true
+        },
+        "reference_chord"          : 384.0,
+        "volume_model_part_name"   : "MainModelPart.Domain",
+        "skin_parts"               : ["MainModelPart.FarField","MainModelPart.Plane"],
+        "assign_neighbour_elements_to_conditions": true,
+        "no_skin_parts"            : [],
+        "reform_dofs_at_each_step" : false,
+        "auxiliary_variables_list" : []
+    },
+    "processes"        : {
+        "initial_conditions_process_list"  : [],
+        "boundary_conditions_process_list" : [{
+            "python_module" : "apply_far_field_process",
+            "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
+            "process_name"  : "FarFieldProcess",
+            "Parameters"    : {
+                "model_part_name" : "MainModelPart.FarField",
+                "free_stream_density"           : 1.225,
+                "mach_infinity"                 : 0.03,
+                "angle_of_attack"               : 0.0,
+                "perturbation_field"            : true 
+            }
+        },
+        {
+            "python_module" : "define_wake_process_3d",
+            "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
+            "process_name"  : "DefineWakeProcess",
+            "Parameters"    : {
+                "model_part_name" : "MainModelPart.Plane_TE",
+                "body_model_part_name" : "MainModelPart.Plane",
+                "wake_stl_file_name" : "",
+                "gid_output_wake": false,
+                "vtk_output_wake": false,
+                "dz": -0.001,
+                "wake_process_cpp_parameters":    {
+                    "tolerance"                     : 0.1,
+                    "wake_normal"                   : [0.0,0.0,1.0],
+                    "wake_direction"                : [1.0,0.0,0.0],
+                    "switch_wake_normal"            : false,
+                    "count_elements_number"         : false,
+                    "write_elements_ids_to_file"    : false,
+                    "shed_wake_from_trailing_edge"  : false,
+                    "shedded_wake_distance"         : 2.5,
+                    "shedded_wake_element_size"     : 0.2,
+                    "decrease_wake_width_at_the_wing_tips" : false,
+                    "echo_level": 1
+                }
+             }
+        }
+    ]
+    ,
+        "auxiliar_process_list"            : [{
+            "python_module" : "compute_nodal_value_process",
+            "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
+            "Parameters"    : {
+                "model_part_name" : "MainModelPart",
+                "elemental_variables_list_to_project" : ["VELOCITY","PRESSURE_COEFFICIENT","DENSITY","MACH"]
+            }
+        }
+        ,{
+            "python_module" : "compute_lift_process",
+            "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
+            "Parameters"    : {
+                "model_part_name" : "MainModelPart.Plane",
+                "moment_reference_point" : [30.0,0.0,0.0],
+                "mean_aerodynamic_chord" : 7.0,
+                "trailing_edge_model_part_name": "MainModelPart.Plane_TE",
+                "far_field_model_part_name"   : "MainModelPart.FarField",
+                "is_infinite_wing": false
+            }
+        }
+    ]
+    },
+    "output_processes" : {
+       "gid_output" : [{
+           "python_module" : "gid_output_process",
+           "kratos_module" : "KratosMultiphysics",
+           "process_name"  : "GiDOutputProcess",
+           "help"          : "This process writes postprocessing files for GiD",
+           "Parameters"    : {
+               "model_part_name"        : "MainModelPart",
+               "output_name"            : "output",
+               "postprocess_parameters" : {
+                   "result_file_configuration" : {
+                       "gidpost_flags"       : {
+                           "GiDPostMode"           : "GiD_PostBinary",
+                           "WriteDeformedMeshFlag" : "WriteDeformed",
+                           "WriteConditionsFlag"   : "WriteConditions",
+                           "MultiFileFlag"         : "SingleFile"
+                       },
+                       "file_label"          : "step",
+                       "output_control_type" : "step",
+                       "output_interval"     : 1,
+                       "body_output"         : true,
+                       "node_output"         : false,
+                       "skin_output"         : false,
+                       "plane_output"        : [],
+                       "nodal_nonhistorical_results": ["VELOCITY","PRESSURE_COEFFICIENT","DENSITY","MACH",
+                                                        "POTENTIAL_JUMP","TRAILING_EDGE","WAKE_DISTANCE","WING_TIP"],
+                       "nodal_results"       : ["VELOCITY_POTENTIAL", "AUXILIARY_VELOCITY_POTENTIAL"],
+                       "gauss_point_results" : ["WAKE","KUTTA","ID_UPWIND_ELEMENT"]
+                   },
+                   "point_data_configuration"  : []
+               }
+           }
+       }]
+       ,
+       "vtk_output" : [{
+           "python_module" : "vtk_output_process",
+           "kratos_module" : "KratosMultiphysics",
+           "process_name"  : "VtkOutputProcess",
+           "help"          : "This process writes postprocessing files for Paraview",
+           "Parameters"    : {
+               "model_part_name"                    : "MainModelPart",
+               "output_control_type"                : "step",
+               "output_interval"                    : 1,
+               "file_format"                        : "binary",
+               "output_precision"                   : 7,
+               "output_sub_model_parts"             : true,
+               "output_path"                        : "vtk_output",
+               "save_output_files_in_folder"        : true,
+               "nodal_solution_step_data_variables" : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
+               "nodal_data_value_variables"         : ["PRESSURE_COEFFICIENT","VELOCITY","DENSITY",
+                                                       "MACH","POTENTIAL_JUMP","TRAILING_EDGE","WAKE_DISTANCE","WING_TIP"],
+               "element_data_value_variables"       : ["WAKE","KUTTA"],
+               "gauss_point_variables_in_elements"  : ["PRESSURE_COEFFICIENT","VELOCITY","MACH"],
+               "condition_data_value_variables"     : []
+           }
+       }]
+   }
+}

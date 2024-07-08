@@ -162,6 +162,9 @@ def CustomizeSimulation(cls, global_model, parameters):
 
         def __init__(self, model,project_parameters):
             super().__init__(model,project_parameters)
+        
+        def Initialize(self):
+            super().Initialize()
 
         def Run(self):
 
@@ -178,78 +181,77 @@ def CustomizeSimulation(cls, global_model, parameters):
 
                 start_time = time.time()
                 self.Initialize()
+                self.RunSolutionLoop()
+                self.Finalize()
 
-                if os.path.exists(f'FOM_Snapshots/{case_name}.npy'):
-                    fom_set = np.load(f'FOM_Snapshots/{case_name}.npy')
-                    model_part = self.model["MainModelPart"]
-                    for node in model_part.Nodes:
-                        offset = np.where(np.arange(1,model_part.NumberOfNodes()+1, dtype=int) == node.Id)[0][0]*2
+                exe_time = time.time() - start_time
 
-                        node.SetSolutionStepValue(CPFApp.AUXILIARY_VELOCITY_POTENTIAL, fom_set[offset])
-                        node.SetSolutionStepValue(CPFApp.VELOCITY_POTENTIAL, fom_set[offset+1])
-                        node.Fix(CPFApp.AUXILIARY_VELOCITY_POTENTIAL)
-                        node.Fix(CPFApp.VELOCITY_POTENTIAL)
-                    self.OutputSolutionStep()
-                    self.Finalize()
-                else:
+                if parameters["output_processes"].Has("gid_output"):
+
+                    simulation_name = parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].GetString().removeprefix('Results/')
+
+                    for process in self._GetListOfOutputProcesses():
+                            if isinstance(process, CalculateRomBasisOutputProcess):
+                                BasisOutputProcess = process
+
+                    if 'Fit' in simulation_name:
+                        case_type = 'train_fom'
+                    elif 'Test' in simulation_name:
+                        case_type = 'test_fom' 
+                        modes = np.load('rom_data/RightBasisMatrix.npy').shape[1]
+                    skin_data_filename = f"FOM_Skin_Data/{case_name}.dat"
+                    fom = BasisOutputProcess._GetSnapshotsMatrix()
+                    np.save(f'FOM_Snapshots/{case_name}',fom)
+
+                    fout = open(skin_data_filename,'w')
+                    modelpart = self.model["MainModelPart.Body2D_Body"]
+                    for node in modelpart.Nodes:
+                        x = node.X ; y = node.Y ; z = node.Z
+                        cp = node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
+                        fout.write("%s %s %s %s\n" %(x,y,z,cp))
+                    fout.close()
+
+                    modelpart = self.model["MainModelPart"]
+                    fout = open("trailing_edge_element_id.txt",'a')
+                    for elem in modelpart.Elements:
+                        if elem.GetValue(CPFApp.TRAILING_EDGE):
+                            fout.write("%s\n" %(elem.Id))
+                        if elem.GetValue(CPFApp.KUTTA):
+                            fout.write("%s\n" %(elem.Id))
+                    fout.close()
+
+                    fout = open("upwind_elements_list.txt",'a')
+                    for elem in modelpart.Elements:
+                        if elem.GetValue(CPFApp.ID_UPWIND_ELEMENT) != 0.0:
+                            fout.write("%s\n" %(elem.Id))
+                            fout.write("%s\n" %(elem.GetValue(CPFApp.ID_UPWIND_ELEMENT)))
+                    fout.close()
+                
+                    info_steps_list.append([case_type,
+                                            angle,
+                                            mach, 
+                                            self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.NL_ITERATION_NUMBER],
+                                            self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.RESIDUAL_NORM],
+                                            error,
+                                            modes,
+                                            round(exe_time, 2),
+                                            self.model["MainModelPart"].NumberOfNodes(),
+                                            self.model["MainModelPart"].ProcessInfo[CPFApp.LIFT_COEFFICIENT],
+                                            self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.DRAG_COEFFICIENT]])
                     
-                    self.RunSolutionLoop()
-
-                    self.Finalize()
-                    exe_time = time.time() - start_time
-
-                    if parameters["output_processes"].Has("gid_output"):
-
-                        simulation_name = parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].GetString().removeprefix('Results/')
-
-                        for process in self._GetListOfOutputProcesses():
-                                if isinstance(process, CalculateRomBasisOutputProcess):
-                                    BasisOutputProcess = process
-
-                        if 'FOM' in simulation_name:
-                            if 'Fit' in simulation_name:
-                                case_type = 'train_fom'
-                            elif 'Test' in simulation_name:
-                                case_type = 'test_fom' 
-                                modes = np.load('rom_data/RightBasisMatrix.npy').shape[1]
-                            skin_data_filename = f"FOM_Skin_Data/{case_name}.dat"
-                            fom = BasisOutputProcess._GetSnapshotsMatrix()
-                            np.save(f'FOM_Snapshots/{case_name}',fom)
-                            # np.save(f'FOM_Snapshots_nc/{case_name}', np.array(self._GetSolver()._GetSolutionStrategy().GetIntermediateSolutionsMatrix()))
-
-                            fout = open(skin_data_filename,'w')
-                            modelpart = self.model["MainModelPart.Body2D_Body"]
-                            for node in modelpart.Nodes:
-                                x = node.X ; y = node.Y ; z = node.Z
-                                cp = node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
-                                fout.write("%s %s %s %s\n" %(x,y,z,cp))
-                            fout.close()
-                        
-                            info_steps_list.append([case_type,
-                                                    angle,
-                                                    mach, 
-                                                    self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.NL_ITERATION_NUMBER],
-                                                    self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.RESIDUAL_NORM],
-                                                    error,
-                                                    modes,
-                                                    round(exe_time, 2),
-                                                    self.model["MainModelPart"].NumberOfNodes(),
-                                                    self.model["MainModelPart"].ProcessInfo[CPFApp.LIFT_COEFFICIENT],
-                                                    self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.DRAG_COEFFICIENT]])
-                            
-                            if os.path.exists(f'FOM_data.xlsx'):
-                                wb = openpyxl.load_workbook(f'FOM_data.xlsx')
-                                hoja = wb.active
-                                for item in info_steps_list:
-                                    hoja.append(item)
-                                wb.save(f'FOM_data.xlsx')
-                            else:
-                                wb = openpyxl.Workbook()
-                                hoja = wb.active
-                                hoja.append(('Case name', 'Angle [º]', 'Mach', 'NL iterations', 'Residual norm', 'Approximation error [%]', 'Modes', 'Time [sec]', 'Nodes', 'Cl', 'Cd'))
-                                for item in info_steps_list:
-                                    hoja.append(item)
-                                wb.save(f'FOM_data.xlsx')
+                    if os.path.exists(f'FOM_data.xlsx'):
+                        wb = openpyxl.load_workbook(f'FOM_data.xlsx')
+                        hoja = wb.active
+                        for item in info_steps_list:
+                            hoja.append(item)
+                        wb.save(f'FOM_data.xlsx')
+                    else:
+                        wb = openpyxl.Workbook()
+                        hoja = wb.active
+                        hoja.append(('Case name', 'Angle [º]', 'Mach', 'NL iterations', 'Residual norm', 'Approximation error [%]', 'Modes', 'Time [sec]', 'Nodes', 'Cl', 'Cd'))
+                        for item in info_steps_list:
+                            hoja.append(item)
+                        wb.save(f'FOM_data.xlsx')
 
             elif self._GetSimulationName() == "::[ROM Simulation]:: ": # ROM
 
@@ -284,18 +286,8 @@ def CustomizeSimulation(cls, global_model, parameters):
                             phi = np.load(f'rom_data/RightBasisMatrix.npy')
                             if (q_matrix.shape[0] == 1): q_matrix = q_matrix.T
                             hrom = phi @ q_matrix
-
                             np.save(f'HHROM_Snapshots/{case_name}', hrom)
                             case_type = case_type + 'hhrom'
-                            skin_data_filename = f"HHROM_Skin_Data/{case_name}.dat"
-                            fout = open(skin_data_filename,'w')
-                            modelpart = self.model["MainModelPart.Body2D_Body"]
-                            for node in modelpart.Nodes:
-                                x = node.X ; y = node.Y ; z = node.Z
-                                cp = node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
-                                fout.write("%s %s %s %s\n" %(x,y,z,cp))
-                            fout.close()
-
                         else:
                             np.save(f'HROM_Snapshots/{case_name}', hrom)
                             case_type = case_type + 'hrom'
@@ -446,8 +438,10 @@ def GetRomManagerParameters():
                 "create_hrom_visualization_model_part" : true,
                 "echo_level" : 1,                                       
                 "hrom_format": "numpy",
-                "include_conditions_model_parts_list": [],
-                "include_elements_model_parts_list": [],
+                "include_conditions_model_parts_list": ["MainModelPart.PotentialWallCondition2D_Far_field_Auto1",
+                                                        "MainModelPart.Body2D_Body"],
+                "include_elements_model_parts_list": ["MainModelPart.trailing_edge_element",
+                                                    "MainModelPart.upwind_elements"],
                 "initial_candidate_elements_model_part_list" : [],
                 "initial_candidate_conditions_model_part_list" : [],
                 "include_nodal_neighbouring_elements_model_parts_list":[],
@@ -465,31 +459,34 @@ def GetRomManagerParameters():
 
 if __name__ == "__main__":
 
-    Clear()
+    folder_names = ["FOM_Snapshots"  , "FOM_Skin_Data", 
+                    "ROM_Snapshots"  , "ROM_Skin_Data", 
+                    "HROM_Snapshots" , "HROM_Skin_Data",
+                    "HHROM_Snapshots", "HHROM_Skin_Data", 
+                    "RBF_Snapshots"  , "RBF_Skin_Data", 
+                    "Train_Captures" , "Test_Captures"]
+    for name in folder_names:
+        if not os.path.exists(name):
+            os.mkdir(name)
 
     ###############################
     # PARAMETERS SETTINGS
     update_parameters    = True
     use_hhrom_model_part = False
-    number_of_mu_train   = 15
-    number_of_mu_test    = 1
+    number_of_mu_train   = 25
+    number_of_mu_test    = 50
     mach_range           = [ 0.70, 0.75]
     angle_range          = [ 1.00, 1.50]
     ###############################
 
     if update_parameters:
-        KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('FOM_Snapshots')
-        KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('FOM_Skin_Data')
-        KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('FOM_data.xlsx')
-        os.mkdir('FOM_Snapshots')
-        os.mkdir('FOM_Skin_Data')
-
         mu_train, mu_test, mu_train_not_scaled, mu_test_not_scaled = get_multiple_parameters(number_train_values = number_of_mu_train,
                                                                                             number_test_values  = number_of_mu_test , 
                                                                                             angle               = angle_range       , 
                                                                                             mach                = mach_range        , 
                                                                                             method              = 'Halton'          )
-
+        KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('upwind_elements_list.txt')
+        KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('trailing_edge_element_id.txt')
     else:
         mu_train, mu_test, mu_train_not_scaled, mu_test_not_scaled = load_mu_parameters()
 
@@ -497,20 +494,20 @@ if __name__ == "__main__":
     project_parameters_name = "ProjectParameters.json"
 
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
-                             CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile)
+                             CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
+                             relaunch_simulation_if_in_database=False)
 
     rom_manager.Fit(mu_train, use_hhrom_model_part = use_hhrom_model_part)
-
     rom_manager.Test(mu_test, use_hhrom_model_part = use_hhrom_model_part)
 
     if number_of_mu_train >= 3:
         RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 
                     mu_test = mu_train + mu_test, mu_test_not_scaled  = mu_train_not_scaled + mu_test_not_scaled)
 
-    Plot_Cps(mu_train, 'Train_Captures', use_hhrom_model_part)
-    Plot_Cps(mu_test, 'Test_Captures', use_hhrom_model_part)
+    Plot_Cps(mu_train, 'Train_Captures')
+    Plot_Cps(mu_test, 'Test_Captures')
 
-    rom_manager.PrintErrors()
+    rom_manager.PrintErrors(show_q_errors = True)
 
     if number_of_mu_train >= 3:
         print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
