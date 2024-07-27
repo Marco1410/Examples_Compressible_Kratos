@@ -64,7 +64,7 @@
         "formulation": {
             "element_type": "perturbation_transonic"
         },
-        "maximum_iterations": 80,
+        "maximum_iterations": 200,
         "echo_level": 1,
         "potential_application_echo_level": 0,
         "relative_tolerance"               : 1e-8,
@@ -133,7 +133,7 @@
                 "vtk_output_wake": true,
                 "dz": 0.0,
                 "wake_process_cpp_parameters":    {
-                    "tolerance"                     : 0.1,
+                    "tolerance"                     : 0.01,
                     "wake_normal"                   : [-0.040306184,0.0,0.999187376],
                     "wake_direction"                : [ 0.999847695,0.0,0.017452402],
                     "switch_wake_normal"            : false,

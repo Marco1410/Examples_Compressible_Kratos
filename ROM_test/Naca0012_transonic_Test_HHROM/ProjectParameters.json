@@ -13,7 +13,7 @@
         "solver_type"              : "potential_flow",
         "model_import_settings"    : {
             "input_type"     : "mdpa",
-            "input_filename" : "Mesh/model_mesh_2"
+            "input_filename" : "Mesh/model_mesh_1"
         },
         "material_import_settings" : {
             "materials_filename" : ""
@@ -25,29 +25,27 @@
             "model_part_name" : "Body2D_Body",
             "critical_mach"                 : 0.85,
             "upwind_factor_constant"        : 2.0,
-            "update_critical_mach"          : -1.0,
-            "update_upwind_factor_constant" : -1.0,
+            "update_critical_mach"          : 0.95,
+            "update_upwind_factor_constant" : 1.0,
             "update_transonic_tolerance"    : 1e-30,
             "mach_number_squared_limit"     : 3.0
         },
         "maximum_iterations"       : 100,
         "echo_level"               : 1,
         "solving_strategy_settings": {
-            "type": "line_search"
-            ,
+            "type": "line_search",
             "advanced_settings" : {
                                     "max_line_search_iterations" : 5,
                                     "first_alpha_value"          : 0.5,
                                     "second_alpha_value"         : 1.0,
                                     "min_alpha"                  : 0.05,
                                     "max_alpha"                  : 1.0,
-                                    "line_search_tolerance"      : 0.5     
+                                    "line_search_tolerance"      : 0.25 
             }
         }, 
-        "convergence_criterion": "solution_criterion",
+        "convergence_criterion": "residual_criterion",
         "relative_tolerance"               : 1e-8,
         "absolute_tolerance"               : 1e-8,
-        "residual_tolerance_between_steps" : 1e-5,
         "linear_solver_settings"  : {
                 "solver_type"             : "LinearSolversApplication.pardiso_lu"
         },
@@ -131,7 +129,7 @@
                        "nodal_nonhistorical_results": ["VELOCITY","PRESSURE_COEFFICIENT","DENSITY","MACH",
                                                         "POTENTIAL_JUMP","TRAILING_EDGE","WAKE_DISTANCE","WING_TIP"],
                        "nodal_results"       : ["VELOCITY_POTENTIAL", "AUXILIARY_VELOCITY_POTENTIAL"],
-                       "gauss_point_results" : ["WAKE","KUTTA","ID_UPWIND_ELEMENT"]
+                       "gauss_point_results" : ["WAKE","KUTTA"]
                    },
                    "point_data_configuration"  : []
                }

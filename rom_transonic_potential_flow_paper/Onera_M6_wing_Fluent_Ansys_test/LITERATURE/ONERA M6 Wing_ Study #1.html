@@ -1,0 +1,748 @@
+
+<!-- saved from url=(0069)https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/m6wing01.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title> ONERA M6 Wing: Study #1 </title>
+<style type="text/css">
+<!--
+.style1 {color: #800000;
+         text-decoration: underline; }
+.style2 {font-weight: bold;}
+.style3 {color: #800000;}
+.style4 {font-face:Courier New;
+         font-size: smaller;}
+.style5 {color: #008B8B;}
+-->
+</style>
+
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<!---------------------------------------------------------------------->
+<!--...Heading Information...-->
+
+<b>NPARC Alliance Validation Archive</b><br>
+<b><a href="https://www.grc.nasa.gov/WWW/wind/valid/homepage.html">
+ Validation Home</a></b> &nbsp; <b> &gt; </b> &nbsp; 
+<b><a href="https://www.grc.nasa.gov/WWW/wind/valid/archive.html">
+ Archive</a></b> &nbsp; <b> &gt; </b> &nbsp; 
+<b><a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing.html">
+  ONERA M6 Wing</a></b> &nbsp; <b> &gt; </b> &nbsp; 
+<b> Study #1 </b>
+
+<hr>
+
+<!---------------------------------------------------------------------->
+<!--...Title...-->
+
+<h2 align="center" class="style3"> ONERA M6 Wing: Study #1 </h2>
+
+
+<!---------------------------------------------------------------------->
+<!--...Image...-->
+
+<p align="center">
+<img src="./ONERA M6 Wing_ Study #1_files/pres.1.gif" alt="Figure 1 is described in the surrounding text"><br>
+     <b>Figure 1. Pressure contours on the surface and  <br>
+       symmetry plane of the ONERA M6 wing.</b>  
+</p>
+
+<!---------------------------------------------------------------------->
+<h3 class="style1">Introduction</h3>
+
+<p> This study is an example study demonstrating the application of the
+WIND code for solving the three-dimensional, transonic, turbulent flow
+over the ONERA M6 wing.</p>
+
+
+<!---------------------------------------------------------------------->
+<h3 class="style1">Download tar File</h3>
+
+<p> Most of the files for this example study are available in the Unix
+compressed tar file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/m6wing01.tar.Z"> m6wing01.tar.Z</a>.  The
+files can then be extracted by the unix command: </p>
+
+<blockquote> 
+<b>uncompress -c <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/m6wing01.tar.Z"> m6wing01.tar.Z</a> | tar xvof -</b><br>
+</blockquote>
+
+<p> The files <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/m6wing.x.fmt">m6wing.x.fmt</a>, <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.cgd">run.cgd</a>, <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.cfl">run.cfl</a>,
+<a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.lis">run.lis</a> along with some graphics files are
+not included in order to limit the size of the tar file.  They can be
+downloaded separately.</p>
+
+<!---------------------------------------------------------------------->
+<h3 class="style1">Grid</h3>
+
+<p> The grid is contained in a <a href="https://www.grc.nasa.gov/WWW/wind/valid/plot3d.html">PLOT3D grid
+file</a> (formatted, multi-zone, whole, three-dimensional) named <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/m6wing.x.fmt">m6wing.x.fmt</a>.  It consists of four zones wrapped
+as a C-grid about the wing leading edge.  Table 1 lists the zones and 
+dimensions.  The grid consists of a total of 316932 grid points.</p>
+
+<table border="" cellpadding="7" align="center">
+<caption><b>Table 1. Zones and Grid Dimensions</b></caption>
+
+<tbody><tr>
+<th scope="col">Zone</th>
+<th>Dimension</th>
+<th>Total Grid Points</th>
+</tr>
+
+<tr>
+<td scope="row"> 1</td>
+<td> 25 x 49 x 33 </td>
+<td> 40425 </td>
+</tr>
+
+<tr>
+<td scope="row"> 2</td>
+<td> 73 x 49 x 33 </td>
+<td> 118041 </td>
+</tr>
+
+<tr>
+<td scope="row"> 3</td>
+<td> 73 x 49 x 33 </td>
+<td> 118041 </td>
+</tr>
+
+<tr>
+<td scope="row"> 4</td>
+<td> 25 x 49 x 33 </td>
+<td> 40425 </td>
+</tr>
+
+</tbody></table>
+
+
+<p> The J1 surface of zone 2
+contains the lower surface of the wing and the J1 surface of zone 3
+contains the upper surface of the wing.  The K1 surfaces of all the
+zones are on the symmetry plane.  The KMAX boundaries are coupled to
+eachother as they envelope the wing tip.  The I1 surface of zone 1 and
+the IMAX surface of zone 4 are the outflow boundaries.  The JMAX
+surfaces of all the zones are on the farfield boundary.  The remaining
+zone boundaries are coupled to other zone boundaries.  Figure 2 shows
+the surfaces of the wing, outlines of the zones, and the grids on the
+symmetry (K1) planes.  Figure 3 shows the grid about the tip of the
+wing.  The grid is clustered about the wing surface to resolve the
+boundary layer.  However, the spacing of the grid normal to the wing
+surface is approximately 5.0E-05 feet, which will only resolve the
+turbulent boundary layer with the first grid point off the wall of y+
+of approximately 30.  Thus, the wall function will be used with this
+grid.</p>
+
+<p align="center"><img src="./ONERA M6 Wing_ Study #1_files/grid.1.jpg" border="1" alt="Figure 2 is described in the surrounding text"><br>
+<b>Figure 2. Surfaces, zones and grids for the ONERA M6 wing. </b></p>
+
+<p align="center"><img src="./ONERA M6 Wing_ Study #1_files/grid.2.jpg" border="1" alt="Figure 3 is described in the surrounding text"><br>
+<b>Figure 3. Grid near the tip of the wing.</b></p>
+
+
+<p> The Plot3d grid file is converted to the common grid file (*.cgd)
+format using the CFCNVT utility. This is done using the command:</p>
+
+<blockquote>
+  <b>cfcnvt &lt; <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfcnvt.x.com">cfcnvt.x.com</a></b>
+</blockquote>
+
+<p> where the file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfcnvt.x.com">cfcnvt.x.com</a> is a command
+input file directed to the standard Fortran input unit. A common grid 
+file named <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.cgd">run.cgd</a> is created.</p>
+
+
+<!---------------------------------------------------------------------->
+<h3 class="style1">Boundary Conditions</h3>
+
+<p> The boundaries at the surface of the wing are specified as
+<b>VISCOUS WALL</b> boundary conditions.  The boundaries at the
+symmetry plane are specified as <b>REFLECTION</b>  boundary conditions,
+which is equivalent to an <b>INVISCID WALL</b> boundary condition.  The
+boundaries at the outflow are specified as <b>OUTFLOW</b> boundary
+conditions even though the flow is not truly confined.  This boundary
+condition allows the pressure to be specified, which is set to the
+freestream pressure.  The boundaries at the farfield are specified as
+<b>FREESTREAM</b> boundary conditions, which uses one-dimensional
+characteristic theory to set conditions.  The remaining boundaries are
+<b>COUPLED</b> to other zone boundaries.</p>
+
+<p> The boundary conditions are set within the common grid file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.cgd">run.cgd</a> by using GMAN.  GMAN can be executed
+using either a) an interactive graphics interface or b) in a batch
+processing mode.  The interactive mode is illustrated using <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/m6wing.gman.html"> step-by-step</a> instructions.  The batch
+processing mode is described below.</p>
+
+<p> As GMAN operates, a journal file <b>gman.jou</b> is created which
+can later be used as a command file to re-run GMAN in batch mode.  Here
+this file has been renamed <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/gman.a.com"> gman.a.com</a> and
+GMAN can be re-run as:</p>
+
+<blockquote>
+  <b>gman &lt; <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/gman.a.com">gman.a.com</a></b> 
+</blockquote>
+
+<p> where the file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/gman.a.com">gman.a.com</a> is a command
+input file (standard Fortran input unit). The commond grid file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.cgd">run.cgd</a> is updated in the process.  In 
+examining the file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/gman.a.com">gman.a.com</a>, one can see 
+that one sets boundary conditions by specifying the surface and then 
+the boundary condition type.</p>
+
+<p> An alternative to directly specifying the coupling between zone 
+is to use the automatic coupling method in GMAN.  This can be done 
+prior to setting the boundary conditions.  The procedure is:</p>
+
+<blockquote>
+   Pick <b> BOUNDARY COND. </b> <i>(left panel)</i> <br>
+   Pick <b> AUTO COUPLE </b> <br>
+   Pick <b> RUN AUTO COUP </b> <br>
+</blockquote>
+
+<p> GMAN will then search through each zone boundary and check to 
+see if there are any other zone boundaries that are coincident.  Note 
+that this may take a significant amount of time if there are a large 
+number of zones and the grid is large.  It is suggested that one set 
+the physical boundary conditions (i.e. viscous wall, freestream, etc...) 
+prior to starting the automatic coupling search. Also note that automatic 
+coupling will not detect a self-coupled boundary.</p>
+
+<p> The command file to use the automatic coupling is 
+<a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/gman.b.com"> gman.b.com</a> 
+and GMAN can be re-run as:</p>
+
+<blockquote>
+  <b>gman &lt; <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/gman.b.com">gman.b.com</a></b>
+</blockquote>
+
+<p> Upon completion of the batch operation, one should see the line 
+"Congratulations, no undefined points left", which indicates that all 
+boundary grid points have been assigned a boundary condition type or 
+have been coupled to other boundary grid points.</p>
+ 
+
+<!---------------------------------------------------------------------->
+<h3 class="style1">Computation Strategy</h3>
+
+<p> The computation is performed using the time-marching capabilities
+of WIND to march to a steady-state (time asymptotic) solution starting 
+from an initial solution.  Local time stepping is used at each iteration 
+to enhance iterative convergence.  The flow is assumed to be fully 
+turbulent.</p>
+
+
+<!---------------------------------------------------------------------->
+<h3 class="style1">Initial Conditions</h3>
+
+<p> The initial flow conditions are the freestream flow values
+as presented in Table 2.   These corresond to a Reynolds number of
+11.72 million based on the mean aerodynamic chord length.  These
+conditions match the Mach number, Reynolds number, and
+angle-of-attack of test 2308 from the paper by Schmitt and Charpin in
+AGARD Report AR-138 referenced below.  The static temperature was 
+selected to be 460 degrees Rankine, which with the Mach and Reynolds 
+number yielded a static pressure of 45.82899 psi.</p>
+
+<table border="" cellpadding="7" align="center">
+<caption><b>Table 2. Freestream conditions.</b></caption>
+
+<tbody><tr>
+<th scope="col">Mach</th>
+<th>Pressure (psia)</th>
+<th>Temperature (R)</th>
+<th>Angle-of-Attack (deg)</th>
+<th>Angle-of-Sideslip (deg)</th>
+</tr>
+
+<tr>
+<td scope="row"> 0.8395</td>
+<td> 45.82899 </td>
+<td> 460.0 </td>
+<td> 3.06 </td>
+<td> 0.0 </td>
+</tr>
+
+</tbody></table>
+
+
+<!---------------------------------------------------------------------->
+<h3 class="style1">Input Parameters and Files</h3>
+
+<p> The WIND input data file for this case is <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.dat">run.dat</a>. The first three lines describe the flow
+problem.  The <b>freestream</b> keyword indicates that the static
+freestream flow conditions are specified as Mach number, pressure
+(psia), temperature (R), angle-of-attack (degrees), and
+angle-of-sideslip (degrees).  The <b>turbulence model</b> keyword
+indicates that the Spalart-Allmaras turbulence model is to be used.
+The <b>wall function</b> keyword indicates that the wall function is
+used since the spacing of the first grid point off the wall will only
+yield a y+ value of approximately 30.  The <b>implicit boundary</b>
+keyword indicates that implicit boundary conditions are used at the
+viscous wall boundaries.  The <b>dq limiter</b> keyword indicates that
+changes in density and temperature over an iteration are limited to 50%
+of the current value at each solution point.  The <b>downstream
+pressure</b> keyword indicates that the freestream pressure is imposed
+on the outflow boundaries specified with a <b>OUTFLOW</b> bounary
+condition.  The <b>loads</b> keyword indicates that the forces on the
+wing are to be integrated every 20 iterations and displayed in the
+output list file.  This will we used to evaluate the convergence of the
+solution.  The <b>cycles</b> keyword indicates that a maximum of 1000
+cycles will be run.  The <b>iterations per cycle</b> keyword indicates
+that 5 iterations will be run per cycle and that convergence
+information will be written to the output list file every 5
+iterations.  The <b>cfl</b> keyword indicates that a CFL number of 2.5
+will be used.  By default, WIND uses local maximum allowable time-step
+based on the specified CFL number.  The <b>converge order</b> keyword
+indicates that the computation will stop if the L2 norm of the solution
+drops by 9 orders-of-magnitude.</p>
+
+
+<!---------------------------------------------------------------------->
+<h3 class="style1">Computation</h3>
+
+<p> The WIND solver is run on a UNIX computer by entering the command:</p>
+
+<blockquote>
+  <b>wind -runinplace -dat run -mp -parallel</b>
+</blockquote>
+
+<p> This runs the <b>wind</b> script which sets up the computation for
+the solver.   Further details and options for the <b>wind</b> script
+can be found in the WIND documentation 
+(<a href="http://www.grc.nasa.gov/WWW/winddocs/user/scripts.html#scripts:scripts">wind
+script</a>).  A brief description of script options can be listed by
+typing:</p>
+
+<blockquote>
+  <b>wind -help</b>
+</blockquote>
+
+<p> The <b>-runinplace</b> option indicates that WIND is to be
+run in the directory in which the <b>wind</b> script is executed.
+Otherwise a temporary directory is created for the computation.</p>
+
+<p> The <b>-dat run</b> option indicates that the input data file  
+<a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.dat">run.dat</a> has the prefix <b>run</b>.</p>
+
+<p> The <b>-mp</b> option indicates that the computation is being
+performed on a multi-processor computer.  The <b>-parallel</b> option
+is used along with the <b>-mp</b> option to indicate that the
+computation will be executed in parallel.   The parallel computing
+capability also requires the creation of a multiple processor control
+file named <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.mpc">run.mpc</a> that includes information on
+how many processors to use.</p>
+
+<p> To run WIND on one processor in serial mode, just use:</p>
+
+<blockquote>
+  <b>wind -runinplace -dat run</b>
+</blockquote>
+
+<p> Some interactive prompts ask for information to finish setting 
+up the computation:</p> 
+
+<p> First, one is asked to select the version of WIND that will be
+used.  Hitting a "return" will default to selecting the latest
+production version of WIND. There may be "alpha" or "beta" versions
+listed that are currently under development and being tested.</p>
+
+<p> The next three prompts ask for the names of the <b>output list file
+(run.lis)</b>, <b>mesh file (run.cgd)</b>, and <b>flow data file
+(run.cfl)</b>.  Hitting <b>Return</b> will default to using the prefix of
+the <b>-dat</b> option.  If a flow data file with the specified name
+exists, the computation will start from that solution.  Otherwise, a
+solution will be initialized with the freestream conditions.  The wind
+script will indicate whether an existing solution file has been found.</p>
+
+<p> The next question allows a choice between running the solution in
+<b>real-time (interactive)</b> or submitting it to a <b>queue</b>.</p> 
+
+<p> <b>Running Real-Time</b>.  Running the computation in real-time
+will give the computation a higher priority on the computer if several
+jobs are already running.   The next questions asks whether the output
+should be written to the screen.  Enter <b>n</b> so that screen output
+is written to a list file named <b>run.lis</b>.   A "return" will cause 
+the job to be submitted and the computation begun.</p>
+
+<p> <b>Running in Batch</b>.  On an SGI workstation, a batch job will
+be submitted to the AT queue.  The job may run with other jobs in the
+queue, but may have lower priority.  The defaults may be chosen for the
+remaining prompts.  The options exist to specify the start and end
+times of the computation.  A "return" will cause the job
+to be submitted and the computation begun.</p>
+
+<p> The output list file is <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.lis">run.lis</a> and contains
+the output from the computation and lists the residual information for
+both the flow equations and the turbulence model equation for each
+iteration.  The integrated forces for the top portion of the wing is
+also output every 10 iterations.  When running parallel, the list file
+also reports the multi-processor performance statistics.</p>
+
+<p> The flow data file is <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.cfl">run.cfl</a> and
+contains the final solution.</p>
+
+
+<!---------------------------------------------------------------------->
+<h3 class="style1">Iterative Convergence</h3>
+
+<p> After running the computation, one must then demonstrate iterative 
+convergence of the steady-state solution.  There are several ways to 
+examine the iterative convergence:</p>
+
+
+<p> <b>Residual of the Navier-Stokes Equations</b>.  The L2 norm of the
+residual of the Navier-Stokes equations can be read from the output
+list file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.lis">run.lis</a>.  The RESPLT utility is used in
+the form,</p>
+
+<blockquote>
+  <b>resplt &lt;</b> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/resplt.nsl2.com">resplt.nsl2.com</a>
+</blockquote>
+
+<p> The file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/resplt.nsl2.com">resplt.nsl2.com</a> is a command
+file containing the inputs for RESPLT to output the GENPLOT formatted
+plot data file named <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/nsl2.gen">nsl2.gen</a> of the residuals
+as a function of the number of iterations.  This file can be plotted 
+using CFPOST,</p>
+
+<blockquote>
+  <b>cfpost &lt;</b> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.nsl2.com">cfpost.nsl2.com</a>
+</blockquote>
+
+<p> where the file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.nsl2.com">cfpost.nsl2.com</a> is a command
+file containing the inputs for CFPOST.  Figure 4 shows the solution residual 
+that is displayed by CFPOST.</p>
+
+<p align="center"><img src="./ONERA M6 Wing_ Study #1_files/nsl2b.jpg" border="1" alt="Figure 4 is described in the surrounding text"><br>
+<b>Figure 4. Plot of the L2 norm of Navier-Stokes residuals.</b></p>
+
+
+<p> <b>Residual of the Spalart-Allmaras Turbulence Model</b>.  The L2
+norm of the residual of the governing equation used in the
+Spalart-Allmaras turbulence model can be read from the output list file
+<a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.lis">run.lis</a>.  The RESPLT utility is used in the form</p>
+
+<blockquote>
+  <b>resplt &lt;</b> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/resplt.sal2.com">resplt.sal2.com</a>
+</blockquote>
+
+<p> The file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/resplt.sal2.com">resplt.sal2.com</a> is a command
+file containing the inputs for RESPLT to output the GENPLOT formatted
+plot data file named <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/sal2.gen">sal2.gen</a> of the residual
+as a function of the number of iterations.  This file can be plotted 
+using CFPOST,</p>
+
+<blockquote>
+  <b>cfpost &lt;</b> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.sal2.com">cfpost.sal2.com</a>
+</blockquote>
+
+<p> where the file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.sal2.com">cfpost.sal2.com</a> is a command
+file containing the inputs for CFPOST.  Figure 5 shows the solution residual 
+that is displayed by CFPOST.</p>
+
+<p align="center"><img src="./ONERA M6 Wing_ Study #1_files/sal2.jpg" border="1" alt="Figure 5 is described in the surrounding text"><br>
+<b>Figure 5. Plot of the L2 norm of the Spalart-Allmaras  
+           turbulence equation residuals.</b></p>
+
+
+<p> <b>Wing Lift and Drag</b>.  Since determining the lift and drag of the wing is a 
+primary engineering objective.  One can monitor the change of these values with 
+iterations and determine the point of iterative convergence when these values 
+no longer significantly change. The <b>loads</b>
+keyword in the input data file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.dat">run.dat</a>
+outputs this information into the output list file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/run.lis">run.lis</a>.  RESPLT is then used to read this
+information and create plot files,</p>
+
+<blockquote>
+  <b>resplt &lt;</b> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/resplt.liftconv.com">resplt.liftconv.com</a>
+</blockquote>
+
+<p> The file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/resplt.liftconv.com">resplt.liftconv.com</a> is a
+command file containing the inputs for RESPLT to output the GENPLOT
+formatted plot data file named <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/liftconv.gen">liftconv.gen</a>
+of the residuals as a function of the iterations.  This file can be
+plotted using CFPOST,</p>
+
+<blockquote>
+  <b>cfpost &lt;</b> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.liftconv.com">cfpost.liftconv.com</a>
+</blockquote>
+
+<p> where the file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.liftconv.com">cfpost.liftconv.com</a> is a command file
+containing the inputs for CFPOST. CFPOST will display in sequence the
+plots for drag, lift, and z-direction force.  Figures 6 and 7 show the
+convergence of the drag and lift as displayed by CFPOST.</p>
+
+<p align="center"><img src="./ONERA M6 Wing_ Study #1_files/dragconv.jpg" border="1" alt="Figure 6 is described in the surrounding text"><br>
+<b>Figure 6. Plot of the drag of the 
+ONERA M6 wing with respect to the number of iterations.</b></p>
+
+<p align="center"><img src="./ONERA M6 Wing_ Study #1_files/liftconv.jpg" border="1" alt="Figure 7 is described in the surrounding text"><br>
+<b>Figure 7. Plot of the lift of the  
+ONERA M6 wing with respect to the number of iterations.</b></p>
+
+
+<!---------------------------------------------------------------------->
+<h3 class="style1">Post-Processing</h3>
+
+<p> The CFPOST utility can be used to generate engineering information 
+from the the data files. </p> 
+
+
+<p> <b>PLOT3D Grid and Solution Files</b>.  
+The <a href="https://www.grc.nasa.gov/WWW/wind/valid/plot3d.html">PLOT3D grid and solution
+files</a> can be obtained for use in commercial visualization software (i.e. 
+Fieldview, Ensight, Tecplot) using the commands:</p>
+
+<blockquote>
+  <b>cfpost &lt;</b> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.plot3d.com">cfpost.plot3d.com</a>
+</blockquote>
+
+<p> The PLOT3D grid and solution files are named <b>run.x</b> and 
+<b>run.q</b>, respectively.  They are unformatted, whole, 3D, and
+multi-zone.</p>  
+
+
+<p> <b>Mach Number Contour Plots</b>. The CFPOST utility can be used to
+generate and plot flow contours at a cutting plane perpendicular to the
+wing span.  Here the Mach number contours are generated and plotted at
+section 1 (y/b=0.2),</p>
+
+<blockquote>
+  <b>cfpost &lt;</b> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.zcut.mach.com">cfpost.zcut.mach.com</a>
+</blockquote>
+
+
+<p> <b>Pressure Coefficient Distribution</b>.  The referenced
+experiment (Schmitt and Charpin, 1979) obtained pressure coefficients
+at seven sections along the span of the wing.  Corresponding pressure
+coefficients can be obtained from the WIND flow solution using CFPOST,</p>
+
+<blockquote>
+  <b>cfpost &lt;</b> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.zcut.cp1.com">cfpost.zcut.cp1.com</a>
+</blockquote>
+
+<p> where <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.zcut.cp1.com">cfpost.zcut.cp1.com</a> is the
+command input file for CFPOST to obtain the pressure coefficient at
+section 1.  A GENPLOT file named <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp1.gen">cp1.gen</a> is
+created and plotted.  The pressure coefficient is negative for
+pressures less than freestream, which occurs on the top of the wing.
+In plots of pressure coefficients for wings, the negative of the
+pressure coefficient is usually plotted to indicate that the lower
+pressure region is on the top of the wing and the high pressure region
+is on the bottom of the wing.  This is done in the CFPOST command
+files.  The data from the experiment is expressed with respect to the
+local chord length.  A short Fortran 77 program, <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/readgen.f">readgen.f</a>, was written to transform the data in
+the GENPLOT file to be consistent with the format used in the
+experimental data. Figures 8 to 14 show the pressure coefficients at
+each section along the wing.</p>
+
+<table border="" cellpadding="7" align="center">
+<caption><b>Table 3. CFPOST command files, GENPLOT data files, and 
+transformed plot data files for the computed pressure coefficients 
+at each section along the ONERA M6 wing.</b></caption>
+
+<tbody><tr>
+<th scope="col">Section</th>
+<th>CFPOST Command File</th>
+<th>GENPLOT File</th>
+<th>Plot File</th>
+</tr>
+
+<tr>
+<td scope="row"> 1</td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.zcut.cp1.com">cfpost.zcut.cp1.com</a> </td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp1.gen">cp1.gen</a> </td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp1.do">cp1.do</a> </td>
+</tr>
+
+<tr>
+<td scope="row"> 2</td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.zcut.cp2.com">cfpost.zcut.cp2.com</a> </td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp2.gen">cp2.gen</a> </td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp2.do">cp2.do</a> </td>
+</tr>
+
+<tr>
+<td scope="row"> 3</td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.zcut.cp3.com">cfpost.zcut.cp3.com</a> </td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp3.gen">cp3.gen</a> </td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp3.do">cp3.do</a> </td>
+</tr>
+
+<tr>
+<td scope="row"> 4</td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.zcut.cp4.com">cfpost.zcut.cp4.com</a> </td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp4.gen">cp4.gen</a> </td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp4.do">cp4.do</a> </td>
+</tr>
+
+<tr>
+<td scope="row"> 5</td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.zcut.cp5.com">cfpost.zcut.cp5.com</a> </td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp5.gen">cp5.gen</a> </td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp5.do">cp5.do</a> </td>
+</tr>
+
+<tr>
+<td scope="row"> 6</td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.zcut.cp6.com">cfpost.zcut.cp6.com</a> </td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp6.gen">cp6.gen</a> </td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp6.do">cp6.do</a> </td>
+</tr>
+
+<tr>
+<td scope="row"> 7</td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.zcut.cp7.com">cfpost.zcut.cp7.com</a> </td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp7.gen">cp7.gen</a> </td>
+<td> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cp7.do">cp7.do</a> </td>
+</tr>
+
+</tbody></table>
+
+<p align="center"><img src="./ONERA M6 Wing_ Study #1_files/cp1.jpg" border="1" alt="Figure 8 is described in the surrounding text"><br>
+<b>Figure 8. Plot of the pressure coefficients <br>
+           on the wing surface at section 1 (y/b=0.20).</b></p>
+
+<p align="center"><img src="./ONERA M6 Wing_ Study #1_files/cp2.jpg" border="1" alt="Figure 9 is described in the surrounding text"><br>
+<b>Figure 9. Plot of the pressure coefficients <br>
+           on the wing surface at section 2 (y/b=0.44).</b></p>
+
+<p align="center"><img src="./ONERA M6 Wing_ Study #1_files/cp3.jpg" border="1" alt="Figure 10 is described in the surrounding text"><br>
+<b>Figure 10. Plot of the pressure coefficients <br>
+           on the wing surface at section 3 (y/b=0.65).</b></p>
+
+<p align="center"><img src="./ONERA M6 Wing_ Study #1_files/cp4.jpg" border="1" alt="Figure 11 is described in the surrounding text"><br>
+<b>Figure 11. Plot of the pressure coefficients <br>
+           on the wing surface at section 4 (y/b=0.80).</b></p>
+
+<p align="center"><img src="./ONERA M6 Wing_ Study #1_files/cp5.jpg" border="1" alt="Figure 12 is described in the surrounding text"><br>
+<b>Figure 12. Plot of the pressure coefficients <br>
+           on the wing surface at section 5 (y/b=0.90).</b></p>
+
+<p align="center"><img src="./ONERA M6 Wing_ Study #1_files/cp6.jpg" border="1" alt="Figure 13 is described in the surrounding text"><br>
+<b>Figure 13. Plot of the pressure coefficients <br>
+           on the wing surface at section 6 (y/b=0.95).</b></p>
+
+<p align="center"><img src="./ONERA M6 Wing_ Study #1_files/cp7.jpg" border="1" alt="Figure 14 is described in the surrounding text"><br>
+<b>Figure 14. Plot of the pressure coefficients <br>
+           on the wing surface at section 7 (y/b=0.99).</b></p>
+
+
+<p> <b>Forces on the Wing</b>.  For a wing calculation, another piece
+of important information is the forces on the wing which result from
+pressure and skin-friction.  CFPOST can be used to integrate these
+forces over the surface of the wing,</p>
+
+<blockquote>
+  <b>cfpost &lt;</b> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.forces.com">cfpost.forces.com</a>
+</blockquote>
+
+<p> where <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.forces.com">cfpost.forces.com</a> is the
+command input file for CFPOST.  A list file named <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/forces.lis">forces.lis</a> is created in which the force
+information is printed.</p>
+
+
+<p> <b>Boundary Layer Properties</b>.  For a viscous computation, it is
+useful to examine how well the turbulent boundary layers were
+resolved.  One measure of this is the y+ values at the grid points in
+the boundary layers.  The forces list file 
+<a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/forces.lis">forces.lis</a> does contain a summary of the y+
+values near the walls. </p> 
+
+<p> To examine the boundary layer at a certain
+location, CFPOST can be used,</p>
+
+<blockquote>
+  <b>cfpost &lt;</b> <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.blan.com">cfpost.blan.com</a>
+</blockquote>
+
+<p> The file <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/cfpost.blan.com">cfpost.blan.com</a> is a command
+file which writes out the x and y coordinates, u-velocity, v-velocity,
+static temperature, and y+ values along a grid line at I60, which is 
+on the top of the wing just before the trailing edge.  This information 
+is written to a GENPLOT file named <a href="https://www.grc.nasa.gov/WWW/wind/valid/m6wing/m6wing01/blan.gen">blan.gen</a>. </p>  
+
+
+<!---------------------------------------------------------------------->
+<h3 class="style1">Comparisons of the Results</h3>
+
+<p> In examining the pressure coefficient comparisons of Figs. 8-14, one
+may conclude that the comparisons are good overall.  It appears that
+there are two shocks on the upper surface at section 4 (y/b=0.80) which
+WIND does not capture.  Determining the cause of differences between
+the computation and experiment requires sensitivity studies with
+respect to such things as the grid, turbulence model, and algorithms.
+Refining the resolution of the boundary layer to y+ of 1 may improve
+comparisons.   Further streamwise refinement of the grid would help
+capture the shocks on the upper surface.</p>
+
+
+<!---------------------------------------------------------------------->
+<h3 class="style1">Performance</h3>
+
+<p> The computations were performed on a Silicon Graphics Octane II
+workstation using 2 600 MHZ IP30 MIPS R14000 Processors.  1000 cycles
+for 5000 iterations required ? CPU seconds over an elapsed time
+of ? seconds.</p>
+
+
+<!---------------------------------------------------------------------->
+<h3 class="style1">References</h3>
+
+<p> Schmitt, V. and F. Charpin, "Pressure Distributions on the
+ONERA-M6-Wing at Transonic Mach Numbers," <i>Experimental Data Base for
+Computer Program Assessment.</i>  Report of the Fluid Dynamics Panel
+Working Group 04, AGARD AR 138, May 1979.</p>
+
+
+<!---------------------------------------------------------------------->
+<h3 class="style1">Contact Information</h3>
+
+<p> This study was last updated on August 30, 2002 by John W. Slater, 
+who may be contacted at:</p> 
+
+<blockquote>
+   NASA John H. Glenn Research Center, MS 86-7 <br>
+   21000 Brookpark Road <br>
+   Brook Park, Ohio  44135 <br>
+   Phone: (216) 433-8513 <br>
+   e-mail: <a href="mailto:John.W.Slater@grc.nasa.gov"> 
+      John.W.Slater@grc.nasa.gov</a>
+</blockquote>
+
+
+<!---------------------------------------------------------------------->
+<hr>
+<span style="font-weight: bold;">Last Updated:</span> Wednesday, 10-Feb-2021 09:39:00 EST<br>
+
+
+
+
+<div id="footer">
+
+<!-- <img src="images/nasa_logo.gif" class="right"
+      width= "50" height="40" alt="NASA meatball" />
+-->
+
+<div>
+  <span style="font-weight: bold;">Responsible NASA Official/Curator:</span> 
+      <a href="mailto:john.w.slater@nasa.gov">John W. Slater</a>
+</div>
+
+<span><span style="font-weight: bold;">Web Policies: </span>
+      <a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Web Privacy Policy and Important Notices</a></span><br>
+		<span style="font-weight: bold;">Adobe Reader Download: </span>  
+        <a href="http://www.adobe.com/products/acrobat/readstep2.html" title="Go to Adobe Web Site">
+        Adobe Reader</a>
+<!-- <span class="notprinted"><span style="font-weight: bold;">Adobe Reader Download: </span>  
+        <a href="http://www.adobe.com/products/acrobat/readstep2.html" title="Go to Adobe Web Site">
+        Adobe Reader</a>
+</span> -->
+
+<!-- We participate in the US government's analytics program. See the data at analytics.usa.gov. -->
+
+<script async="" src="./ONERA M6 Wing_ Study #1_files/analytics.js.download"></script><script language="javascript" id="_fed_an_ua_tag" src="./ONERA M6 Wing_ Study #1_files/Universal-Federated-Analytics-Min.js.download"></script>
+
+
+</div>
+
+
+
+</body></html>

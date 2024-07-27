@@ -1,0 +1,5073 @@
+# encoding: utf-8
+# Release 19.0
+SetScriptVersion(Version="19.0.136")
+system1 = GetSystem(Name="CFX")
+solution1 = system1.GetContainer(ComponentName="Solution")
+solution1.SetExecutionControl(CCL=r"""&replace SIMULATION CONTROL:
+  EXECUTION CONTROL:
+    EXECUTABLE SELECTION:
+      Double Precision = Off
+      Large Problem = Off
+    END
+    INTERPOLATOR STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+    END
+    PARTITIONER STEP CONTROL:
+      Multidomain Option = Automatic
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARTITION SMOOTHING:
+        Maximum Partition Smoothing Sweeps = 100
+        Option = Smooth
+      END
+      PARTITIONING TYPE:
+        MeTiS Type = k-way
+        Option = MeTiS
+        Partition Size Rule = Automatic
+      END
+    END
+    RUN DEFINITION:
+      Run Mode = Full
+      Solver Input File = D:\David\ftp\ONERA\FLUENT\M6WORKBENCH_files\dp0\CFX\CFX\CFX.def
+    END
+    SOLVER STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARALLEL ENVIRONMENT:
+        Number of Processes = 1
+        Start Method = Serial
+      END
+    END
+  END
+END
+""")
+solutionComponent1 = system1.GetComponent(Name="Solution")
+solutionComponent1.Update(Force=True)
+solution1.DisplayMonitors()
+ClearMessages()
+template1 = GetTemplate(TemplateName="CFX")
+system2 = template1.CreateSystem(
+    Position="Right",
+    RelativeTo=system1)
+system3 = GetSystem(Name="FFF")
+meshComponent1 = system3.GetComponent(Name="Mesh")
+setupComponent1 = system2.GetComponent(Name="Setup")
+meshComponent1.TransferData(TargetComponent=setupComponent1)
+setup1 = system2.GetContainer(ComponentName="Setup")
+setup1.Edit()
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.154506, 0, -1.524
+    Scale = 0.205837
+    Pan = 0, 0
+    Rotation Quaternion = 0.32758, -0.341389, -0.135008, 0.870585
+    
+  END
+
+END
+
+VIEW:View 1
+  Light Angle = 50, 110
+END
+
+> update
+FLOW: Flow Analysis 1
+&replace   DOMAIN: Default Domain
+    Coord Frame = Coord 0
+    Domain Type = Fluid
+    Location = B31
+    BOUNDARY: Default Domain Default
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = F24.31,F25.31,F26.31,F27.31,F28.31,F29.31,F30.31,F32.31,F33.31
+      BOUNDARY CONDITIONS: 
+        MASS AND MOMENTUM: 
+          Option = No Slip Wall
+        END # MASS AND MOMENTUM:
+        WALL ROUGHNESS: 
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:Default Domain Default
+    DOMAIN MODELS: 
+      BUOYANCY MODEL: 
+        Option = Non Buoyant
+      END # BUOYANCY MODEL:
+      DOMAIN MOTION: 
+        Option = Stationary
+      END # DOMAIN MOTION:
+      MESH DEFORMATION: 
+        Option = None
+      END # MESH DEFORMATION:
+      REFERENCE PRESSURE: 
+        Reference Pressure = 0 [bar]
+      END # REFERENCE PRESSURE:
+    END # DOMAIN MODELS:
+    FLUID DEFINITION: Fluid 1
+      Material = Air Ideal Gas
+      Option = Material Library
+      MORPHOLOGY: 
+        Option = Continuous Fluid
+      END # MORPHOLOGY:
+    END # FLUID DEFINITION:Fluid 1
+    FLUID MODELS: 
+      COMBUSTION MODEL: 
+        Option = None
+      END # COMBUSTION MODEL:
+      HEAT TRANSFER MODEL: 
+        Fluid Temperature = 25 [C]
+        Option = Isothermal
+      END # HEAT TRANSFER MODEL:
+      THERMAL RADIATION MODEL: 
+        Option = None
+      END # THERMAL RADIATION MODEL:
+      TURBULENCE MODEL: 
+        Option = k epsilon
+      END # TURBULENCE MODEL:
+      TURBULENT WALL FUNCTIONS: 
+        Option = Scalable
+      END # TURBULENT WALL FUNCTIONS:
+    END # FLUID MODELS:
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+&replace   DOMAIN: Default Domain
+    Coord Frame = Coord 0
+    Domain Type = Fluid
+    Location = B31
+    BOUNDARY: Default Domain Default
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = F24.31,F25.31,F26.31,F27.31,F28.31,F29.31,F30.31,F32.31,F33.31
+      BOUNDARY CONDITIONS: 
+        MASS AND MOMENTUM: 
+          Option = No Slip Wall
+        END # MASS AND MOMENTUM:
+        WALL ROUGHNESS: 
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:Default Domain Default
+    DOMAIN MODELS: 
+      BUOYANCY MODEL: 
+        Option = Non Buoyant
+      END # BUOYANCY MODEL:
+      DOMAIN MOTION: 
+        Option = Stationary
+      END # DOMAIN MOTION:
+      MESH DEFORMATION: 
+        Option = None
+      END # MESH DEFORMATION:
+      REFERENCE PRESSURE: 
+        Reference Pressure = 0 [bar]
+      END # REFERENCE PRESSURE:
+    END # DOMAIN MODELS:
+    FLUID DEFINITION: Fluid 1
+      Material = Air Ideal Gas
+      Option = Material Library
+      MORPHOLOGY: 
+        Option = Continuous Fluid
+      END # MORPHOLOGY:
+    END # FLUID DEFINITION:Fluid 1
+    FLUID MODELS: 
+      COMBUSTION MODEL: 
+        Option = None
+      END # COMBUSTION MODEL:
+      HEAT TRANSFER MODEL: 
+        Include Viscous Work Term = True
+        Option = Total Energy
+      END # HEAT TRANSFER MODEL:
+      THERMAL RADIATION MODEL: 
+        Option = None
+      END # THERMAL RADIATION MODEL:
+      TURBULENCE MODEL: 
+        Option = SST
+      END # TURBULENCE MODEL:
+      TURBULENT WALL FUNCTIONS: 
+        High Speed Model = Off
+        Option = Automatic
+      END # TURBULENT WALL FUNCTIONS:
+    END # FLUID MODELS:
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.154506, 0, -1.524
+    Scale = 0.430987
+    Pan = 0, 0
+    Rotation Quaternion = 0.272945, -0.161409, -0.0204111, 0.948178
+    
+  END
+
+END
+
+> update
+LIBRARY: 
+  COORDINATE FRAME DEFINITIONS: 
+&replace     COORDINATE FRAME: Coord 1
+      Axis 3 Point = 0.9986 [ft], 0 [ft], 0.0523 [ft]
+      Coord Frame Type = Cartesian
+      Option = Axis Points
+      Origin Point = 0.0[m],0.0[m],0.0[m]
+      Plane 13 Point = 0 [ft], 0 [ft], 1 [ft]
+      Reference Coord Frame = Coord 0
+      Visibility = true
+    END # COORDINATE FRAME:Coord 1
+  END # COORDINATE FRAME DEFINITIONS:
+END # LIBRARY:
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 3.35276, 0.00459172, 0.112785
+    Scale = 0.950025
+    Pan = 0, 0
+    Rotation Quaternion = 0, -0.707107, 0, 0.707107
+    
+  END
+
+END
+
+> update
+LIBRARY: 
+  COORDINATE FRAME DEFINITIONS: 
+&replace     COORDINATE FRAME: Coord 1
+      Axis 3 Point = 0.9986 [ft], 0 [ft], 0.0523 [ft]
+      Coord Frame Type = Cartesian
+      Option = Axis Points
+      Origin Point = 0.0[m],0.0[m],0.0[m]
+      Plane 13 Point = 1 [ft], 0 [ft], 0 [ft]
+      Reference Coord Frame = Coord 0
+      Visibility = on
+    END # COORDINATE FRAME:Coord 1
+  END # COORDINATE FRAME DEFINITIONS:
+END # LIBRARY:
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.154506, 0, -1.46333
+    Scale = 0.568894
+    Pan = 0, 0
+    Rotation Quaternion = -4.32978e-017, 0.707107, 0.707107, 4.32978e-017
+    
+  END
+
+END
+
+> update
+LIBRARY: 
+  COORDINATE FRAME DEFINITIONS: 
+&replace     COORDINATE FRAME: Coord 1
+      Axis 3 Point = 0.9986 [ft], 0 [ft], 0.0523 [ft]
+      Coord Frame Type = Cartesian
+      Option = Axis Points
+      Origin Point = 0.0[m],0.0[m],0.0[m]
+      Plane 13 Point = 0 [ft], 1 [ft], 0 [ft]
+      Reference Coord Frame = Coord 0
+      Visibility = on
+    END # COORDINATE FRAME:Coord 1
+  END # COORDINATE FRAME DEFINITIONS:
+END # LIBRARY:
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""LIBRARY: 
+  COORDINATE FRAME DEFINITIONS: 
+&replace     COORDINATE FRAME: Coord 1
+      Axis 3 Point = 0.9986 [ft], 0 [ft], 0.0523 [ft]
+      Coord Frame Type = Cartesian
+      Option = Axis Points
+      Origin Point = 0.0[m],0.0[m],0.0[m]
+      Plane 13 Point = 0 [ft], 0 [ft], 0 [ft]
+      Reference Coord Frame = Coord 0
+      Visibility = on
+    END # COORDINATE FRAME:Coord 1
+  END # COORDINATE FRAME DEFINITIONS:
+END # LIBRARY:
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.154506, 0, -1.46333
+    Scale = 0.568894
+    Pan = 0, 0
+    Rotation Quaternion = -0.0853485, 0.567398, 0.810693, 0.116416
+    
+  END
+
+END
+
+> update
+LIBRARY: 
+  COORDINATE FRAME DEFINITIONS: 
+&replace     COORDINATE FRAME: Coord 1
+      Axis 3 Point = 0.9986 [ft], 0 [ft], 0.0523 [ft]
+      Coord Frame Type = Cartesian
+      Option = Axis Points
+      Origin Point = 0.0[m],0.0[m],0.0[m]
+      Plane 13 Point = 0 [ft], 0 [ft], 1 [ft]
+      Reference Coord Frame = Coord 0
+      Visibility = on
+    END # COORDINATE FRAME:Coord 1
+  END # COORDINATE FRAME DEFINITIONS:
+END # LIBRARY:
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.154506, 0, -0.823925
+    Scale = 0.398545
+    Pan = 0, 0
+    Rotation Quaternion = -4.32978e-017, 0.707107, 0.707107, 4.32978e-017
+    
+  END
+
+END
+
+> update
+LIBRARY: 
+  COORDINATE FRAME DEFINITIONS: 
+&replace     COORDINATE FRAME: Coord 1
+      Axis 3 Point = 0.9986 [ft], 0.0523 [ft], 0 [ft]
+      Coord Frame Type = Cartesian
+      Option = Axis Points
+      Origin Point = 0.0[m],0.0[m],0.0[m]
+      Plane 13 Point = 0 [ft], 0 [ft], 1 [ft]
+      Reference Coord Frame = Coord 0
+      Visibility = on
+    END # COORDINATE FRAME:Coord 1
+  END # COORDINATE FRAME DEFINITIONS:
+END # LIBRARY:
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.753616, -0.354218, 1.402
+    Scale = 0.278547
+    Pan = 0, 0
+    Rotation Quaternion = 0.00609884, 0.0262165, 0.0140729, 0.999543
+    
+  END
+
+END
+
+> update
+LIBRARY: 
+  COORDINATE FRAME DEFINITIONS: 
+&replace     COORDINATE FRAME: Coord 1
+      Axis 3 Point = 0.9986 [ft], 0 [ft], 0.0523 [ft]
+      Coord Frame Type = Cartesian
+      Option = Axis Points
+      Origin Point = 0.0[m],0.0[m],0.0[m]
+      Plane 13 Point = 1 [ft], 1 [ft], 0 [ft]
+      Reference Coord Frame = Coord 0
+      Visibility = on
+    END # COORDINATE FRAME:Coord 1
+  END # COORDINATE FRAME DEFINITIONS:
+END # LIBRARY:
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.154506, 0, -0.824881
+    Scale = 0.298258
+    Pan = 0, 0
+    Rotation Quaternion = 0, -0.707107, 0, 0.707107
+    
+  END
+
+END
+
+> update
+> undo""")
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.154506, 0, -0.822966
+    Scale = 0.353913
+    Pan = 0, 0
+    Rotation Quaternion = 0, 0, 0, 1
+    
+  END
+
+END
+
+> update
+FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 1
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Total Temperature
+          Total Temperature = 298 [K]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Normal Speed = 272 [m s^-1]
+          Option = Normal Speed
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.154506, 0, -0.822966
+    Scale = 0.277127
+    Pan = 0, 0
+    Rotation Quaternion = 0.0384093, 0.0481381, 0.0307656, 0.997631
+    
+  END
+
+END
+
+> update
+FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 1
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Total Temperature
+          Total Temperature = 298 [K]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Cartesian Velocity Components
+          U = 272 [m s^-1]
+          V = 0 [ft s^-1]
+          W = 0 [ft s^-1]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.154506, 0, -0.822966
+    Scale = 0.277127
+    Pan = 0, 0
+    Rotation Quaternion = 0.145847, -0.0654255, 0.0593236, 0.985363
+    
+  END
+
+END
+
+> update
+FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: outlet
+      Boundary Type = OUTLET
+      Coord Frame = Coord 1
+      Interface Boundary = Off
+      Location = outlet
+      BOUNDARY CONDITIONS: 
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        MASS AND MOMENTUM: 
+          Option = Cartesian Velocity Components
+          U = 272 [m s^-1]
+          V = 0 [ft s^-1]
+          W = 0 [ft s^-1]
+        END # MASS AND MOMENTUM:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:outlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: sym
+      Boundary Type = SYMMETRY
+      Interface Boundary = Off
+      Location = near_side
+    END # BOUNDARY:sym
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: wall
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = far_side
+      BOUNDARY CONDITIONS: 
+        HEAT TRANSFER: 
+          Option = Adiabatic
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = No Slip Wall
+        END # MASS AND MOMENTUM:
+        WALL ROUGHNESS: 
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:wall
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: wing
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = wing_tip,wing_surface
+      BOUNDARY CONDITIONS: 
+        HEAT TRANSFER: 
+          Option = Adiabatic
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = No Slip Wall
+          WALL VELOCITY: 
+            Option = Cartesian Components
+            Wall U = 0 [m s^-1]
+            Wall V = 0 [m s^-1]
+            Wall W = 0 [m s^-1]
+          END # WALL VELOCITY:
+        END # MASS AND MOMENTUM:
+        WALL ROUGHNESS: 
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:wing
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+&replace   SOLVER CONTROL: 
+    Turbulence Numerics = First Order
+    ADVECTION SCHEME: 
+      Option = High Resolution
+    END # ADVECTION SCHEME:
+    CONVERGENCE CONTROL: 
+      Length Scale Option = Conservative
+      Maximum Number of Iterations = 250
+      Minimum Number of Iterations = 1
+      Timescale Control = Auto Timescale
+      Timescale Factor = 1.0
+    END # CONVERGENCE CONTROL:
+    CONVERGENCE CRITERIA: 
+      Residual Target = 0.000001
+      Residual Type = RMS
+    END # CONVERGENCE CRITERIA:
+    DYNAMIC MODEL CONTROL: 
+      Global Dynamic Model Control = On
+    END # DYNAMIC MODEL CONTROL:
+  END # SOLVER CONTROL:
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.Exit()
+solution2 = system2.GetContainer(ComponentName="Solution")
+solution2.SetExecutionControl(CCL=r"""&replace SIMULATION CONTROL:
+  EXECUTION CONTROL:
+    EXECUTABLE SELECTION:
+      Double Precision = Off
+      Large Problem = Off
+    END
+    INTERPOLATOR STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+    END
+    PARTITIONER STEP CONTROL:
+      Multidomain Option = Automatic
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARTITION SMOOTHING:
+        Maximum Partition Smoothing Sweeps = 100
+        Option = Smooth
+      END
+      PARTITIONING TYPE:
+        MeTiS Type = k-way
+        Option = MeTiS
+        Partition Size Rule = Automatic
+      END
+    END
+    RUN DEFINITION:
+      Run Mode = Full
+      Solver Input File = D:\David\ftp\ONERA\FLUENT\M6WORKBENCH_files\dp0\CFX-1\CFX\CFX.def
+    END
+    SOLVER STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARALLEL ENVIRONMENT:
+        Number of Processes = 1
+        Start Method = Serial
+      END
+    END
+  END
+END
+""")
+solutionComponent2 = system2.GetComponent(Name="Solution")
+solutionComponent2.Update(Force=True)
+setup1.Edit()
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.15526, -0.00986612, -1.14539
+    Scale = 0.196109
+    Pan = 0, 0
+    Rotation Quaternion = 0.145847, -0.0654255, 0.0593236, 0.985363
+    
+  END
+
+END
+
+VIEW:View 1
+  Light Angle = 50, 110
+END
+
+> update
+FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 1
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Total Temperature
+          Total Temperature = 298 [K]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Cartesian Velocity Components
+          U = 0 [m s^-1]
+          V = 0 [ft s^-1]
+          W = 272 [m s^-1]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: outlet
+      Boundary Type = OUTLET
+      Coord Frame = Coord 1
+      Interface Boundary = Off
+      Location = outlet
+      BOUNDARY CONDITIONS: 
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        MASS AND MOMENTUM: 
+          Option = Cartesian Velocity Components
+          U = 0 [m s^-1]
+          V = 0 [ft s^-1]
+          W = 272 [m s^-1]
+        END # MASS AND MOMENTUM:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:outlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 1
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Total Temperature
+          Total Temperature = 298 [K]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Cartesian Velocity Components
+          U = 0 [m s^-1]
+          V = 0 [m s^-1]
+          W = 272 [m s^-1]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: outlet
+      Boundary Type = OUTLET
+      Coord Frame = Coord 1
+      Interface Boundary = Off
+      Location = outlet
+      BOUNDARY CONDITIONS: 
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        MASS AND MOMENTUM: 
+          Option = Cartesian Velocity Components
+          U = 0 [m s^-1]
+          V = 0 [m s^-1]
+          W = 272 [m s^-1]
+        END # MASS AND MOMENTUM:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:outlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.Exit()
+solution2.SetExecutionControl(CCL=r"""&replace SIMULATION CONTROL:
+  EXECUTION CONTROL:
+    EXECUTABLE SELECTION:
+      Double Precision = Off
+      Large Problem = Off
+    END
+    INTERPOLATOR STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+    END
+    PARTITIONER STEP CONTROL:
+      Multidomain Option = Automatic
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARTITION SMOOTHING:
+        Maximum Partition Smoothing Sweeps = 100
+        Option = Smooth
+      END
+      PARTITIONING TYPE:
+        MeTiS Type = k-way
+        Option = MeTiS
+        Partition Size Rule = Automatic
+      END
+    END
+    RUN DEFINITION:
+      Run Mode = Full
+      Solver Input File = D:\David\ftp\ONERA\FLUENT\M6WORKBENCH_files\dp0\CFX-1\CFX\CFX.def
+    END
+    SOLVER STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARALLEL ENVIRONMENT:
+        Number of Processes = 1
+        Start Method = Serial
+      END
+    END
+  END
+END
+""")
+solutionComponent2.Update(Force=True)
+solution2.Exit()
+solution1.Exit()
+setup1.Edit()
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.15526, -0.00986612, -1.14539
+    Scale = 0.196109
+    Pan = 0, 0
+    Rotation Quaternion = 0.145847, -0.0654255, 0.0593236, 0.985363
+    
+  END
+
+END
+
+VIEW:View 1
+  Light Angle = 50, 110
+END
+
+> update
+FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 1
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW DIRECTION: 
+          Option = Cartesian Components
+          Unit Vector X Component = 0
+          Unit Vector Y Component = 0
+          Unit Vector Z Component = 1
+        END # FLOW DIRECTION:
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Total Temperature
+          Total Temperature = 298 [K]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Total Pressure
+          Relative Pressure = 3 [bar]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.Exit()
+solution2.SetExecutionControl(CCL=r"""&replace SIMULATION CONTROL:
+  EXECUTION CONTROL:
+    EXECUTABLE SELECTION:
+      Double Precision = Off
+      Large Problem = Off
+    END
+    INTERPOLATOR STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+    END
+    PARTITIONER STEP CONTROL:
+      Multidomain Option = Automatic
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARTITION SMOOTHING:
+        Maximum Partition Smoothing Sweeps = 100
+        Option = Smooth
+      END
+      PARTITIONING TYPE:
+        MeTiS Type = k-way
+        Option = MeTiS
+        Partition Size Rule = Automatic
+      END
+    END
+    RUN DEFINITION:
+      Run Mode = Full
+      Solver Input File = D:\David\ftp\ONERA\FLUENT\M6WORKBENCH_files\dp0\CFX-1\CFX\CFX.def
+    END
+    SOLVER STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARALLEL ENVIRONMENT:
+        Number of Processes = 1
+        Start Method = Serial
+      END
+    END
+  END
+END
+""")
+solutionComponent2.Update(Force=True)
+solution2.Exit()
+setup1.Edit()
+setup1.Exit()
+setup1.Edit()
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.15526, -0.00986612, -1.14539
+    Scale = 0.196109
+    Pan = 0, 0
+    Rotation Quaternion = 0.145847, -0.0654255, 0.0593236, 0.985363
+    
+  END
+
+END
+
+VIEW:View 1
+  Light Angle = 50, 110
+END
+
+> update
+FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 1
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW DIRECTION: 
+          Option = Normal to Boundary Condition
+        END # FLOW DIRECTION:
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Total Temperature
+          Total Temperature = 298 [K]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Total Pressure
+          Relative Pressure = 3 [bar]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.Exit()
+solution2.SetExecutionControl(CCL=r"""&replace SIMULATION CONTROL:
+  EXECUTION CONTROL:
+    EXECUTABLE SELECTION:
+      Double Precision = Off
+      Large Problem = Off
+    END
+    INTERPOLATOR STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+    END
+    PARTITIONER STEP CONTROL:
+      Multidomain Option = Automatic
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARTITION SMOOTHING:
+        Maximum Partition Smoothing Sweeps = 100
+        Option = Smooth
+      END
+      PARTITIONING TYPE:
+        MeTiS Type = k-way
+        Option = MeTiS
+        Partition Size Rule = Automatic
+      END
+    END
+    RUN DEFINITION:
+      Run Mode = Full
+      Solver Input File = D:\David\ftp\ONERA\FLUENT\M6WORKBENCH_files\dp0\CFX-1\CFX\CFX.def
+    END
+    SOLVER STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARALLEL ENVIRONMENT:
+        Number of Processes = 1
+        Start Method = Serial
+      END
+    END
+  END
+END
+""")
+solutionComponent2.Update(Force=True)
+solution2.Exit()
+results1 = system2.GetContainer(ComponentName="Results")
+results1.Edit()
+results1.SendCommand(Command="> autolegend plot=/PLANE:Plane 1, view=VIEW:View 1")
+results1.SendCommand(Command="""PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Constant
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 1.0 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1.0 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Global
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.19 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>show /PLANE:Plane 1, view=/VIEW:View 1""")
+results1.SendCommand(Command="""PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 1.0 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1.0 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Global
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.19 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.080272, -0.0481907, 0.0122064
+    Scale = 0.219742
+    Pan = 0, 0
+    Rotation Quaternion = 0.0285913, -0.0127291, -0.00452304, 0.999499
+    
+  END
+
+END
+
+> update
+PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 10 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 10 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = Rectangular
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Global
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.19 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.SendCommand(Command="""PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 10 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 10 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = Rectangular
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Global
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.19 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.SendCommand(Command="""PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 1 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = Rectangular
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Global
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.19 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.SendCommand(Command="""PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 1 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = Rectangular
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.19 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.107005, -0.00893382, 0.00183201
+    Scale = 1.45708
+    Pan = 0, 0
+    Rotation Quaternion = 0.0852745, -0.0334252, -0.00476221, 0.995783
+    
+  END
+
+END
+
+> update
+> autolegend plot=/POLYLINE:Polyline 1, view=VIEW:View 1""")
+results1.SendCommand(Command="> highlight regionlist=/DATA READER/CASE:Case CFX 1/COMPOSITE:far_side, domainlist=/DATA READER/CASE:Case CFX 1/DOMAIN:Default Domain")
+results1.SendCommand(Command="> highlight regionlist=/DATA READER/CASE:Case CFX 1/COMPOSITE:near_side, domainlist=/DATA READER/CASE:Case CFX 1/DOMAIN:Default Domain")
+results1.SendCommand(Command="> highlight regionlist=/DATA READER/CASE:Case CFX 1/PRIMITIVE2D:F25.31, domainlist=/DATA READER/CASE:Case CFX 1/DOMAIN:Default Domain")
+results1.SendCommand(Command="> highlight regionlist=/DATA READER/CASE:Case CFX 1/PRIMITIVE2D:F32.31, domainlist=/DATA READER/CASE:Case CFX 1/DOMAIN:Default Domain")
+results1.SendCommand(Command="> highlight regionlist=/DATA READER/CASE:Case CFX 1/PRIMITIVE2D:F33.31, domainlist=/DATA READER/CASE:Case CFX 1/DOMAIN:Default Domain")
+results1.SendCommand(Command="""POLYLINE:Polyline 1
+Apply Instancing Transform = On
+Boundary List = wing
+Colour = 0, 1, 0
+Colour Map = Default Colour Map
+Colour Mode = Constant
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Contour Level = 1
+Domain List = /DOMAIN GROUP:All Domains
+Input File =  
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Line Width = 2
+Location = /PLANE:Plane 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Option = Boundary Intersection
+Range = Global
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>show /POLYLINE:Polyline 1, view=/VIEW:View 1""")
+results1.SendCommand(Command="""CHART:Chart 1
+Chart Axes Font = Tahoma, 10, False, False, False, False
+Chart Axes Titles Font = Tahoma, 10, True, False, False, False
+Chart Grid Line Width = 1
+Chart Horizontal Grid = On
+Chart Legend = On
+Chart Legend Font = Tahoma, 8, False, False, False, False
+Chart Legend Inside = Outside Chart
+Chart Legend Justification = Center
+Chart Legend Position = Bottom
+Chart Legend Width Height = 0.2 , 0.4 
+Chart Legend X Justification = Right
+Chart Legend XY Position = 0.73 , 0.275 
+Chart Legend Y Justification = Center
+Chart Line Width = 2
+Chart Lines Order = Series 1,Chart Line 1
+Chart Minor Grid = Off
+Chart Minor Grid Line Width = 1
+Chart Symbol Size = 4
+Chart Title = Title
+Chart Title Font = Tahoma, 12, True, False, False, False
+Chart Title Visibility = On
+Chart Type = XY
+Chart Vertical Grid = On
+Chart X Axis Automatic Number Formatting = On
+Chart X Axis Label = X Axis <units>
+Chart X Axis Number Format = %10.3e
+Chart Y Axis Automatic Number Formatting = On
+Chart Y Axis Label = Y Axis <units>
+Chart Y Axis Number Format = %10.3e
+Default Chart X Variable = Chart Count
+Default Chart Y Variable = Pressure
+Default Difference Line Calculation = From Points
+Default Histogram Y Axis Weighting = None
+Default Time Chart Variable = Pressure
+Default Time Chart X Expression = Time
+Default Time Variable Absolute Value = Off
+Default Time Variable Boundary Values = Conservative
+Default X Variable Absolute Value = Off
+Default X Variable Boundary Values = Conservative
+Default Y Variable Absolute Value = Off
+Default Y Variable Boundary Values = Conservative
+FFT Full Input Range = On
+FFT Max = 0.0
+FFT Min = 0.0
+FFT Subtract Mean = Off
+FFT Window Type = Hanning
+FFT X Function = Frequency
+FFT Y Function = Power Spectral Density
+Histogram Automatic Divisions = Automatic
+Histogram Divisions = -1.0,1.0
+Histogram Divisions Count = 10
+Histogram Y Axis Value = Count
+Is FFT Chart = Off
+Max X = 1.0
+Max Y = 1.0
+Min X = -1.0
+Min Y = -1.0
+Use Data For X Axis Labels = On
+Use Data For Y Axis Labels = On
+X Axis Automatic Range = On
+X Axis Inverted = Off
+X Axis Logarithmic Scaling = Off
+Y Axis Automatic Range = On
+Y Axis Inverted = Off
+Y Axis Logarithmic Scaling = Off
+  CHART SERIES:Series 1
+  Chart Line Custom Data Selection = Off
+  Chart Line Filename =  
+  Chart Series Type = Regular
+  Location = /POLYLINE:Polyline 1
+  Monitor Data Filename =  
+  Monitor Data Source = Case
+  Monitor Data X Variable Absolute Value = Off
+  Monitor Data Y Variable Absolute Value = Off
+  Operating Point Data Case = Case CFX 1
+  Operating Point Data Filename =  
+  Operating Point Data Source = File
+  Series Name = Series 1
+  Time Chart Expression = Time
+  Time Chart Type = Point
+    CHART LINE:Chart Line 1
+    Auto Chart Line Colour = On
+    Auto Chart Symbol Colour = On
+    Chart FFT Line Type = Bars
+    Chart Line Colour = 1.0, 0.0, 0.0
+    Chart Line Style = Automatic
+    Chart Line Type = Lines
+    Chart Line Visibility = On
+    Chart Symbol Colour = 0.0, 1.0, 0.0
+    Chart Symbol Style = Automatic
+    Fill Area = On
+    Fill Area Options = Automatic
+    Is Valid = True
+    Line Name = Series 1
+    Use Automatic Line Naming = On
+    END
+  END
+  OBJECT REPORT OPTIONS:
+      Report Caption = 
+  END
+END""")
+results1.SendCommand(Command="""CHART:Chart 1
+Chart Axes Font = Tahoma, 10, False, False, False, False
+Chart Axes Titles Font = Tahoma, 10, True, False, False, False
+Chart Grid Line Width = 1
+Chart Horizontal Grid = On
+Chart Legend = On
+Chart Legend Font = Tahoma, 8, False, False, False, False
+Chart Legend Inside = Outside Chart
+Chart Legend Justification = Center
+Chart Legend Position = Bottom
+Chart Legend Width Height = 0.2 , 0.4 
+Chart Legend X Justification = Right
+Chart Legend XY Position = 0.73 , 0.275 
+Chart Legend Y Justification = Center
+Chart Line Width = 2
+Chart Lines Order = Series 1,Chart Line 1
+Chart Minor Grid = Off
+Chart Minor Grid Line Width = 1
+Chart Symbol Size = 4
+Chart Title = Title
+Chart Title Font = Tahoma, 12, True, False, False, False
+Chart Title Visibility = On
+Chart Type = XY
+Chart Vertical Grid = On
+Chart X Axis Automatic Number Formatting = On
+Chart X Axis Label = X Axis <units>
+Chart X Axis Number Format = %10.3e
+Chart Y Axis Automatic Number Formatting = On
+Chart Y Axis Label = Y Axis <units>
+Chart Y Axis Number Format = %10.3e
+Default Chart X Variable = X
+Default Chart Y Variable = Pressure
+Default Difference Line Calculation = From Points
+Default Histogram Y Axis Weighting = None
+Default Time Chart Variable = Pressure
+Default Time Chart X Expression = Time
+Default Time Variable Absolute Value = Off
+Default Time Variable Boundary Values = Conservative
+Default X Variable Absolute Value = Off
+Default X Variable Boundary Values = Conservative
+Default Y Variable Absolute Value = Off
+Default Y Variable Boundary Values = Conservative
+FFT Full Input Range = On
+FFT Max = 0.0
+FFT Min = 0.0
+FFT Subtract Mean = Off
+FFT Window Type = Hanning
+FFT X Function = Frequency
+FFT Y Function = Power Spectral Density
+Histogram Automatic Divisions = Automatic
+Histogram Divisions = -1.0,1.0
+Histogram Divisions Count = 10
+Histogram Y Axis Value = Count
+Is FFT Chart = Off
+Max X = 1.0
+Max Y = 1.0
+Min X = -1.0
+Min Y = -1.0
+Use Data For X Axis Labels = On
+Use Data For Y Axis Labels = On
+X Axis Automatic Range = On
+X Axis Inverted = Off
+X Axis Logarithmic Scaling = Off
+Y Axis Automatic Range = On
+Y Axis Inverted = Off
+Y Axis Logarithmic Scaling = Off
+  CHART SERIES:Series 1
+  Chart Line Custom Data Selection = Off
+  Chart Line Filename =  
+  Chart Series Type = Regular
+  Chart X Variable = Chart Count
+  Chart Y Variable = Density
+  Histogram Y Axis Weighting = None
+  Location = /POLYLINE:Polyline 1
+  Monitor Data Filename =  
+  Monitor Data Source = Case
+  Monitor Data X Variable Absolute Value = Off
+  Monitor Data Y Variable Absolute Value = Off
+  Operating Point Data Case = Case CFX 1
+  Operating Point Data Filename =  
+  Operating Point Data Source = File
+  Series Name = Series 1
+  Time Chart Expression = Time
+  Time Chart Type = Point
+  Time Chart Variable = Density
+  Time Chart X Expression = Time
+  Time Variable Absolute Value = Off
+  Time Variable Boundary Values = Conservative
+  X Variable Absolute Value = Off
+  X Variable Boundary Values = Conservative
+  Y Variable Absolute Value = Off
+  Y Variable Boundary Values = Conservative
+    CHART LINE:Chart Line 1
+    Auto Chart Line Colour = On
+    Auto Chart Symbol Colour = On
+    Chart FFT Line Type = Bars
+    Chart Line Colour = 1.0, 0.0, 0.0
+    Chart Line Style = Automatic
+    Chart Line Type = Lines
+    Chart Line Visibility = On
+    Chart Symbol Colour = 0.0, 1.0, 0.0
+    Chart Symbol Style = Automatic
+    Fill Area = On
+    Fill Area Options = Automatic
+    Is Valid = True
+    Line Name = Series 1
+    Use Automatic Line Naming = On
+    END
+  END
+  OBJECT REPORT OPTIONS:
+      Report Caption = 
+  END
+END""")
+results2 = system3.GetContainer(ComponentName="Results")
+results2.Edit()
+results2.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.145797, 0.000129761, 0.0143179
+    Scale = 2.97728
+    Pan = 0, 0
+    Rotation Quaternion = 0.100424, -0.0514321, 0.0261242, 0.99327
+    
+  END
+
+END
+
+> update
+# Sending visibility action from ViewUtilities
+>hide /CONTOUR:Pressure coeff contours, view=/VIEW:View 1""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>hide /CONTOUR:Mach Number contours, view=/VIEW:View 1""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>show /CONTOUR:Mach Contours sym, view=/VIEW:View 1""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>hide /CONTOUR:Mach Contours sym, view=/VIEW:View 1""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>show /CONTOUR:Pressure coeff contours sym, view=/VIEW:View 1""")
+results2.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.0379005, 0.0304348, 0.0893528
+    Scale = 0.485888
+    Pan = 0, 0
+    Rotation Quaternion = 0.00538013, 0.149751, -0.0167567, 0.988568
+    
+  END
+
+END
+
+> update
+> autolegend plot=/PLANE:pressure variation, view=VIEW:View 1""")
+results2.SendCommand(Command="""PLANE:pressure variation
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Constant
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Conservative
+Culling Mode = No Culling
+Direction 1 Bound = 1.0 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1.0 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0
+Min = 0.0
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Global
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.21 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>show /PLANE:pressure variation, view=/VIEW:View 1""")
+results2.SendCommand(Command="""PLANE:pressure variation
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Conservative
+Culling Mode = No Culling
+Direction 1 Bound = 1.0 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1.0 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Global
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.21 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results2.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.120195, 0.00892681, 0.014621
+    Scale = 0.316795
+    Pan = 0, 0
+    Rotation Quaternion = 0.0513055, -0.000108615, 0.00435894, 0.998674
+    
+  END
+
+END
+
+> update
+PLANE:pressure variation
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Conservative
+Culling Mode = No Culling
+Direction 1 Bound = 1.0 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1.0 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.21 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results2.SendCommand(Command="""PLANE:pressure variation
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Conservative
+Culling Mode = No Culling
+Direction 1 Bound = 1.0 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1.0 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Global
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.21 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results2.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.218228, 0.000458027, 0.134887
+    Scale = 5.01418
+    Pan = 0, 0
+    Rotation Quaternion = 0.0118062, -0.356033, 0.0035934, 0.934393
+    
+  END
+
+END
+
+> update
+# Sending visibility action from ViewUtilities
+>hide /CONTOUR:Pressure coeff contours sym, view=/VIEW:View 1""")
+results1.Exit()
+results2.Exit()
+setup1.Edit()
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.15526, -0.00986612, -1.14539
+    Scale = 0.196109
+    Pan = 0, 0
+    Rotation Quaternion = 0.145847, -0.0654255, 0.0593236, 0.985363
+    
+  END
+
+END
+
+VIEW:View 1
+  Light Angle = 50, 110
+END
+
+> update
+FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: outlet
+      Boundary Type = OUTLET
+      Coord Frame = Coord 1
+      Interface Boundary = Off
+      Location = outlet
+      BOUNDARY CONDITIONS: 
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        MASS AND MOMENTUM: 
+          Option = Average Static Pressure
+          Pressure Profile Blend = 0.05
+          Relative Pressure = 45.3 [psi]
+        END # MASS AND MOMENTUM:
+        PRESSURE AVERAGING: 
+          Option = Average Over Whole Outlet
+        END # PRESSURE AVERAGING:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:outlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 1
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW DIRECTION: 
+          Option = Normal to Boundary Condition
+        END # FLOW DIRECTION:
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Total Temperature
+          Total Temperature = 298 [K]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Total Pressure
+          Relative Pressure = 45.829 [psi]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: outlet
+      Boundary Type = OUTLET
+      Coord Frame = Coord 1
+      Interface Boundary = Off
+      Location = outlet
+      BOUNDARY CONDITIONS: 
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        MASS AND MOMENTUM: 
+          Option = Average Static Pressure
+          Pressure Profile Blend = 0.05
+          Relative Pressure = 45.829 [psi]
+        END # MASS AND MOMENTUM:
+        PRESSURE AVERAGING: 
+          Option = Average Over Whole Outlet
+        END # PRESSURE AVERAGING:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:outlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.15526, -0.00986612, -1.14539
+    Scale = 0.196109
+    Pan = 0, 0
+    Rotation Quaternion = -0.016906, 0.00798202, 0.0245849, 0.99953
+    
+  END
+
+END
+
+> update
+FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 0
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW DIRECTION: 
+          Option = Cartesian Components
+          Unit Vector X Component = 0.9986
+          Unit Vector Y Component = 0.0534
+          Unit Vector Z Component = 0
+        END # FLOW DIRECTION:
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Total Temperature
+          Total Temperature = 298 [K]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Total Pressure
+          Relative Pressure = 45.829 [psi]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command=">delete /LIBRARY/COORDINATE FRAME DEFINITIONS/COORDINATE FRAME:Coord 1")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: outlet
+      Boundary Type = OUTLET
+      Coord Frame = Coord 0
+      Interface Boundary = Off
+      Location = outlet
+      BOUNDARY CONDITIONS: 
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        MASS AND MOMENTUM: 
+          Option = Average Static Pressure
+          Pressure Profile Blend = 0.05
+          Relative Pressure = 45.829 [psi]
+        END # MASS AND MOMENTUM:
+        PRESSURE AVERAGING: 
+          Option = Average Over Whole Outlet
+        END # PRESSURE AVERAGING:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:outlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+results2.Edit()
+results2.SendCommand(Command="> autolegend plot=/PLANE:pressure variation, view=VIEW:View 1")
+results2.SendCommand(Command="""PLANE:pressure variation
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Velocity
+Colour Variable Boundary Values = Conservative
+Culling Mode = No Culling
+Direction 1 Bound = 1.0 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1.0 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [ft s^-1]
+Min = 0.0 [ft s^-1]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Global
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.21 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results2.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.154506, 0, -1.5216
+    Scale = 0.298258
+    Pan = 0, 0
+    Rotation Quaternion = 0, 0, 0, 1
+    
+  END
+
+END
+
+> update
+CALCULATOR:CALCULATOR
+  Axis = 
+  Case Name = Case Onera M6
+  Expression = Velocity
+  Fluid = All Fluids
+  Function = massFlowAve
+  Location = outlet
+END
+> calculate""")
+results2.SendCommand(Command="""CALCULATOR:CALCULATOR
+  Axis = X
+  Case Name = Case Onera M6
+  Expression = Velocity
+  Fluid = All Fluids
+  Function = massFlowAve
+  Location = outlet
+END""")
+results2.SendCommand(Command="""CALCULATOR:CALCULATOR
+  Axis = 
+  Case Name = Case Onera M6
+  Expression = Velocity
+  Fluid = All Fluids
+  Function = massFlowAve
+  Location = inlet
+END
+> calculate""")
+results2.SendCommand(Command="""CALCULATOR:CALCULATOR
+  Axis = X
+  Case Name = Case Onera M6
+  Expression = Velocity
+  Fluid = All Fluids
+  Function = massFlowAve
+  Location = inlet
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+&replace   DOMAIN: Default Domain
+    Coord Frame = Coord 0
+    Domain Type = Fluid
+    Location = B31
+    BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 0
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW DIRECTION: 
+          Option = Cartesian Components
+          Unit Vector X Component = 0.9986
+          Unit Vector Y Component = 0.0534
+          Unit Vector Z Component = 0
+        END # FLOW DIRECTION:
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Total Temperature
+          Total Temperature = 298 [K]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Total Pressure
+          Relative Pressure = 45.829 [psi]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+    BOUNDARY: outlet
+      Boundary Type = OUTLET
+      Coord Frame = Coord 0
+      Interface Boundary = Off
+      Location = outlet
+      BOUNDARY CONDITIONS: 
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        MASS AND MOMENTUM: 
+          Option = Average Static Pressure
+          Pressure Profile Blend = 0.05
+          Relative Pressure = 45.829 [psi]
+        END # MASS AND MOMENTUM:
+        PRESSURE AVERAGING: 
+          Option = Average Over Whole Outlet
+        END # PRESSURE AVERAGING:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:outlet
+    BOUNDARY: sym
+      Boundary Type = SYMMETRY
+      Interface Boundary = Off
+      Location = near_side
+    END # BOUNDARY:sym
+    BOUNDARY: wall
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = far_side
+      BOUNDARY CONDITIONS: 
+        HEAT TRANSFER: 
+          Option = Adiabatic
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = No Slip Wall
+        END # MASS AND MOMENTUM:
+        WALL ROUGHNESS: 
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:wall
+    BOUNDARY: wing
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = wing_tip,wing_surface
+      BOUNDARY CONDITIONS: 
+        HEAT TRANSFER: 
+          Option = Adiabatic
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = No Slip Wall
+          WALL VELOCITY: 
+            Option = Cartesian Components
+            Wall U = 0 [m s^-1]
+            Wall V = 0 [m s^-1]
+            Wall W = 0 [m s^-1]
+          END # WALL VELOCITY:
+        END # MASS AND MOMENTUM:
+        WALL ROUGHNESS: 
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:wing
+    DOMAIN MODELS: 
+      BUOYANCY MODEL: 
+        Option = Non Buoyant
+      END # BUOYANCY MODEL:
+      DOMAIN MOTION: 
+        Option = Stationary
+      END # DOMAIN MOTION:
+      MESH DEFORMATION: 
+        Option = None
+      END # MESH DEFORMATION:
+      REFERENCE PRESSURE: 
+        Reference Pressure = 0 [psi]
+      END # REFERENCE PRESSURE:
+    END # DOMAIN MODELS:
+    FLUID DEFINITION: Fluid 1
+      Material = Air Ideal Gas
+      Option = Material Library
+      MORPHOLOGY: 
+        Option = Continuous Fluid
+      END # MORPHOLOGY:
+    END # FLUID DEFINITION:Fluid 1
+    FLUID MODELS: 
+      COMBUSTION MODEL: 
+        Option = None
+      END # COMBUSTION MODEL:
+      HEAT TRANSFER MODEL: 
+        Include Viscous Work Term = True
+        Option = Total Energy
+      END # HEAT TRANSFER MODEL:
+      THERMAL RADIATION MODEL: 
+        Option = None
+      END # THERMAL RADIATION MODEL:
+      TURBULENCE MODEL: 
+        Option = SST
+      END # TURBULENCE MODEL:
+      TURBULENT WALL FUNCTIONS: 
+        High Speed Model = Off
+        Option = Automatic
+      END # TURBULENT WALL FUNCTIONS:
+    END # FLUID MODELS:
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 0
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW DIRECTION: 
+          Option = Cartesian Components
+          Unit Vector X Component = 0.9986
+          Unit Vector Y Component = 0.0534
+          Unit Vector Z Component = 0
+        END # FLOW DIRECTION:
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Static Temperature
+          Static Temperature = 460 [R]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Static Pressure
+          Relative Pressure = 45.829 [psi]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: outlet
+      Boundary Type = OUTLET
+      Coord Frame = Coord 0
+      Interface Boundary = Off
+      Location = outlet
+      BOUNDARY CONDITIONS: 
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        MASS AND MOMENTUM: 
+          Option = Static Pressure
+          Relative Pressure = 45.829 [psi]
+        END # MASS AND MOMENTUM:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:outlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 0
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW DIRECTION: 
+          Option = Zero Gradient
+        END # FLOW DIRECTION:
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Static Temperature
+          Static Temperature = 460 [R]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Static Pressure
+          Relative Pressure = 45.829 [psi]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.Exit()
+solution2.Exit()
+setup1.Edit()
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.15526, -0.00986612, -1.68285
+    Scale = 0.230721
+    Pan = 0, 0
+    Rotation Quaternion = -0.016906, 0.00798202, 0.0245849, 0.99953
+    
+  END
+
+END
+
+VIEW:View 1
+  Light Angle = 50, 110
+END
+
+> update
+FLOW: Flow Analysis 1
+&replace   INITIALISATION: 
+    Option = Automatic
+    INITIAL CONDITIONS: 
+      Velocity Type = Cartesian
+      CARTESIAN VELOCITY COMPONENTS: 
+        Option = Automatic with Value
+        U = 881.08 [ft s^-1]
+        V = 47.11 [ft s^-1]
+        W = 0 [ft s^-1]
+      END # CARTESIAN VELOCITY COMPONENTS:
+      STATIC PRESSURE: 
+        Option = Automatic
+      END # STATIC PRESSURE:
+      TEMPERATURE: 
+        Option = Automatic
+      END # TEMPERATURE:
+      TURBULENCE INITIAL CONDITIONS: 
+        Option = Medium Intensity and Eddy Viscosity Ratio
+      END # TURBULENCE INITIAL CONDITIONS:
+    END # INITIAL CONDITIONS:
+  END # INITIALISATION:
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+&replace   INITIALISATION: 
+    Option = Automatic
+    INITIAL CONDITIONS: 
+      Velocity Type = Cartesian
+      CARTESIAN VELOCITY COMPONENTS: 
+        Option = Automatic with Value
+        U = 881.08 [ft s^-1]
+        V = 47.11 [ft s^-1]
+        W = 0 [ft s^-1]
+      END # CARTESIAN VELOCITY COMPONENTS:
+      STATIC PRESSURE: 
+        Option = Automatic with Value
+        Relative Pressure = 45.81 [psi]
+      END # STATIC PRESSURE:
+      TEMPERATURE: 
+        Option = Automatic with Value
+        Temperature = 460 [R]
+      END # TEMPERATURE:
+      TURBULENCE INITIAL CONDITIONS: 
+        Option = Medium Intensity and Eddy Viscosity Ratio
+      END # TURBULENCE INITIAL CONDITIONS:
+    END # INITIAL CONDITIONS:
+  END # INITIALISATION:
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.Exit()
+solution2.SetExecutionControl(CCL=r"""&replace SIMULATION CONTROL:
+  EXECUTION CONTROL:
+    EXECUTABLE SELECTION:
+      Double Precision = Off
+      Large Problem = Off
+    END
+    INTERPOLATOR STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+    END
+    PARTITIONER STEP CONTROL:
+      Multidomain Option = Automatic
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARTITION SMOOTHING:
+        Maximum Partition Smoothing Sweeps = 100
+        Option = Smooth
+      END
+      PARTITIONING TYPE:
+        MeTiS Type = k-way
+        Option = MeTiS
+        Partition Size Rule = Automatic
+      END
+    END
+    RUN DEFINITION:
+      Run Mode = Full
+      Solver Input File = D:\David\ftp\ONERA\FLUENT\M6WORKBENCH_files\dp0\CFX-1\CFX\CFX.def
+    END
+    SOLVER STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARALLEL ENVIRONMENT:
+        Number of Processes = 1
+        Start Method = Serial
+      END
+    END
+  END
+END
+""")
+solutionComponent2.Update(Force=True)
+solution2.Exit()
+solutionComponent2.Reset()
+solution2.SetExecutionControl(CCL=r"""&replace SIMULATION CONTROL:
+  EXECUTION CONTROL:
+    EXECUTABLE SELECTION:
+      Double Precision = Off
+      Large Problem = Off
+    END
+    INTERPOLATOR STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+    END
+    PARTITIONER STEP CONTROL:
+      Multidomain Option = Automatic
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARTITION SMOOTHING:
+        Maximum Partition Smoothing Sweeps = 100
+        Option = Smooth
+      END
+      PARTITIONING TYPE:
+        MeTiS Type = k-way
+        Option = MeTiS
+        Partition Size Rule = Automatic
+      END
+    END
+    RUN DEFINITION:
+      Run Mode = Full
+      Solver Input File = D:\David\ftp\ONERA\FLUENT\M6WORKBENCH_files\dp0\CFX-1\CFX\CFX.def
+    END
+    SOLVER STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARALLEL ENVIRONMENT:
+        Number of Processes = 1
+        Start Method = Serial
+      END
+    END
+  END
+END
+""")
+solutionComponent2.Update(Force=True)
+solution2.Exit()
+results1.Edit()
+results1.Exit()
+resultsComponent1 = system2.GetComponent(Name="Results")
+resultsComponent1.Update(AllDependencies=True)
+results1.Edit()
+results1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.151349, 0.0283919, 0.00301309
+    Scale = 1.28587
+    Pan = 0, 0
+    Rotation Quaternion = 0.0298098, 0.0720893, -0.0486588, 0.99576
+    
+  END
+
+END
+
+> update
+> autolegend plot=/PLANE:Plane 1, view=VIEW:View 1""")
+results1.SendCommand(Command="""PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 1 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.19 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.153335, -0.0101202, 0.0181009
+    Scale = 2.7978
+    Pan = 0, 0
+    Rotation Quaternion = 0.185967, -0.0112263, -0.0164089, 0.982349
+    
+  END
+
+END
+
+> update
+CHART:Chart 1
+Chart Axes Font = Tahoma, 10, False, False, False, False
+Chart Axes Titles Font = Tahoma, 10, True, False, False, False
+Chart Grid Line Width = 1
+Chart Horizontal Grid = On
+Chart Legend = On
+Chart Legend Font = Tahoma, 8, False, False, False, False
+Chart Legend Inside = Outside Chart
+Chart Legend Justification = Center
+Chart Legend Position = Bottom
+Chart Legend Width Height = 0.2 , 0.4 
+Chart Legend X Justification = Right
+Chart Legend XY Position = 0.73 , 0.275 
+Chart Legend Y Justification = Center
+Chart Line Width = 2
+Chart Lines Order = Series 1,Chart Line 1
+Chart Minor Grid = Off
+Chart Minor Grid Line Width = 1
+Chart Symbol Size = 4
+Chart Title = Title
+Chart Title Font = Tahoma, 12, True, False, False, False
+Chart Title Visibility = On
+Chart Type = XY
+Chart Vertical Grid = On
+Chart X Axis Automatic Number Formatting = On
+Chart X Axis Label = X Axis <units>
+Chart X Axis Number Format = %10.3e
+Chart Y Axis Automatic Number Formatting = On
+Chart Y Axis Label = Y Axis <units>
+Chart Y Axis Number Format = %10.3e
+Default Chart X Variable = X
+Default Chart Y Variable = Pressure
+Default Difference Line Calculation = From Points
+Default Histogram Y Axis Weighting = None
+Default Time Chart Variable = Pressure
+Default Time Chart X Expression = Time
+Default Time Variable Absolute Value = Off
+Default Time Variable Boundary Values = Conservative
+Default X Variable Absolute Value = Off
+Default X Variable Boundary Values = Conservative
+Default Y Variable Absolute Value = Off
+Default Y Variable Boundary Values = Conservative
+FFT Full Input Range = On
+FFT Max = 0.0
+FFT Min = 0.0
+FFT Subtract Mean = Off
+FFT Window Type = Hanning
+FFT X Function = Frequency
+FFT Y Function = Power Spectral Density
+Histogram Automatic Divisions = Automatic
+Histogram Divisions = -1.0,1.0
+Histogram Divisions Count = 10
+Histogram Y Axis Value = Count
+Is FFT Chart = Off
+Max X = 1.0
+Max Y = 1.0
+Min X = -1.0
+Min Y = -1.0
+Use Data For X Axis Labels = On
+Use Data For Y Axis Labels = On
+X Axis Automatic Range = On
+X Axis Inverted = Off
+X Axis Logarithmic Scaling = Off
+Y Axis Automatic Range = On
+Y Axis Inverted = On
+Y Axis Logarithmic Scaling = Off
+  CHART SERIES:Series 1
+  Chart Line Custom Data Selection = Off
+  Chart Line Filename =  
+  Chart Series Type = Regular
+  Chart X Variable = Chart Count
+  Chart Y Variable = Density
+  Histogram Y Axis Weighting = None
+  Location = /POLYLINE:Polyline 1
+  Monitor Data Filename =  
+  Monitor Data Source = Case
+  Monitor Data X Variable Absolute Value = Off
+  Monitor Data Y Variable Absolute Value = Off
+  Operating Point Data Case = Case CFX 1
+  Operating Point Data Filename =  
+  Operating Point Data Source = File
+  Series Name = Series 1
+  Time Chart Expression = Time
+  Time Chart Type = Point
+  Time Chart Variable = Density
+  Time Chart X Expression = Time
+  Time Variable Absolute Value = Off
+  Time Variable Boundary Values = Conservative
+  X Variable Absolute Value = Off
+  X Variable Boundary Values = Conservative
+  Y Variable Absolute Value = Off
+  Y Variable Boundary Values = Conservative
+    CHART LINE:Chart Line 1
+    Auto Chart Line Colour = On
+    Auto Chart Symbol Colour = On
+    Chart FFT Line Type = Bars
+    Chart Line Colour = 1.0, 0.0, 0.0
+    Chart Line Style = Automatic
+    Chart Line Type = Lines
+    Chart Line Visibility = On
+    Chart Symbol Colour = 0.0, 1.0, 0.0
+    Chart Symbol Style = Automatic
+    Fill Area = On
+    Fill Area Options = Automatic
+    Is Valid = True
+    Line Name = Series 1
+    Use Automatic Line Naming = On
+    END
+  END
+  OBJECT REPORT OPTIONS:
+      Report Caption = 
+  END
+END""")
+results1.SendCommand(Command="> autolegend plot=/PLANE:Plane 1, view=VIEW:View 1")
+results1.SendCommand(Command="""PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 1 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -45 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.SendCommand(Command="""PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 1 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.45 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.SendCommand(Command="""PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 1 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.85 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.SendCommand(Command="""PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 1 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -2 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.SendCommand(Command="""PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 1 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.2 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results2.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.120694, 0.00496598, 2.03242e-005
+    Scale = 2.22784
+    Pan = 0, 0
+    Rotation Quaternion = 0, 0, 0, 1
+    
+  END
+
+END
+
+> update
+> autolegend plot=/PLANE:Plane 2, view=VIEW:View 1""")
+results2.SendCommand(Command="""PLANE:Plane 2
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Constant
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Conservative
+Culling Mode = No Culling
+Direction 1 Bound = 0.1 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 0.1 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = Rectangular
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Global
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.2 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results2.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.120694, 0.00496598, 2.03242e-005
+    Scale = 0.255888
+    Pan = 0, 0
+    Rotation Quaternion = 0, 0, 0, 1
+    
+  END
+
+END
+
+> update
+# Sending visibility action from ViewUtilities
+>show /PLANE:Plane 2, view=/VIEW:View 1""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>hide /PLANE:Plane 2, view=/VIEW:View 1""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>show /PLANE:Plane 2, view=/VIEW:View 1""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>hide /PLANE:Plane 2, view=/VIEW:View 1""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>show /PLANE:Plane 2, view=/VIEW:View 1""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>hide /PLANE:pressure variation, view=/VIEW:View 1""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>show /PLANE:pressure variation, view=/VIEW:View 1""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>hide /PLANE:pressure variation, view=/VIEW:View 1""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>hide /PLANE:Plane 2, view=/VIEW:View 1""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>show /PLANE:Plane 2, view=/VIEW:View 1""")
+results2.SendCommand(Command="""PLANE:Plane 2
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Constant
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Conservative
+Culling Mode = No Culling
+Direction 1 Bound = 0.1 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 0.1 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Global
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.2 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>hide /PLANE:Plane 2, view=/VIEW:View 1""")
+results2.SendCommand(Command="""# Sending visibility action from ViewUtilities
+>show /PLANE:Plane 2, view=/VIEW:View 1""")
+results2.SendCommand(Command="""PLANE:Plane 2
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Conservative
+Culling Mode = No Culling
+Direction 1 Bound = 0.1 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 0.1 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = Rectangular
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.2 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results2.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.174289, -0.012899, 4.03418e-005
+    Scale = 2.73051
+    Pan = 0, 0
+    Rotation Quaternion = 0, 0, 0, 1
+    
+  END
+
+END
+
+> update
+PLANE:Plane 2
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Conservative
+Culling Mode = No Culling
+Direction 1 Bound = 0.5 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 0.1 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = Rectangular
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.2 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results2.SendCommand(Command="""PLANE:Plane 2
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Conservative
+Culling Mode = No Culling
+Direction 1 Bound = 0.7 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 0.1 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = Rectangular
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.2 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results2.SendCommand(Command="""PLANE:Plane 2
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Conservative
+Culling Mode = No Culling
+Direction 1 Bound = 0.7 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 0.3 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = Rectangular
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.2 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.153335, -0.0101202, 0.0181009
+    Scale = 1.8398
+    Pan = 0, 0
+    Rotation Quaternion = 0.0298183, -0.070275, 0.00126719, 0.997075
+    
+  END
+
+END
+
+> update
+> autolegend plot=/PLANE:Plane 1, view=VIEW:View 1""")
+results1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.153335, -0.0101202, 0.0181009
+    Scale = 0.687239
+    Pan = 0, 0
+    Rotation Quaternion = 0.0298183, -0.070275, 0.00126719, 0.997075
+    
+  END
+
+END
+
+> update
+PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 0.7 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 0.3 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = Rectangular
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.2 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.153335, -0.0101202, 0.0181009
+    Scale = 1.33781
+    Pan = 0, 0
+    Rotation Quaternion = 0.0298183, -0.070275, 0.00126719, 0.997075
+    
+  END
+
+END
+
+> update
+PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 0.7 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 0.3 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = Rectangular
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.2 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results1.Exit()
+setup1.Edit()
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.15526, -0.00986612, -1.68285
+    Scale = 0.230721
+    Pan = 0, 0
+    Rotation Quaternion = 0.262682, 0.0519091, 0.0348962, 0.962861
+    
+  END
+
+END
+
+VIEW:View 1
+  Light Angle = 50, 110
+END
+
+> update
+FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 0
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW DIRECTION: 
+          Option = Cartesian Components
+          Unit Vector X Component = 0.9986
+          Unit Vector Y Component = 0.0534
+          Unit Vector Z Component = 0
+        END # FLOW DIRECTION:
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Static Temperature
+          Static Temperature = 460 [R]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Static Pressure
+          Relative Pressure = 45.829 [psi]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.Exit()
+solutionComponent2.Clean()
+solution2.SetExecutionControl(CCL=r"""&replace SIMULATION CONTROL:
+  EXECUTION CONTROL:
+    EXECUTABLE SELECTION:
+      Double Precision = Off
+      Large Problem = Off
+    END
+    INTERPOLATOR STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+    END
+    PARTITIONER STEP CONTROL:
+      Multidomain Option = Automatic
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARTITION SMOOTHING:
+        Maximum Partition Smoothing Sweeps = 100
+        Option = Smooth
+      END
+      PARTITIONING TYPE:
+        MeTiS Type = k-way
+        Option = MeTiS
+        Partition Size Rule = Automatic
+      END
+    END
+    RUN DEFINITION:
+      Run Mode = Full
+      Solver Input File = D:\David\ftp\ONERA\FLUENT\M6WORKBENCH_files\dp0\CFX-1\CFX\CFX.def
+    END
+    SOLVER STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARALLEL ENVIRONMENT:
+        Number of Processes = 1
+        Start Method = Serial
+      END
+    END
+  END
+END
+""")
+solutionComponent2.Update(Force=True)
+solution2.Exit()
+setup1.Edit()
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.15526, -0.00986612, -1.68285
+    Scale = 0.200022
+    Pan = 0, 0
+    Rotation Quaternion = 0.0551364, 0.0112467, -0.0123856, 0.998348
+    
+  END
+
+END
+
+VIEW:View 1
+  Light Angle = 50, 110
+END
+
+> update
+FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 0
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW DIRECTION: 
+          Option = Normal to Boundary Condition
+        END # FLOW DIRECTION:
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Static Temperature
+          Static Temperature = 460 [R]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Static Pressure
+          Relative Pressure = 45.829 [psi]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.Exit()
+solutionComponent2.Clean()
+solution2.SetExecutionControl(CCL=r"""&replace SIMULATION CONTROL:
+  EXECUTION CONTROL:
+    EXECUTABLE SELECTION:
+      Double Precision = Off
+      Large Problem = Off
+    END
+    INTERPOLATOR STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+    END
+    PARTITIONER STEP CONTROL:
+      Multidomain Option = Automatic
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARTITION SMOOTHING:
+        Maximum Partition Smoothing Sweeps = 100
+        Option = Smooth
+      END
+      PARTITIONING TYPE:
+        MeTiS Type = k-way
+        Option = MeTiS
+        Partition Size Rule = Automatic
+      END
+    END
+    RUN DEFINITION:
+      Run Mode = Full
+      Solver Input File = D:\David\ftp\ONERA\FLUENT\M6WORKBENCH_files\dp0\CFX-1\CFX\CFX.def
+    END
+    SOLVER STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARALLEL ENVIRONMENT:
+        Number of Processes = 1
+        Start Method = Serial
+      END
+    END
+  END
+END
+""")
+solutionComponent2.Update(Force=True)
+solution2.Exit()
+resultsComponent1.Update(AllDependencies=True)
+results1.Edit()
+results1.Exit()
+solutionComponent2.Clean()
+setup1.Edit()
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.15526, -0.00986612, -1.68285
+    Scale = 0.228498
+    Pan = 0, 0
+    Rotation Quaternion = 0.0551364, 0.0112467, -0.0123856, 0.998348
+    
+  END
+
+END
+
+VIEW:View 1
+  Light Angle = 50, 110
+END
+
+> update
+FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 0
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW DIRECTION: 
+          Option = Zero Gradient
+        END # FLOW DIRECTION:
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Static Temperature
+          Static Temperature = 460 [R]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Static Pressure
+          Relative Pressure = 45.829 [psi]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+&replace   INITIALISATION: 
+    Option = Automatic
+    INITIAL CONDITIONS: 
+      Velocity Type = Cartesian
+      CARTESIAN VELOCITY COMPONENTS: 
+        Option = Automatic with Value
+        U = 881.08 [ft s^-1]
+        V = 47.11 [ft s^-1]
+        W = 0 [ft s^-1]
+      END # CARTESIAN VELOCITY COMPONENTS:
+      STATIC PRESSURE: 
+        Option = Automatic with Value
+        Relative Pressure = 45.81 [psi]
+      END # STATIC PRESSURE:
+      TEMPERATURE: 
+        Option = Automatic with Value
+        Temperature = 460 [R]
+      END # TEMPERATURE:
+      TURBULENCE INITIAL CONDITIONS: 
+        Option = Medium Intensity and Eddy Viscosity Ratio
+      END # TURBULENCE INITIAL CONDITIONS:
+    END # INITIAL CONDITIONS:
+  END # INITIALISATION:
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.Exit()
+solution2.SetExecutionControl(CCL=r"""&replace SIMULATION CONTROL:
+  EXECUTION CONTROL:
+    EXECUTABLE SELECTION:
+      Double Precision = Off
+      Large Problem = Off
+    END
+    INTERPOLATOR STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+    END
+    PARTITIONER STEP CONTROL:
+      Multidomain Option = Automatic
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARTITION SMOOTHING:
+        Maximum Partition Smoothing Sweeps = 100
+        Option = Smooth
+      END
+      PARTITIONING TYPE:
+        MeTiS Type = k-way
+        Option = MeTiS
+        Partition Size Rule = Automatic
+      END
+    END
+    RUN DEFINITION:
+      Run Mode = Full
+      Solver Input File = D:\David\ftp\ONERA\FLUENT\M6WORKBENCH_files\dp0\CFX-1\CFX\CFX.def
+    END
+    SOLVER STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARALLEL ENVIRONMENT:
+        Number of Processes = 1
+        Start Method = Serial
+      END
+    END
+  END
+END
+""")
+solutionComponent2.Update(Force=True)
+solution2.Exit()
+results1.Edit()
+results1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.153335, -0.0101202, 0.0181009
+    Scale = 1.33781
+    Pan = 0, 0
+    Rotation Quaternion = 0.0301049, -0.112849, -0.0036954, 0.993143
+    
+  END
+
+END
+
+> update
+> autolegend plot=/PLANE:Plane 1, view=VIEW:View 1""")
+results1.SendCommand(Command="""PLANE:Plane 1
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Pressure
+Colour Variable Boundary Values = Hybrid
+Culling Mode = No Culling
+Direction 1 Bound = 0.7 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 0.3 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [psi]
+Min = 0.0 [psi]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = Rectangular
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Local
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.75 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results2.SendCommand(Command="> autolegend plot=/PLANE:pressure variation, view=VIEW:View 1")
+results2.SendCommand(Command="""PLANE:pressure variation
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Velocity
+Colour Variable Boundary Values = Conservative
+Culling Mode = No Culling
+Direction 1 Bound = 1.0 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1.0 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [ft s^-1]
+Min = 0.0 [ft s^-1]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Global
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.65 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+results2.SendCommand(Command="""PLANE:pressure variation
+Apply Instancing Transform = On
+Apply Texture = Off
+Blend Texture = On
+Bound Radius = 0.5 [m]
+Colour = 0.75, 0.75, 0.75
+Colour Map = Default Colour Map
+Colour Mode = Variable
+Colour Scale = Linear
+Colour Variable = Velocity
+Colour Variable Boundary Values = Conservative
+Culling Mode = No Culling
+Direction 1 Bound = 1.0 [m]
+Direction 1 Orientation = 0 [degree]
+Direction 1 Points = 10
+Direction 2 Bound = 1.0 [m]
+Direction 2 Points = 10
+Domain List = /DOMAIN GROUP:All Domains
+Draw Faces = On
+Draw Lines = Off
+Instancing Transform = /DEFAULT INSTANCE TRANSFORM:Default Transform
+Invert Plane Bound = Off
+Lighting = On
+Line Colour = 0, 0, 0
+Line Colour Mode = Default
+Line Width = 1
+Max = 0.0 [ft s^-1]
+Min = 0.0 [ft s^-1]
+Normal = 1 , 0 , 0 
+Option = XY Plane
+Plane Bound = None
+Plane Type = Slice
+Point = 0 [ft], 0 [ft], 0 [ft]
+Point 1 = 0 [ft], 0 [ft], 0 [ft]
+Point 2 = 1 [ft], 0 [ft], 0 [ft]
+Point 3 = 0 [ft], 1 [ft], 0 [ft]
+Range = Global
+Render Edge Angle = 0 [degree]
+Specular Lighting = On
+Surface Drawing = Smooth Shading
+Texture Angle = 0
+Texture Direction = 0 , 1 , 0 
+Texture File =  
+Texture Material = Metal
+Texture Position = 0 , 0 
+Texture Scale = 1
+Texture Type = Predefined
+Tile Texture = Off
+Transform Texture = Off
+Transparency = 0.0
+X = 0.0 [ft]
+Y = 0.0 [ft]
+Z = -0.65 [ft]
+  OBJECT VIEW TRANSFORM:
+  Apply Reflection = Off
+  Apply Rotation = Off
+  Apply Scale = Off
+  Apply Translation = Off
+  Principal Axis = Z
+  Reflection Plane Option = XY Plane
+  Rotation Angle = 0.0 [radian]
+  Rotation Axis From = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis To = 0 [ft], 0 [ft], 0 [ft]
+  Rotation Axis Type = Principal Axis
+  Scale Vector = 1 , 1 , 1 
+  Translation Vector = 0 [ft], 0 [ft], 0 [ft]
+  X = 0.0 [ft]
+  Y = 0.0 [ft]
+  Z = 0.0 [ft]
+  END
+END""")
+setup2 = system1.GetContainer(ComponentName="Setup")
+setup2.Edit()
+setup2.Exit()
+setup1.Edit()
+Save(Overwrite=True)
+setup3 = system3.GetContainer(ComponentName="Setup")
+fluentLauncherSettings1 = setup3.GetFluentLauncherSettings()
+fluentLauncherSettings1.SetEntityProperties(Properties=Set(EnvPath={}))
+setup3.Edit()
+setup3.SendCommand(Command="""(cx-use-window-id 1)(cx-use-window-id 1)(cx-set-camera-relative '(-30.8033 -11.4025 0.736773) '(0 0 0) '(0.605468 0.258928 0.264062) 0 0)(cx-use-window-id 1)(cx-set-camera-relative '(22.9749 3.464 8.96824) '(0 0 0) '(-0.366253 -0.0547663 -0.0828123) 0 0)(cx-use-window-id 1)(cx-set-camera-relative '(11.2039 -2.61337 -4.5483) '(0 0 0) '(0.0774335 0.0553907 0.139939) 0 0)(cx-use-window-id 1)(dolly-camera 0.874997 0.333863 0)(cx-use-window-id 1)(dolly-camera -0.00354983 0.0117695 0)(cx-use-window-id 1)(dolly-camera -0.00279498 0.00389968 0)(cx-use-window-id 1)(cx-set-camera '(0.0360449 -0.00378168 -0.0322457) '(0.0312895 -0.00566734 -0.0375635) '(-0.183352 0.966659 -0.178811) 0.00208708 0.00208708 \"perspective\")
+(cx-use-window-id 1)(cx-set-camera-relative '(-0.887347 -0.272067 0.71792) '(0 0 0) '(0.0275485 0.00991881 0.0303372) 0 0)(cx-use-window-id 1)(dolly-camera 0.401755 -0.286313 0)(cx-use-window-id 1)(cx-set-camera '(0.220866 0.0677351 0.310687) '(0.0411807 -0.00884459 -0.00445897) '(-0.155804 0.976582 -0.148473) 0.104869 0.104869 \"perspective\")
+(cx-use-window-id 1)(cx-set-camera-relative '(0.0170429 0.0541092 -0.0293371) '(0 0 0) '(-0.0441592 -0.0407439 -0.141809) 0 0)(cx-use-window-id 1)(dolly-camera 0.243866 0.247797 0)(cx-gui-do cx-set-list-tree-selections \"NavigationPane*List_Tree1\" (list \"Setup|Boundary Conditions|far_side (pressure-far-field, id=6)\"))(cx-gui-do cx-set-list-tree-selections \"NavigationPane*List_Tree1\" (list \"Setup|Boundary Conditions|inlet (pressure-far-field, id=8)\"))""")
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|inlet (pressure-far-field, id=8)"))(cx-gui-do cx-activate-item "NavigationPane*List_Tree1")')
+setup3.SendCommand(Command="""(cx-gui-do cx-set-list-tree-selections \"NavigationPane*List_Tree1\" (list \"Setup|Boundary Conditions|inlet (pressure-far-field, id=8)\"))(cx-use-window-id 1)(cx-set-camera '(4.57843 3.45192 5.34803) '(0.897263 1.00648 -5.35646e-07) '(-0.199964 0.935837 -0.290283) 1.9623 1.9623 \"perspective\")
+(cx-use-window-id 1)(cx-set-camera '(-0.238701 1.17725 0.292503) '(-0.440038 1.0435 -1.53433e-06) '(-0.199964 0.935837 -0.290283) 0.107326 0.107326 \"perspective\")
+(cx-use-window-id 1)(cx-set-camera-relative '(-52.2859 -2.04305 -55.3424) '(0 0 0) '(0.61451 -0.0279751 0.227104) 0 0)(cx-use-window-id 1)(cx-set-camera-relative '(3.63955 5.83525 -0.657879) '(0 0 0) '(-0.140085 -0.0154334 0.421372) 0 0)(cx-use-window-id 1)(dolly-camera -1.78926 0.155191 0)(cx-use-window-id 1)(cx-set-camera '(3.49809 0.299992 -6.97104) '(5.80519 -1.25176 -4.87268) '(0.27446 0.892427 0.358193) 0.985241 0.985241 \"perspective\")
+(cx-use-window-id 1)(cx-set-camera-relative '(0.166811 -0.173617 -0.279384) '(0 0 0) '(-0.0379874 0.0253542 -0.0391067) 0 0)(cx-gui-do cx-activate-item \"Pressure Far-Field*PanelButtons*PushButton2(Cancel)\")""")
+setup3.SendCommand(Command='(cx-gui-do cx-activate-item "ToolBar*View Tools*autoscale")')
+setup3.SendCommand(Command="(cx-use-window-id 1)(cx-set-camera-relative '(-0.130325 -5.01367 -1.88835) '(0 0 0) '(-0.121876 0.0657159 -0.178867) 0 0)(cx-gui-do cx-set-list-tree-selections \"NavigationPane*List_Tree1\" (list \"Setup|Boundary Conditions|inlet (pressure-far-field, id=8)\"))")
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|inlet (pressure-far-field, id=8)"))(cx-gui-do cx-activate-item "NavigationPane*List_Tree1")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|inlet (pressure-far-field, id=8)"))(cx-gui-do cx-activate-item "Pressure Far-Field*PanelButtons*PushButton2(Cancel)")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|far_side (pressure-far-field, id=6)"))(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|far_side (pressure-far-field, id=6)"))')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|far_side (pressure-far-field, id=6)"))(cx-gui-do cx-activate-item "NavigationPane*List_Tree1")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|far_side (pressure-far-field, id=6)"))(cx-gui-do cx-activate-item "Pressure Far-Field*PanelButtons*PushButton2(Cancel)")')
+setup3.SendCommand(Command="(cx-use-window-id 1)(cx-set-camera-relative '(1.91189 2.25475 -0.756931) '(0 0 0) '(0.0692862 -0.023323 0.0703261) 0 0)(cx-gui-do cx-set-list-tree-selections \"NavigationPane*List_Tree1\" (list \"Setup|Boundary Conditions|inlet (pressure-far-field, id=8)\"))")
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|inlet (pressure-far-field, id=8)"))(cx-gui-do cx-activate-item "NavigationPane*List_Tree1")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|inlet (pressure-far-field, id=8)"))(cx-gui-do cx-activate-item "Pressure Far-Field*PanelButtons*PushButton2(Cancel)")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|interior-solid (interior, id=1)"))')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|interior-solid (interior, id=1)"))(cx-gui-do cx-activate-item "NavigationPane*List_Tree1")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|interior-solid (interior, id=1)"))(cx-gui-do cx-activate-item "Interior*PanelButtons*PushButton2(Cancel)")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|near_side (symmetry, id=5)"))(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|interior-solid (interior, id=1)"))')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|interior-solid (interior, id=1)"))(cx-gui-do cx-activate-item "NavigationPane*List_Tree1")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|interior-solid (interior, id=1)"))(cx-gui-do cx-activate-item "Interior*PanelButtons*PushButton2(Cancel)")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|near_side (symmetry, id=5)"))(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|near_side (symmetry, id=5)"))')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|near_side (symmetry, id=5)"))(cx-gui-do cx-activate-item "NavigationPane*List_Tree1")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|near_side (symmetry, id=5)"))(cx-gui-do cx-activate-item "Symmetry*PanelButtons*PushButton2(Cancel)")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|outlet (pressure-far-field, id=7)"))')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|outlet (pressure-far-field, id=7)"))(cx-gui-do cx-activate-item "NavigationPane*List_Tree1")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|outlet (pressure-far-field, id=7)"))(cx-gui-do cx-activate-item "Pressure Far-Field*PanelButtons*PushButton2(Cancel)")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|inlet (pressure-far-field, id=8)"))')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|inlet (pressure-far-field, id=8)"))(cx-gui-do cx-activate-item "NavigationPane*List_Tree1")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|inlet (pressure-far-field, id=8)"))(cx-gui-do cx-activate-item "Pressure Far-Field*PanelButtons*PushButton2(Cancel)")')
+setup3.SendCommand(Command='(cx-gui-do cx-activate-item "General*Table1*Table3*PushButton2(Units)")')
+setup3.SendCommand(Command='(cx-gui-do cx-activate-item "Set Units*PanelButtons*PushButton2(Cancel)")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|wing_tip (wall, id=10)"))(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|wing_surface (wall, id=9)"))(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|wing_surface (wall, id=9)"))')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|wing_surface (wall, id=9)"))(cx-gui-do cx-activate-item "NavigationPane*List_Tree1")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|wing_surface (wall, id=9)"))(cx-gui-do cx-activate-item "Wall*PanelButtons*PushButton2(Cancel)")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|wing_tip (wall, id=10)"))')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|wing_tip (wall, id=10)"))(cx-gui-do cx-activate-item "NavigationPane*List_Tree1")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|wing_tip (wall, id=10)"))(cx-gui-do cx-activate-item "Wall*PanelButtons*PushButton2(Cancel)")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Dynamic Mesh"))(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|wing_surface (wall, id=9)"))(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|outlet (pressure-far-field, id=7)"))(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|far_side (pressure-far-field, id=6)"))')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|far_side (pressure-far-field, id=6)"))(cx-gui-do cx-activate-item "NavigationPane*List_Tree1")')
+setup3.SendCommand(Command='(cx-gui-do cx-set-list-tree-selections "NavigationPane*List_Tree1" (list "Setup|Boundary Conditions|far_side (pressure-far-field, id=6)"))(cx-gui-do cx-activate-item "Pressure Far-Field*PanelButtons*PushButton2(Cancel)")')
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.15526, -0.00986612, -1.68285
+    Scale = 0.207008
+    Pan = -2.71027, 0.266814
+    Rotation Quaternion = -0.128567, -0.858301, -0.0817598, -0.490016
+    
+  END
+
+END
+
+VIEW:View 1
+  Light Angle = 50, 110
+END
+
+> update
+FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 0
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW DIRECTION: 
+          Option = Cartesian Components
+          Unit Vector X Component = 0.9961947
+          Unit Vector Y Component = 0.05233
+          Unit Vector Z Component = 0
+        END # FLOW DIRECTION:
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Static Temperature
+          Static Temperature = 460 [R]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Total Pressure
+          Relative Pressure = 72.67 [psi]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: outlet
+      Boundary Type = OUTLET
+      Coord Frame = Coord 0
+      Interface Boundary = Off
+      Location = outlet
+      BOUNDARY CONDITIONS: 
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        MASS AND MOMENTUM: 
+          Option = Static Pressure
+          Relative Pressure = 45.829 [psi]
+        END # MASS AND MOMENTUM:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:outlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+  DOMAIN: Default Domain
+&replace     BOUNDARY: inlet
+      Boundary Type = INLET
+      Coord Frame = Coord 0
+      Interface Boundary = Off
+      Location = inlet
+      BOUNDARY CONDITIONS: 
+        FLOW DIRECTION: 
+          Option = Cartesian Components
+          Unit Vector X Component = 0.9961947
+          Unit Vector Y Component = 0.05233
+          Unit Vector Z Component = 0
+        END # FLOW DIRECTION:
+        FLOW REGIME: 
+          Option = Subsonic
+        END # FLOW REGIME:
+        HEAT TRANSFER: 
+          Option = Static Temperature
+          Static Temperature = 460 [R]
+        END # HEAT TRANSFER:
+        MASS AND MOMENTUM: 
+          Option = Total Pressure
+          Relative Pressure = 72.67 [psi]
+        END # MASS AND MOMENTUM:
+        TURBULENCE: 
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:inlet
+  END # DOMAIN:Default Domain
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.Exit()
+solutionComponent2.Clean()
+solution2.SetExecutionControl(CCL=r"""&replace SIMULATION CONTROL:
+  EXECUTION CONTROL:
+    EXECUTABLE SELECTION:
+      Double Precision = Off
+      Large Problem = Off
+    END
+    INTERPOLATOR STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+    END
+    PARTITIONER STEP CONTROL:
+      Multidomain Option = Automatic
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARTITION SMOOTHING:
+        Maximum Partition Smoothing Sweeps = 100
+        Option = Smooth
+      END
+      PARTITIONING TYPE:
+        MeTiS Type = k-way
+        Option = MeTiS
+        Partition Size Rule = Automatic
+      END
+    END
+    RUN DEFINITION:
+      Run Mode = Full
+      Solver Input File = D:\David\ftp\ONERA\FLUENT\M6WORKBENCH_files\dp0\CFX-1\CFX\CFX.def
+    END
+    SOLVER STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARALLEL ENVIRONMENT:
+        Number of Processes = 1
+        Start Method = Serial
+      END
+    END
+  END
+END
+""")
+solutionComponent2.Update(Force=True)
+setup1.Edit()
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.15526, -0.00986612, -1.68285
+    Scale = 0.193175
+    Pan = 0, 0
+    Rotation Quaternion = -0.128567, -0.858301, -0.0817598, -0.490016
+    
+  END
+
+END
+
+VIEW:View 1
+  Light Angle = 50, 110
+END
+
+> update
+FLOW: Flow Analysis 1
+&replace   EXPERT PARAMETERS: 
+    tangential vector tolerance = 2.5
+  END # EXPERT PARAMETERS:
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""VIEW:View 1
+  Camera Mode = User Specified
+  CAMERA:
+    Option = Pivot Point and Quaternion
+    Pivot Point = 0.15526, -0.00986612, -1.68285
+    Scale = 0.193175
+    Pan = 0, 0
+    Rotation Quaternion = -0.0726168, -0.970704, 0.0284639, -0.227286
+    
+  END
+
+END
+
+> update
+FLOW: Flow Analysis 1
+&replace   EXPERT PARAMETERS: 
+    tangential vector tolerance = 2.5
+  END # EXPERT PARAMETERS:
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+solution2.SetExecutionControl(CCL=r"""&replace SIMULATION CONTROL:
+  EXECUTION CONTROL:
+    EXECUTABLE SELECTION:
+      Double Precision = Off
+      Large Problem = Off
+    END
+    INTERPOLATOR STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+    END
+    PARTITIONER STEP CONTROL:
+      Multidomain Option = Automatic
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARTITION SMOOTHING:
+        Maximum Partition Smoothing Sweeps = 100
+        Option = Smooth
+      END
+      PARTITIONING TYPE:
+        MeTiS Type = k-way
+        Option = MeTiS
+        Partition Size Rule = Automatic
+      END
+    END
+    RUN DEFINITION:
+      Run Mode = Full
+      Solver Input File = D:\David\ftp\ONERA\FLUENT\M6WORKBENCH_files\dp0\CFX-1\CFX\CFX.def
+    END
+    SOLVER STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARALLEL ENVIRONMENT:
+        Number of Processes = 6
+        Start Method = Intel MPI Local Parallel
+      END
+    END
+  END
+END
+""")
+solutionComponent2.Update(Force=True)
+setup1.SendCommand(Command=">delete /FLOW:Flow Analysis 1/INITIALISATION")
+solution2.SetExecutionControl(CCL=r"""&replace SIMULATION CONTROL:
+  EXECUTION CONTROL:
+    EXECUTABLE SELECTION:
+      Double Precision = Off
+      Large Problem = Off
+    END
+    INTERPOLATOR STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+    END
+    PARTITIONER STEP CONTROL:
+      Multidomain Option = Automatic
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARTITION SMOOTHING:
+        Maximum Partition Smoothing Sweeps = 100
+        Option = Smooth
+      END
+      PARTITIONING TYPE:
+        MeTiS Type = k-way
+        Option = MeTiS
+        Partition Size Rule = Automatic
+      END
+    END
+    RUN DEFINITION:
+      Run Mode = Full
+      Solver Input File = D:\David\ftp\ONERA\FLUENT\M6WORKBENCH_files\dp0\CFX-1\CFX\CFX.def
+    END
+    SOLVER STEP CONTROL:
+      Runtime Priority = Standard
+      MEMORY CONTROL:
+        Memory Allocation Factor = 1.0
+      END
+      PARALLEL ENVIRONMENT:
+        Number of Processes = 6
+        Start Method = Intel MPI Local Parallel
+      END
+    END
+  END
+END
+""")
+solutionComponent2.Update(Force=True)
+setup1.Edit()
+setup1.SendCommand(Command="""FLOW: Flow Analysis 1
+&replace   EXPERT PARAMETERS: 
+    tangential vector tolerance = 10
+  END # EXPERT PARAMETERS:
+END # FLOW:Flow Analysis 1
+
+
+PARAMETERIZATION:
+END""")
+setup1.SendCommand(Command="""PARAMETERIZATION:
+END""")
+setup1.Exit()
+Save(Overwrite=True)

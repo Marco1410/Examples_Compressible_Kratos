@@ -47,3 +47,6 @@
 *.log
 *.mdpa
 *.cbf
+*.db
+*.xlsx
+*.gz

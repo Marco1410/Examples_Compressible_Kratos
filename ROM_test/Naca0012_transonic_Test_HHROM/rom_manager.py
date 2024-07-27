@@ -211,21 +211,21 @@ def CustomizeSimulation(cls, global_model, parameters):
                         fout.write("%s %s %s %s\n" %(x,y,z,cp))
                     fout.close()
 
-                    modelpart = self.model["MainModelPart"]
-                    fout = open("trailing_edge_element_id.txt",'a')
-                    for elem in modelpart.Elements:
-                        if elem.GetValue(CPFApp.TRAILING_EDGE):
-                            fout.write("%s\n" %(elem.Id))
-                        if elem.GetValue(CPFApp.KUTTA):
-                            fout.write("%s\n" %(elem.Id))
-                    fout.close()
+                    # modelpart = self.model["MainModelPart"]
+                    # fout = open("trailing_edge_element_id.txt",'a')
+                    # for elem in modelpart.Elements:
+                    #     if elem.GetValue(CPFApp.TRAILING_EDGE):
+                    #         fout.write("%s\n" %(elem.Id))
+                    #     if elem.GetValue(CPFApp.KUTTA):
+                    #         fout.write("%s\n" %(elem.Id))
+                    # fout.close()
 
-                    fout = open("upwind_elements_list.txt",'a')
-                    for elem in modelpart.Elements:
-                        if elem.GetValue(CPFApp.ID_UPWIND_ELEMENT) != 0.0:
-                            fout.write("%s\n" %(elem.Id))
-                            fout.write("%s\n" %(elem.GetValue(CPFApp.ID_UPWIND_ELEMENT)))
-                    fout.close()
+                    # fout = open("upwind_elements_list.txt",'a')
+                    # for elem in modelpart.Elements:
+                    #     if elem.GetValue(CPFApp.ID_UPWIND_ELEMENT) != 0.0:
+                    #         fout.write("%s\n" %(elem.Id))
+                    #         fout.write("%s\n" %(elem.GetValue(CPFApp.ID_UPWIND_ELEMENT)))
+                    # fout.close()
                 
                     info_steps_list.append([case_type,
                                             angle,
@@ -281,7 +281,7 @@ def CustomizeSimulation(cls, global_model, parameters):
                         if (len(fom) != len(hrom)):
                             q_matrix = []
                             main_model_part = self.model["MainModelPart"]
-                            q_matrix.append(np.array(main_model_part.GetValue(KratosMultiphysics.RomApplication.ROM_SOLUTION_INCREMENT)).reshape(-1,1))
+                            q_matrix.append(np.array(main_model_part.GetValue(KratosMultiphysics.RomApplication.ROM_CURRENT_SOLUTION_TOTAL)).reshape(-1,1))
                             q_matrix = np.block(q_matrix)
                             phi = np.load(f'rom_data/RightBasisMatrix.npy')
                             if (q_matrix.shape[0] == 1): q_matrix = q_matrix.T
@@ -400,10 +400,10 @@ def UpdateMaterialParametersFile(material_parametrs_file_name, mu):
 
 def GetRomManagerParameters():
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
-            "rom_stages_to_train" : ["ROM","HROM","HHROM"],            // ["ROM","HROM"]
-            "rom_stages_to_test"  : ["ROM","HROM","HHROM"],            // ["ROM","HROM"]
+            "rom_stages_to_train" : ["ROM"],            // ["ROM","HROM"]
+            "rom_stages_to_test"  : [],            // ["ROM","HROM"]
             "paralellism" : null,                       // null, TODO: add "compss"
-            "projection_strategy": "galerkin",          // "lspg", "galerkin", "petrov_galerkin"
+            "projection_strategy": "lspg",          // "lspg", "galerkin", "petrov_galerkin"
             "assembling_strategy": "global",            // "global", "elemental"
             "save_gid_output": true,                    // false, true #if true, it must exits previously in the ProjectParameters.json
             "save_vtk_output": true,                   // false, true #if true, it must exits previously in the ProjectParameters.json
@@ -424,7 +424,7 @@ def GetRomManagerParameters():
                     "train_petrov_galerkin": false,
                     "basis_strategy": "reactions",                        // 'residuals', 'jacobian', 'reactions'
                     "include_phi": false,
-                    "svd_truncation_tolerance": 1e-9,
+                    "svd_truncation_tolerance": 0,
                     "solving_technique": "normal_equations",              // 'normal_equations', 'qr_decomposition'
                     "monotonicity_preserving": false
                 },
@@ -439,14 +439,12 @@ def GetRomManagerParameters():
                 "echo_level" : 1,                                       
                 "hrom_format": "numpy",
                 "include_conditions_model_parts_list": [],
-                "include_elements_model_parts_list": ["MainModelPart.trailing_edge_element",
-                                                    "MainModelPart.upwind_elements"],
+                "include_elements_model_parts_list": [],
                 "initial_candidate_elements_model_part_list" : [],
                 "initial_candidate_conditions_model_part_list" : [],
                 "include_nodal_neighbouring_elements_model_parts_list":[],
                 "include_minimum_condition": false,
-                "include_condition_parents": true,
-                "svd_type": "numpy_svd"
+                "include_condition_parents": true
             }
         }""")
 
@@ -471,8 +469,8 @@ if __name__ == "__main__":
     ###############################
     # PARAMETERS SETTINGS
     update_parameters    = True
-    number_of_mu_train   = 50
-    number_of_mu_test    = 1
+    number_of_mu_train   = 150
+    number_of_mu_test    = 0
     mach_range           = [ 0.70, 0.75]
     angle_range          = [ 1.00, 2.00]
     ###############################
@@ -492,8 +490,7 @@ if __name__ == "__main__":
     project_parameters_name = "ProjectParameters.json"
 
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
-                             CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
-                             relaunch_FOM=False, relaunch_ROM=False, relaunch_HROM=True)
+                             CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile)
 
     rom_manager.Fit(mu_train)
     rom_manager.Test(mu_test)
@@ -505,7 +502,7 @@ if __name__ == "__main__":
     Plot_Cps(mu_train, 'Train_Captures')
     Plot_Cps(mu_test, 'Test_Captures')
 
-    rom_manager.PrintErrors(show_q_errors = True)
+    rom_manager.PrintErrors()
 
     if number_of_mu_train >= 3:
         print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
