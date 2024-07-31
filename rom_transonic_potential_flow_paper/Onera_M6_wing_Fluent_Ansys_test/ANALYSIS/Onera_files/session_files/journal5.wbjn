@@ -1,8 +1,0 @@
-# encoding: utf-8
-# Release 19.0
-SetScriptVersion(Version="19.0.136")
-system1 = GetSystem(Name="CFX")
-system1.Delete()
-system2 = GetSystem(Name="CFX 1")
-system2.Delete()
-Save(Overwrite=True)
