@@ -53,13 +53,13 @@
         "scheme_settings"          : {
             "model_part_name" : "Body2D_Body",
             "critical_mach"                 : 0.85,
-            "upwind_factor_constant"        : 2.0,
-            "update_critical_mach"          : -1.0,
-            "update_upwind_factor_constant" : -1.0,
+            "upwind_factor_constant"        : 3.0,
+            "update_critical_mach"          : 0.9,
+            "update_upwind_factor_constant" : 2.0,
             "update_transonic_tolerance"    : 1e-3,
             "mach_number_squared_limit"     : 3.0
         },
-        "maximum_iterations"       : 300,
+        "maximum_iterations"       : 500,
         "echo_level"               : 1,
         "relative_tolerance"               : 1e-8,
         "absolute_tolerance"               : 1e-8,
@@ -68,9 +68,9 @@
             "advanced_settings": {
                 "first_alpha_value"         : 0.5,
                 "second_alpha_value"        : 1.0,
-                "min_alpha"                 : 0.05,
+                "min_alpha"                 : 0.01,
                 "max_alpha"                 : 1.0,
-                "line_search_tolerance"     : 0.5,
+                "line_search_tolerance"     : 0.25,
                 "max_line_search_iterations": 5
             }
         },
@@ -91,7 +91,7 @@
             "Parameters"    : {
                 "model_part_name" : "FluidModelPart.PotentialWallCondition2D_Far_field_Auto1",
                 "free_stream_density"   : 1.225,
-                "angle_of_attack"       : 0.0,
+                "angle_of_attack"       : 2.2,
                 "mach_infinity"         : 0.75,
                 "perturbation_field"    : true 
             }

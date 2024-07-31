@@ -1,3 +1,4 @@
+import KratosMultiphysics
 import sys
 import time
 import importlib
@@ -64,9 +65,9 @@ if __name__ == "__main__":
     fig.set_figwidth(7.0)
     fig.set_figheight(5.0)
 
-    x_1  = np.loadtxt('../reference_data/flo36/cp_flo36_aoa_2_mach_75.dat', usecols=(0,))
-    cp_1 = np.loadtxt('../reference_data/flo36/cp_flo36_aoa_2_mach_75.dat', usecols=(1,))
-    fig = plt.plot(x_1, cp_1, "o", markersize = 2.0, label = 'flo36')
+    # x_1  = np.loadtxt("../reference_data/flo36/2.0, 0.75.dat", usecols=(0,))
+    # cp_1 = np.loadtxt("../reference_data/flo36/2.0, 0.75.dat", usecols=(1,))
+    # fig = plt.plot(x_1, cp_1, "o", markersize = 2.0, label = 'flo36')
 
     ax.plot( x, cp, "o", markersize = 3.0)
 
@@ -76,6 +77,6 @@ if __name__ == "__main__":
     plt.title('Cp vs x')
     ax.invert_yaxis()
     plt.tight_layout()
-    # fig.savefig("Airfoils_Cp_x.png")
-    plt.show()
+    plt.savefig("Airfoils_Cp_x.png")
+    # plt.show()
     plt.close()

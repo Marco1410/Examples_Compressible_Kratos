@@ -155,21 +155,39 @@ def Plot_Cps(mu_list, capture_directory):
             if os.path.exists(validation_skin_data_filename):
                 x  = np.loadtxt(validation_skin_data_filename, usecols=(0,))
                 cp_validation = np.loadtxt(validation_skin_data_filename, usecols=(1,))
-                fig = plt.plot(x, cp_validation, 'r.-', markersize = 5.0, label = 'Validation')
+                fig = plt.plot(x, cp_validation, 'r.-', markersize = 5.0, label = 'flo36')
             #### XFLR5 ######
             validation_skin_data_filename = f"../reference_data/flo36/xflr5_polars/{case_name}.dat"
             if os.path.exists(validation_skin_data_filename):
-                x  = np.loadtxt(validation_skin_data_filename, usecols=(0,))
-                cp_validation = np.loadtxt(validation_skin_data_filename, usecols=(1,))
-                fig = plt.plot(x, cp_validation, 'r', markersize = 5.0, label = 'XFLR5')
+                x_xfoil  = np.loadtxt(validation_skin_data_filename, usecols=(0,))
+                cp_xfoil = np.loadtxt(validation_skin_data_filename, usecols=(1,))
+                fig = plt.plot(x_xfoil, cp_xfoil, '*', markersize = 5.0, label = 'XFLR5')
         #### FOM ######
         fom_skin_data_filename = f"FOM_Skin_Data/{case_name}.dat"
         if os.path.exists(fom_skin_data_filename):
             x_fom  = np.loadtxt(fom_skin_data_filename, usecols=(0,))
+            y_fom  = np.loadtxt(fom_skin_data_filename, usecols=(1,))
             cp_fom = np.loadtxt(fom_skin_data_filename, usecols=(3,))
             if capture_directory == 'Validation':
-                cp_val = np.interp(x_fom, x, cp_validation)
-                fig = plt.plot(x_fom, cp_fom, 's', markersize = 5.0, label = f'FOM-Validation e: {(np.linalg.norm(cp_fom-cp_val)/np.linalg.norm(cp_val)):.2E}')
+                y_gtz = y_fom > 0
+                y_lez = y_fom <= 0
+                x_gtz  = x_fom[y_gtz] 
+                cp_gtz = cp_fom[y_gtz]
+                indices_ordenados = sorted(range(len(x_gtz)), key=lambda i: x_gtz[i])
+                x_gtz = [x_gtz[i] for i in indices_ordenados]
+                cp_gtz = [cp_gtz[i] for i in indices_ordenados]
+                x_lez  = x_fom[y_lez] 
+                cp_lez = cp_fom[y_lez]
+                indices_ordenados = sorted(range(len(x_lez)), key=lambda i: x_lez[i])
+                x_lez = [x_lez[i] for i in indices_ordenados]
+                cp_lez = [cp_lez[i] for i in indices_ordenados]
+                cp_val_gtz = np.interp(x_gtz, x[79:][::-1], cp_validation[79:][::-1])
+                cp_val_lez = np.interp(x_lez, x[:78], cp_validation[:78])
+                x_sim = np.concatenate((x_lez,x_gtz[::-1]))
+                cp_sim = np.concatenate((cp_lez, cp_gtz[::-1]))
+                cp_val = np.concatenate((cp_val_lez,cp_val_gtz[::-1]))
+                error = (np.linalg.norm(cp_sim-cp_val)/np.linalg.norm(cp_val))
+                fig = plt.plot(x_fom, cp_fom, 's', markersize = 5.0, label = f'FOM-Validation e: {error:.2E}')
             else:
                 fig = plt.plot(x_fom, cp_fom, 's', markersize = 5.0, label = f'FOM')
         #### ROM ######

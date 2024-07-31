@@ -431,12 +431,12 @@ def GetRomManagerParameters():
             "rom_stages_to_train" : ["ROM"],            // ["ROM","HROM"]
             "rom_stages_to_test"  : ["ROM"],            // ["ROM","HROM"]
             "paralellism" : null,                       // null, TODO: add "compss"
-            "projection_strategy": "galerkin",          // "lspg", "galerkin", "petrov_galerkin"
+            "projection_strategy": "lspg",          // "lspg", "galerkin", "petrov_galerkin"
             "assembling_strategy": "global",            // "global", "elemental"
             "save_gid_output": true,                    // false, true #if true, it must exits previously in the ProjectParameters.json
             "save_vtk_output": true,                   // false, true #if true, it must exits previously in the ProjectParameters.json
             "output_name": "id",                        // "id" , "mu"
-            "store_nonconverged_fom_solutions": true,
+            "store_nonconverged_fom_solutions": false,
             "ROM":{
                 "analysis_stage" : "KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis",
                 "svd_truncation_tolerance": 0,
@@ -500,7 +500,7 @@ if __name__ == "__main__":
 
     ###############################
     # PARAMETERS SETTINGS
-    update_parameters    = True
+    update_parameters    = False
     number_of_mu_train   = 150
     number_of_mu_test    = 0
     mach_range           = [ 0.70, 0.75]
@@ -524,34 +524,34 @@ if __name__ == "__main__":
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
                              CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
                              relaunch_FOM=False, relaunch_ROM=True, relaunch_HROM=False,
-                             bisection_tolerance=0.3, POD_tolerance=1e-9)
+                             bisection_tolerance=0.1, POD_tolerance=1e-12)
 
     rom_manager.Fit_Clusters(mu_train, mu_train_not_scaled, update_clusters=True, plot_custering_info=True, plot_clusters=True)
 
     rom_manager.Test_Clusters(mu_test, mu_test_not_scaled, mu_train, mu_train_not_scaled,
                               update_predicted_indexes=True, plot_custering_info=True, plot_clusters_prediction=True)
     
-    # mu = []
-    # mu.append([1.0,0.72])
-    # mu.append([1.0,0.73])
-    # mu.append([1.0,0.75])
-    # mu.append([2.0,0.75])
+    mu = []
+    mu.append([1.0,0.72])
+    mu.append([1.0,0.73])
+    mu.append([1.0,0.75])
+    mu.append([2.0,0.75])
 
-    # rom_manager.RunFOM(mu_run=mu)
+    rom_manager.RunFOM(mu_run=mu)
 
-    # rom_manager.RunROM_Clusters(mu_run=mu, mu_run_not_scaled  = get_not_scale_parameters(mu=mu,angle=angle_range,mach=mach_range), 
-    #                             mu_train=mu_train, mu_train_not_scaled=mu_train_not_scaled,
-    #                             update_predicted_indexes=True, plot_custering_info=True, plot_clusters_prediction=True)
+    rom_manager.RunROM_Clusters(mu_run=mu, mu_run_not_scaled  = get_not_scale_parameters(mu=mu,angle=angle_range,mach=mach_range), 
+                                mu_train=mu_train, mu_train_not_scaled=mu_train_not_scaled,
+                                update_predicted_indexes=True, plot_custering_info=True, plot_clusters_prediction=True)
 
     if number_of_mu_train >= 3:
         RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 
                     mu_test = mu_train + mu_test, mu_test_not_scaled  = mu_train_not_scaled + mu_test_not_scaled)
-        # RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 
-        #             mu_test = mu, mu_test_not_scaled  = get_not_scale_parameters(mu=mu,angle=angle_range,mach=mach_range))
+        RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 
+                    mu_test = mu, mu_test_not_scaled  = get_not_scale_parameters(mu=mu,angle=angle_range,mach=mach_range))
 
     Plot_Cps(mu_train, 'Train_Captures')
     Plot_Cps(mu_test, 'Test_Captures')
-    # Plot_Cps(mu, 'Validation')
+    Plot_Cps(mu, 'Validation')
 
     rom_manager.PrintErrors(show_q_errors=False)
 
@@ -559,7 +559,7 @@ if __name__ == "__main__":
         print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
         RBF_error_estimation(mu_train, mu_test)
         print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
-        # print('Validation Error::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
-        # print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
-        # RBF_error_estimation(mu_train, mu)
-        # print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
+        print('Validation Error::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
+        print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
+        RBF_error_estimation(mu_train, mu)
+        print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')

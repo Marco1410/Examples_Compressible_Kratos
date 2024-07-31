@@ -45,23 +45,23 @@
         "solver_type"              : "potential_flow",
         "model_import_settings"    : {
             "input_type"     : "mdpa",
-            "input_filename" : "../Rom_transonic_potential_flow_Naca0012/Mesh/model_mesh_1"
-        },
+            "input_filename" : "../Rom_transonic_potential_flow_Naca0012/Mesh/model_mesh_1"        },
         "formulation": {
                     "element_type":"perturbation_transonic"
         },
         "maximum_iterations"       : 300,
         "echo_level"               : 1,
-        "transonic_scheme_settings"          : {
-            "critical_mach"                 : 0.85,
-            "upwind_factor_constant"        : 2.0,
-            "new_critical_mach"             : 0.9,
-            "new_upwind_factor_constant"    : 1.5,
-            "update_relative_residual_norm" : 1e-3,
+        "scheme_settings"          : {
+            "is_transonic": true,
+            "initial_critical_mach"                 : 0.2,
+            "initial_upwind_factor_constant"        : 1.0,
+            "target_critical_mach"          : 0.5,
+            "target_upwind_factor_constant" : 1.0,
+            "update_relative_residual_norm"    : 1e-3,
             "mach_number_squared_limit"     : 3.0
         },
         "solving_strategy_settings": {
-            "type": "line_search",
+            "type": "newton_raphson",
             "advanced_settings" : {
                                     "max_line_search_iterations" : 5,
                                     "first_alpha_value"          : 0.5,
@@ -87,10 +87,9 @@
             "process_name"  : "FarFieldProcess",
             "Parameters"    : {
                 "model_part_name" : "FluidModelPart.PotentialWallCondition2D_Far_field_Auto1",
-                "free_stream_density"   : 1.0,
-                // "angle_of_attack_units" : "degrees",
-                "angle_of_attack"       : 0.0471,
-                "mach_infinity"         : 0.73,
+                "free_stream_density"   : 1.225,
+                "angle_of_attack"       : 2.5,
+                "mach_infinity"         : 0.76,
                 "perturbation_field"    : true 
             }
         },{

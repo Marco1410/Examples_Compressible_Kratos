@@ -58,18 +58,18 @@ if __name__ == "__main__":
         x[i] = node.X0 ; y[i] = node.Y0 ; z[i] = node.Z0
         cp[i] = node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
         v =  node.GetValue(KratosMultiphysics.VELOCITY).norm_2()
-        cp_from_phi[i] = (2/(1.4*0.78**2))*((1+0.5*(1.4-1)*0.78**2*(1-(v**2/(0.78*340)**2)))**(1.4/(1.4-1))-1)
+        # cp_from_phi[i] = (2/(1.4*0.78**2))*((1+0.5*(1.4-1)*0.78**2*(1-(v**2/(0.78*340)**2)))**(1.4/(1.4-1))-1)
     
     # Plot cp vs x
     fig,ax  = plt.subplots()
     fig.set_figwidth(15.0)
     fig.set_figheight(10.0)
-    ax.plot( x, cp, "o", markersize = 3.0)
-    ax.plot( x, cp_from_phi, "xr", markersize = 3.0)
+    ax.plot( x, cp, "ro", markersize = 3.0)
+    # ax.plot( x, cp_from_phi, "xr", markersize = 3.0)
     ax.grid()
     plt.ylabel('Cp')
     plt.xlabel('x')
-    plt.title('Cp vs x')
+    plt.title('Cp vs x - case 2')
     ax.invert_yaxis()
     plt.tight_layout()
     fig.savefig("Airfoils_Cp_x.png")
