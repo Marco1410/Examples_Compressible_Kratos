@@ -20,6 +20,7 @@ def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
             sys.stdout.flush()
 
         def Initialize(self):
+            input(":::::")
             super().Initialize()
             sys.stdout.flush()
 
@@ -52,12 +53,9 @@ if __name__ == "__main__":
 
     modelpart = global_model["FluidModelPart.Body2D_Body"]
     x = np.zeros(modelpart.NumberOfNodes())
-    y = np.zeros(modelpart.NumberOfNodes())
-    z = np.zeros(modelpart.NumberOfNodes())
     cp = np.zeros(modelpart.NumberOfNodes())
-    rho = np.zeros(modelpart.NumberOfNodes())
     for i,node in enumerate(modelpart.Nodes):
-        x[i] = node.X0 ; y[i] = node.Y0 ; z[i] = node.Z0
+        x[i] = node.X0
         cp[i] = node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
     
     # Plot cp vs x
@@ -65,9 +63,9 @@ if __name__ == "__main__":
     fig.set_figwidth(7.0)
     fig.set_figheight(5.0)
 
-    # x_1  = np.loadtxt("../reference_data/flo36/2.0, 0.75.dat", usecols=(0,))
-    # cp_1 = np.loadtxt("../reference_data/flo36/2.0, 0.75.dat", usecols=(1,))
-    # fig = plt.plot(x_1, cp_1, "o", markersize = 2.0, label = 'flo36')
+    x_1  = np.loadtxt("../reference_data/flo36/2.0, 0.75.dat", usecols=(0,))
+    cp_1 = np.loadtxt("../reference_data/flo36/2.0, 0.75.dat", usecols=(1,))
+    plt.plot(x_1, cp_1, "o", markersize = 2.0, label = 'flo36')
 
     ax.plot( x, cp, "o", markersize = 3.0)
 

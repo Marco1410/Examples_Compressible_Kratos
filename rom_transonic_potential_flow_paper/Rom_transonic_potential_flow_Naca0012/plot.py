@@ -152,12 +152,20 @@ def Plot_Cps(mu_list, capture_directory):
         if capture_directory == 'Validation':
             #### VALIDATION ######
             validation_skin_data_filename = f"../reference_data/flo36/{case_name}.dat"
+            if mu[0] == 2.18:
+                validation_skin_data_filename = f"../reference_data/flo36/2.0, 0.75.dat"
+            if mu[0] == 1.025:
+                validation_skin_data_filename = f"../reference_data/flo36/1.0, 0.72.dat"
             if os.path.exists(validation_skin_data_filename):
                 x  = np.loadtxt(validation_skin_data_filename, usecols=(0,))
                 cp_validation = np.loadtxt(validation_skin_data_filename, usecols=(1,))
                 fig = plt.plot(x, cp_validation, 'r.-', markersize = 5.0, label = 'flo36')
             #### XFLR5 ######
             validation_skin_data_filename = f"../reference_data/flo36/xflr5_polars/{case_name}.dat"
+            if mu[0] == 2.18:
+                validation_skin_data_filename = f"../reference_data/flo36/xflr5_polars/2.0, 0.75.dat"
+            if mu[0] == 1.025:
+                validation_skin_data_filename = f"../reference_data/flo36/xflr5_polars/1.0, 0.72.dat"
             if os.path.exists(validation_skin_data_filename):
                 x_xfoil  = np.loadtxt(validation_skin_data_filename, usecols=(0,))
                 cp_xfoil = np.loadtxt(validation_skin_data_filename, usecols=(1,))
@@ -212,13 +220,15 @@ def Plot_Cps(mu_list, capture_directory):
             cp_hhrom = np.loadtxt(hhrom_skin_data_filename, usecols=(3,))
             fig = plt.plot(x_hhrom, cp_hhrom, 'x', markersize = 6.0, label = f'HHROM-FOM e: {(np.linalg.norm(cp_fom-cp_hhrom)/np.linalg.norm(cp_fom)):.2E}')
         #### RBF ####
-        rbf_name = f"RBF_Snapshots/{case_name}.npy"
-        if os.path.exists(rbf_name):
-            rbf = np.load(rbf_name).T
-            LaunchFakeSimulation(rbf, [mu[0], mu[1], 'RBF'])
-            rbf_skin_data_filename = f"RBF_Skin_Data/{case_name}.dat"
-            x_rbf  = np.loadtxt(rbf_skin_data_filename, usecols=(0,))
-            cp_rbf = np.loadtxt(rbf_skin_data_filename, usecols=(3,))
+        # rbf_name = f"RBF_Snapshots/{case_name}.npy"
+        # if os.path.exists(rbf_name):
+        #     rbf = np.load(rbf_name).T
+        #     LaunchFakeSimulation(rbf, [mu[0], mu[1], 'RBF'])
+        rbf_skin_data_filename = f"RBF_Skin_Data/{case_name}.npy"
+        if os.path.exists(rbf_skin_data_filename):
+            cp_fom = np.array(np.loadtxt(fom_skin_data_filename, usecols=(3,))).reshape(-1,1)
+            x_rbf  = np.loadtxt(f"FOM_Skin_Data/{case_name}.dat", usecols=(0,))
+            cp_rbf = np.load(rbf_skin_data_filename)
             fig = plt.plot(x_rbf, cp_rbf, '.', markersize = 2.0, label = f'RBF-FOM e: {(np.linalg.norm(cp_fom-cp_rbf)/np.linalg.norm(cp_fom)):.2E}')
         
         cp_min = np.min([np.min(cp_hhrom), np.min(cp_hrom), np.min(cp_fom), np.min(cp_rom), np.min(cp_rbf)])

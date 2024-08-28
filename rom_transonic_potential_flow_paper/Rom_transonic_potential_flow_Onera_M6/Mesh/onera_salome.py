@@ -22,13 +22,13 @@ DomainLength     = 6.0 #Z
 MeshGrowthRate   = 0.2
 ########################
 MeshMaxSize      = 1.0
-MeshMinSize      = 0.01
+MeshMinSize      = 0.025
 ########################
-MeshWingSize     = 0.01
-MeshTEWingSize   = 0.01
-MeshLEWingSize   = 0.01
-MeshTipWingSize  = 0.01
-MeshRootFoilSize = 0.01
+MeshWingSize     = 0.025
+MeshTEWingSize   = 0.025
+MeshLEWingSize   = 0.025
+MeshTipWingSize  = 0.025
+MeshRootFoilSize = 0.025
 ########################
 # Wake_angle         = 3.06
 # Wake_length        = DomainWidth
@@ -36,13 +36,13 @@ MeshRootFoilSize = 0.01
 # Wake_min_mesh_size = 0.01
 # TE_Wing_mesh_size  = 0.01
 
-Dir                     = os.getcwd()
-onera_geometry_igs_path = Dir + "/onera_m6_geometry/Onera_M6_geometry.igs"
-MeshOutPutName          = Dir + "/SalomeFiles/Fluid.med"
-Wake_output_name        = Dir + "/SalomeFiles/Wake.stl"
+# Dir                     = os.getcwd()
+onera_geometry_igs_path = "onera_m6_geometry/Onera_M6_geometry.igs"
+MeshOutPutName          = "Fluid.med"
+# Wake_output_name        = "Wake.stl"
 
-if not os.path.exists(f'{Dir}/SalomeFiles'):
-  os.mkdir(f'{Dir}/SalomeFiles')
+# if not os.path.exists(f'{Dir}/SalomeFiles'):
+#   os.mkdir(f'{Dir}/SalomeFiles')
 
 
 ###
@@ -149,7 +149,7 @@ geompy.addToStudyInFather( Domain, TE_Points, 'TE_Points' )
 import  SMESH # type: ignore
 from salome.smesh import smeshBuilder # type: ignore
 
-sys.path.append("../../../KratosSalomePlugin") # adding root folder of plugin to path
+sys.path.append("../../../../KratosSalomePlugin") # adding root folder of plugin to path
 import create_kratos_input_tui # type: ignore
 
 mesh_description_domain  = { "elements"   : {"Tetra"    : {"Element3D4N"       : 0}}}
@@ -258,7 +258,7 @@ smesh.SetName(Domain_2, 'Domain')
 # smesh.SetName(Wake.GetMesh(), 'Wake')
 
 #Save salome files
-salome.myStudy.SaveAs(Dir + "/SalomeFiles/salome_model.hdf", study, False)
+salome.myStudy.SaveAs("salome_model.hdf", study, False)
 
 
 meshes = [
@@ -268,7 +268,7 @@ meshes = [
           create_kratos_input_tui.SalomeMesh(Wing_1, mesh_description_surface, "Wing"),
           ]
 
-create_kratos_input_tui.CreateMdpaFile(meshes, f"{Dir}/SalomeFiles/Fluid")
+create_kratos_input_tui.CreateMdpaFile(meshes, f"Fluid")
 
 ##########################################################################
 

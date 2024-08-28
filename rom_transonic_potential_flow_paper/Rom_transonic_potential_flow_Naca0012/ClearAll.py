@@ -62,6 +62,7 @@ def ClearAll():
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('Rom_transonic_potential_flow_Naca0012.post.lst')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('upwind_elements_list.txt')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('trailing_edge_element_id.txt')
+    KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('Mu_parameters_cp.pdf')
 
 if __name__ == "__main__":
 

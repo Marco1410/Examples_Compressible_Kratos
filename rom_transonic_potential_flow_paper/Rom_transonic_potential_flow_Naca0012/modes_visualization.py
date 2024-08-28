@@ -4,35 +4,48 @@ import numpy as np
 import KratosMultiphysics
 import KratosMultiphysics.kratos_utilities
 import KratosMultiphysics.CompressiblePotentialFlowApplication as CPFApp
+from KratosMultiphysics.gid_output_process import GiDOutputProcess
 from KratosMultiphysics.vtk_output_process import VtkOutputProcess
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-# save parameters
+# Launch Fake Simulation
 #
-def LaunchFakeSimulation(data_set, mu):
+def LaunchFakeSimulation(data_set, mode):
     with open('ProjectParameters.json','r') as parameter_file:
         parameters = KratosMultiphysics.Parameters(parameter_file.read())
         model = KratosMultiphysics.Model()
-        parameters_copy = FakeProjectParameters(parameters.Clone(), mu)
-        parameters_copy["output_processes"].RemoveValue("gid_output")
+        parameters_copy = FakeProjectParameters(parameters.Clone(), mode)
         analysis_stage_class = _GetAnalysisStageClass(parameters_copy)
         simulation = FakeSimulation(analysis_stage_class, model, parameters_copy, data_set)
         simulation.Run()
 
         for process in simulation._GetListOfOutputProcesses():
+                if isinstance(process, GiDOutputProcess):
+                    gid_output = process
+        parameters_output = parameters_copy["output_processes"]["gid_output"][0]["Parameters"]['postprocess_parameters']
+        gid_output = GiDOutputProcess(simulation.model['MainModelPart'],
+                                      parameters_copy["output_processes"]["gid_output"][0]["Parameters"]['output_name'].GetString(),
+                                      parameters_output)
+        gid_output.ExecuteInitialize()
+        gid_output.ExecuteBeforeSolutionLoop()
+        gid_output.ExecuteInitializeSolutionStep()
+        gid_output.PrintOutput()
+        gid_output.ExecuteFinalizeSolutionStep()
+        gid_output.ExecuteFinalize()
+
+        for process in simulation._GetListOfOutputProcesses():
                 if isinstance(process, VtkOutputProcess):
-                    output = process
+                    vtk_output = process
         parameters_output = parameters_copy["output_processes"]["vtk_output"][0]["Parameters"]
-        output = VtkOutputProcess(  simulation.model,
-                                    parameters_output)
-        output.ExecuteInitialize()
-        output.ExecuteBeforeSolutionLoop()
-        output.ExecuteInitializeSolutionStep()
-        output.PrintOutput()
-        output.ExecuteFinalizeSolutionStep()
-        output.ExecuteFinalize()
+        vtk_output = VtkOutputProcess(simulation.model, parameters_output)
+        vtk_output.ExecuteInitialize()
+        vtk_output.ExecuteBeforeSolutionLoop()
+        vtk_output.ExecuteInitializeSolutionStep()
+        vtk_output.PrintOutput()
+        vtk_output.ExecuteFinalizeSolutionStep()
+        vtk_output.ExecuteFinalize()
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
@@ -52,7 +65,7 @@ def FakeSimulation(cls, global_model, parameters, data_set):
 
         def Initialize(self):
             super().Initialize()
-            model_part = self.model["FluidModelPart"]
+            model_part = self.model["MainModelPart"]
             for node in model_part.Nodes:
                 offset = np.where(np.arange(1,model_part.NumberOfNodes()+1, dtype=int) == node.Id)[0][0]*2
 
@@ -69,37 +82,12 @@ def FakeSimulation(cls, global_model, parameters, data_set):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-# load parameters
-#
-def load_mu_parameters():
-    if os.path.exists("mu_train.npy") and os.path.exists("mu_test.npy"):
-        mu_train = np.load('mu_train.npy')
-        mu_test = np.load('mu_test.npy')
-        mu_train =  [mu.tolist() for mu in mu_train]
-        mu_test =  [mu.tolist() for mu in mu_test]
-    elif os.path.exists("mu_train.npy"):
-        mu_train = np.load('mu_train.npy')
-        mu_train =  [mu.tolist() for mu in mu_train]
-        mu_test = []
-    elif os.path.exists("mu_test.npy"):
-        mu_test = np.load('mu_test.npy')
-        mu_test =  [mu.tolist() for mu in mu_test]
-        mu_train = []
-    return mu_train, mu_test
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#
 # save parameters
 #
-def FakeProjectParameters(parameters, mu=None):
-    angle_of_attack = mu[0]
-    mach_infinity   = mu[1]
-    wake_normal     = [-np.sin(angle_of_attack*np.pi/180),0.0,np.cos(angle_of_attack*np.pi/180)]
-    parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(np.double(angle_of_attack))
-    parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(np.double(mach_infinity))
-    parameters["processes"]["boundary_conditions_process_list"][1]["Parameters"]["wake_stl_file_name"].SetString(f'SalomeFiles/Wake_{angle_of_attack}.stl')
-    parameters["processes"]["boundary_conditions_process_list"][1]["Parameters"]["wake_process_cpp_parameters"]["wake_normal"].SetVector(wake_normal)
-    parameters["output_processes"]["vtk_output"][0]["Parameters"]["output_path"].SetString(f'Results/RBF_{angle_of_attack}, {mach_infinity}')
+def FakeProjectParameters(parameters, mode):
+    parameters["solver_settings"]["echo_level"].SetInt(0)
+    parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString(f'Modes/{mode}')
+    parameters["output_processes"]["vtk_output"][0]["Parameters"]["output_path"].SetString(f'Modes/{mode}')
     return parameters
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -118,23 +106,24 @@ def _GetAnalysisStageClass(parameters):
 #
 # save parameters
 #
-def BuildRBFoutput(mu_list):
+def Plot_Modes(modes_to_plot):
+    #Disable logs
+    KratosMultiphysics.Logger.GetDefaultOutput().SetSeverity(KratosMultiphysics.Logger.Severity.WARNING)
 
-    for mu in mu_list:
-        case_name = f'{mu[0]}, {mu[1]}'
+    for mode in modes_to_plot:
+        case_name = f'{mode}'
+        phi_path = f"rom_data/RightBasisMatrix.npy"
+        if os.path.exists(phi_path):
+            mode_values = np.load(phi_path)[:,mode]
+            LaunchFakeSimulation(mode_values, mode)
 
-        #### RBF ####
-        rbf_name = f"RBF_Snapshots/{case_name}.npy"
-        if os.path.exists(rbf_name):
-            rbf = np.load(rbf_name).T
-            
-            LaunchFakeSimulation(rbf, mu)
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 if __name__ == "__main__":
 
-    mu_train, mu_test = load_mu_parameters()
+    modes_to_plot = [0,1,2,3,4,5,6,7,50,70]
 
-    BuildRBFoutput(mu_train + mu_test)
+    Plot_Modes(modes_to_plot)

@@ -1,7 +1,7 @@
 {
     "analysis_stage"   : "KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis",
     "problem_data"     : {
-        "problem_name"  : "KratosFpotentialtransonic",
+        "problem_name"  : "Naca0012",
         "parallel_type" : "OpenMP",
         "echo_level"    : 0,
         "start_time"    : 0.0,
@@ -25,7 +25,7 @@
             "is_transonic": true,
             "initial_critical_mach"          : 0.95,
             "initial_upwind_factor_constant" : 1.0,
-            "target_critical_mach"           : 0.99,
+            "target_critical_mach"           : 0.97,
             "target_upwind_factor_constant"  : 1.0,
             "update_relative_residual_norm"  : 1e-3,
             "mach_number_squared_limit"      : 3.0
@@ -47,7 +47,16 @@
         "relative_tolerance"               : 1e-8,
         "absolute_tolerance"               : 1e-8,
         "linear_solver_settings"  : {
-                "solver_type"             : "LinearSolversApplication.sparse_lu"
+            "solver_type": "amgcl",
+            "max_iteration": 400,
+            "gmres_krylov_space_dimension": 100,
+            "smoother_type":"ilu0",
+            "coarsening_type":"ruge_stuben",
+            "coarse_enough" : 5000,
+            "krylov_type": "lgmres",
+            "tolerance": 1e-9,
+            "verbosity": 0,
+            "scaling": false
         },
         "volume_model_part_name"   : "MainModelPart.Parts_Parts_Auto1",
         "skin_parts"               : ["MainModelPart.PotentialWallCondition2D_Far_field_Auto1","MainModelPart.Body2D_Body"],
@@ -64,6 +73,7 @@
             "process_name"  : "FarFieldProcess",
             "Parameters"    : {
                 "model_part_name" : "MainModelPart.PotentialWallCondition2D_Far_field_Auto1",
+                "angle_of_attack_units"         : "degrees",
                 "free_stream_density"           : 1.225,
                 "mach_infinity"                 : 0.03,
                 "angle_of_attack"               : 0.0,
