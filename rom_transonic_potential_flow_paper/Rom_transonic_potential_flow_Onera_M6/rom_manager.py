@@ -2,12 +2,12 @@ import os
 import time
 import openpyxl
 import random
+import subprocess
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
-from plot import Plot_Cps # type: ignore
-from ClearAll import Clear # type: ignore
+from plot import Plot_Cps
 from scipy.stats import qmc  
 import KratosMultiphysics
 import KratosMultiphysics.kratos_utilities
@@ -20,7 +20,9 @@ from KratosMultiphysics.RomApplication.calculate_rom_basis_output_process import
 #
 # get multiple parameters by Halton or LatinHypercube methods
 #
-def get_multiple_parameters(number_train_values=0, number_test_values=0, angle=[], mach=[], mu_validation=[None], method='Halton'):
+def get_multiple_parameters(number_train_values=0, number_test_values=0,
+                            angle=[], mach=[], mu_validation=[], 
+                            method='Halton', update_mu_test = True, alpha=0.5, beta=0.5):
     if method == 'Halton':
         sampler = qmc.Halton(d=2)
     elif method == 'LatinHypercube':
@@ -29,14 +31,21 @@ def get_multiple_parameters(number_train_values=0, number_test_values=0, angle=[
     mu_train_not_scaled = []; mu_test_not_scaled = []; mu_validation_not_scaled = []
     if number_train_values > 0:
         sample = sampler.random(number_train_values)
-        values = qmc.scale(sample, [angle[0],mach[0]], [angle[1],mach[1]])
+        # Transformación de densidad
+        # Alpha Controla la densidad en x
+        # Beta  Controla la densidad en y
+        transformed_points = np.zeros_like(sample)
+        transformed_points[:, 0] = sample[:, 0]**alpha
+        transformed_points[:, 1] = sample[:, 1]**beta
+        values = qmc.scale(transformed_points, [angle[0],mach[0]], [angle[1],mach[1]])
         for i in range(number_train_values):
             #Angle of attack , Mach infinit
+            # if values[i,0] > (-28.889*values[i,1]+21.522):
             mu_train.append([values[i,0], values[i,1]])
-            mu_train_not_scaled.append([sample[i,0], sample[i,1]])
+            mu_train_not_scaled.append([transformed_points[i,0], transformed_points[i,1]])
         np.save(f'mu_train', mu_train)
         np.save(f'mu_train_not_scaled', mu_train_not_scaled)
-    if number_test_values > 0:
+    if number_test_values > 0 and update_mu_test:
         sample = sampler.random(number_test_values)
         values = qmc.scale(sample, [angle[0],mach[0]], [angle[1],mach[1]])
         for i in range(number_test_values):
@@ -45,6 +54,11 @@ def get_multiple_parameters(number_train_values=0, number_test_values=0, angle=[
             mu_test_not_scaled.append([sample[i,0], sample[i,1]])
         np.save(f'mu_test', mu_test)
         np.save(f'mu_test_not_scaled', mu_test_not_scaled)
+    if os.path.exists("mu_test.npy") and not update_mu_test:
+        mu_test = np.load('mu_test.npy')
+        mu_test_not_scaled = np.load('mu_test_not_scaled.npy')
+        mu_test =  [mu.tolist() for mu in mu_test]
+        mu_test_not_scaled =  [mu.tolist() for mu in mu_test_not_scaled]
     if len(mu_validation)>0:
         mu_validation_not_scaled = get_not_scale_parameters(mu_validation, angle, mach)
         np.save(f'mu_validation', mu_validation)
@@ -64,7 +78,6 @@ def get_not_scale_parameters(mu=[None], angle=[], mach=[]):
             #Angle of attack , Mach infinit
             mu_not_scaled.append([values[i,0], values[i,1]])    
     return mu_not_scaled
-
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
@@ -180,16 +193,16 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
     class CustomSimulation(cls):
 
         def __init__(self, model,project_parameters):
+            if self._GetSimulationName() == "::[ROM Simulation]:: ": # Global ROM
+                parameters["solver_settings"]["convergence_criterion"].SetString("solution_criterion")
             super().__init__(model,project_parameters)
         
         def Initialize(self):
-            # if self._GetSimulationName() == "::[ROM Simulation]:: ":
-            #     parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["min_alpha"].SetDouble(0.05)
-            #     parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["line_search_tolerance"].SetDouble(0.25)
             super().Initialize()
+            if self._GetSimulationName() == "Analysis": # FOM
+                    for elem in self.model["MainModelPart"].Elements:
+                        elem.SetValue(CPFApp.SAVE_UPWIND_ELEMENT, True)
 
-            # self._GetSolver()._GetSolutionStrategy().SetKeepSystemConstantDuringIterations(True)
-                
             print(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
             print(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
             print(f"{self._GetSimulationName()}")
@@ -198,7 +211,7 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
             case_name = f'{angle}, {mach}'
             print(f"{case_name}")
             if parameters["output_processes"].Has("gid_output"):
-                print(f"{parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].GetString().removeprefix('Results/')}")
+                print(parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].GetString().removeprefix('Results/'))
             print(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
             print(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
 
@@ -208,7 +221,6 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
             mach  = parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].GetDouble()
 
             case_name = f'{angle}, {mach}'
-
             info_steps_list = []
             error = 0
             modes = 0
@@ -233,8 +245,9 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
                     if 'Fit' in simulation_name:
                         case_type = 'train_fom'
                     elif 'Test' in simulation_name:
-                        case_type = 'test_fom' 
-                        modes = np.load('rom_data/RightBasisMatrix.npy').shape[1]
+                        case_type = 'test_fom'
+                        if os.path.exists('rom_data/RightBasisMatrix.npy'): 
+                            modes = np.load('rom_data/RightBasisMatrix.npy').shape[1]
                     elif 'Run' in simulation_name:
                         case_type = 'run_fom' 
                     skin_data_filename = f"FOM_Skin_Data/{case_name}.dat"
@@ -444,8 +457,8 @@ def UpdateMaterialParametersFile(material_parametrs_file_name, mu):
 
 def GetRomManagerParameters():
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
-            "rom_stages_to_train" : ["ROM","HROM"],            // ["ROM","HROM"]
-            "rom_stages_to_test"  : ["ROM","HROM"],            // ["ROM","HROM"]
+            "rom_stages_to_train" : ["ROM"],            // ["FOM","ROM","HROM","HHROM"]
+            "rom_stages_to_test"  : ["ROM"],            // ["FOM","ROM","HROM","HHROM"]
             "paralellism" : null,                       // null, TODO: add "compss"
             "projection_strategy": "galerkin",          // "lspg", "galerkin", "petrov_galerkin"
             "type_of_decoder" : "linear",               // "linear" "ann_enhanced",  TODO: add "quadratic"
@@ -456,10 +469,10 @@ def GetRomManagerParameters():
             "store_nonconverged_fom_solutions": true,
             "ROM":{
                 "analysis_stage" : "KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis",
-                "svd_truncation_tolerance": 1e-6,
+                "svd_truncation_tolerance": 1e-12,
                 "print_singular_values": true,
                 "use_non_converged_sols" : false,
-                "model_part_name": "MainModelPart",                            // This changes depending on the simulation: Structure, FluidModelPart, ThermalPart #TODO: Idenfity it automatically
+                "model_part_name": "MainModelPart",                         // This changes depending on the simulation: Structure, FluidModelPart, ThermalPart #TODO: Idenfity it automatically
                 "nodal_unknowns": ["VELOCITY_POTENTIAL", "AUXILIARY_VELOCITY_POTENTIAL"],     // Main unknowns. Snapshots are taken from these
                 "rom_basis_output_format": "numpy",
                 "rom_basis_output_name": "RomParameters",
@@ -489,13 +502,15 @@ def GetRomManagerParameters():
                 "hrom_format": "numpy",
                 "initial_candidate_elements_model_part_list" : [],
                 "initial_candidate_conditions_model_part_list" : [],
-                "include_elements_model_parts_list": [],
-                "include_conditions_model_parts_list": [],
                 "include_nodal_neighbouring_elements_model_parts_list":[],
                 "include_minimum_condition": false,
                 "include_condition_parents": true
             }
         }""")
+                # "include_elements_model_parts_list": ["MainModelPart.trailing_edge_element",
+                #                                       "MainModelPart.upwind_elements"],
+                # "include_conditions_model_parts_list": ["MainModelPart.FarField",
+                #                                         "MainModelPart.Wing"],
 
     return general_rom_manager_parameters
 
@@ -504,6 +519,9 @@ def GetRomManagerParameters():
 
 
 if __name__ == "__main__":
+
+    #Disable logs
+    # KratosMultiphysics.Logger.GetDefaultOutput().SetSeverity(KratosMultiphysics.Logger.Severity.WARNING)
 
     folder_names = ["FOM_Snapshots"  , "FOM_Skin_Data", 
                     "ROM_Snapshots"  , "ROM_Skin_Data", 
@@ -515,14 +533,18 @@ if __name__ == "__main__":
         if not os.path.exists(name):
             os.mkdir(name)
 
-    ###############################
+    #################################
     # PARAMETERS SETTINGS
     update_parameters  = True
-    number_of_mu_train = 3
-    number_of_mu_test  = 1
+    update_mu_test     = True
+    VALIDATION         = True
+    number_of_mu_train = 25
+    number_of_mu_test  = 5
+    alpha              = 0.6
+    beta               = 0.6
     re_dim_mu_train    = 0
     re_dim_mu_test     = 0
-    delete_new_mu_val  = True
+    delete_new_mu_val  = False
     angle_range        = [ 2.50, 3.25]
     mach_range         = [ 0.80, 0.85]
     ###############################
@@ -533,19 +555,25 @@ if __name__ == "__main__":
     
     if update_parameters:
         (mu_train, mu_test,
-         mu_train_not_scaled, mu_test_not_scaled,
-         mu_validation_not_scaled) = get_multiple_parameters(number_train_values = number_of_mu_train,
+        mu_train_not_scaled, mu_test_not_scaled,
+        mu_validation_not_scaled) = get_multiple_parameters(number_train_values = number_of_mu_train,
                                                             number_test_values   = number_of_mu_test , 
                                                             angle                = angle_range       , 
                                                             mach                 = mach_range        , 
                                                             mu_validation        = mu_validation     ,
-                                                            method               = 'LatinHypercube'  )
+                                                            # method               = 'LatinHypercube',
+                                                            method               = 'Halton'          ,
+                                                            update_mu_test       = update_mu_test    ,
+                                                            alpha = alpha, beta = beta )
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('upwind_elements_list.txt')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('trailing_edge_element_id.txt')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('mu_train_new.npy')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('mu_train_not_scaled_new.npy')
+        KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('mu_train_updated.npy')
+        KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('mu_train_not_scaled_updated.npy')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('mu_test_new.npy')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('mu_test_not_scaled_new.npy')
+        KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('wake_angles.dat')
     else:
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('case_data.xlsx')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Train_Captures')
@@ -564,10 +592,11 @@ if __name__ == "__main__":
             mu_train =  [mu.tolist() for mu in mu_train]
             mu_train_not_scaled = np.load('mu_train_not_scaled_new.npy')
             mu_train_not_scaled =  [mu.tolist() for mu in mu_train_not_scaled]
-            mu_test = np.load('mu_test_new.npy')
-            mu_test =  [mu.tolist() for mu in mu_test]
-            mu_test_not_scaled = np.load('mu_test_not_scaled_new.npy')
-            mu_test_not_scaled =  [mu.tolist() for mu in mu_test_not_scaled]
+            if os.path.exists('mu_test_new.npy'):
+                mu_test = np.load('mu_test.npy')
+                mu_test =  [mu.tolist() for mu in mu_test]
+                mu_test_not_scaled = np.load('mu_test_not_scaled.npy')
+                mu_test_not_scaled =  [mu.tolist() for mu in mu_test_not_scaled]
         else:
             mu_train_list, mu_test_list, mu_train_not_scaled_list, mu_test_not_scaled_list, mu_validation, mu_validation_not_scaled = load_mu_parameters()
             mu_train = list(random.sample(mu_train_list, re_dim_mu_train))
@@ -578,15 +607,18 @@ if __name__ == "__main__":
             np.save('mu_train_not_scaled_new',mu_train_not_scaled)
             np.save('mu_test_new',mu_test)
             np.save('mu_test_not_scaled_new',mu_test_not_scaled)
+
         plot_mu_values(mu_train, mu_test, mu_validation, 'MuValues')
         plot_mu_values(mu_train_not_scaled, mu_test_not_scaled, mu_validation_not_scaled, 'MuValuesNotScaled')
+
+    # input('Pause')
 
     general_rom_manager_parameters = GetRomManagerParameters()
     project_parameters_name = "ProjectParameters.json"
 
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
-                             CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
-                             relaunch_FOM=False, relaunch_ROM=False, relaunch_HROM=False)
+                            CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
+                            relaunch_FOM=False, relaunch_ROM=True, relaunch_HROM=True, rebuild_phi=True)
 
     rom_manager.Fit(mu_train)
 

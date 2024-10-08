@@ -22,13 +22,13 @@
                     "element_type":"perturbation_transonic"
         },
         "scheme_settings"          : {
-            "model_part_name" : "Body2D_Body",
-            "critical_mach"                 : 0.9,
-            "upwind_factor_constant"        : 2.0,
-            "update_critical_mach"          : 0.95,
-            "update_upwind_factor_constant" : 1.0,
-            "update_transonic_tolerance"    : 1e-3,
-            "mach_number_squared_limit"     : 3.0
+            "is_transonic": true,
+            "initial_critical_mach"          : 0.9,
+            "initial_upwind_factor_constant" : 2.0,
+            "target_critical_mach"           : 0.95,
+            "target_upwind_factor_constant"  : 1.0,
+            "update_relative_residual_norm"  : 1e-3,
+            "mach_number_squared_limit"      : 3.0
         },
         "maximum_iterations"       : 300,
         "echo_level"               : 1,
@@ -64,6 +64,7 @@
             "process_name"  : "FarFieldProcess",
             "Parameters"    : {
                 "model_part_name" : "MainModelPart.PotentialWallCondition2D_Far_field_Auto1",
+                "angle_of_attack_units"         : "degrees",
                 "free_stream_density"           : 1.225,
                 "mach_infinity"                 : 0.03,
                 "angle_of_attack"               : 0.0,

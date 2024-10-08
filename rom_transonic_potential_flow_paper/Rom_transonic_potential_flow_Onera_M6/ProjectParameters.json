@@ -25,39 +25,30 @@
             "is_transonic": true,
             "initial_critical_mach"          : 0.85,
             "initial_upwind_factor_constant" : 2.0,
-            "target_critical_mach"           : 0.9,
-            "target_upwind_factor_constant"  : 1.0,
+            "target_critical_mach"           : 0.95,
+            "target_upwind_factor_constant"  : 1.6,
             "update_relative_residual_norm"  : 1e-3,
             "mach_number_squared_limit"      : 3.0
         }, 
-        "maximum_iterations": 150,
+        "maximum_iterations": 50,
         "relative_tolerance": 1e-8,
         "absolute_tolerance": 1e-8,   
         "linear_solver_settings"  : {
-            "solver_type": "amgcl",
-            "max_iteration": 400,
-            "gmres_krylov_space_dimension": 100,
-            "smoother_type":"ilu0",
-            "coarsening_type":"ruge_stuben",
-            "coarse_enough" : 5000,
-            "krylov_type": "lgmres",
-            "tolerance": 1e-9,
-            "verbosity": 0,
-            "scaling": false
+            "solver_type": "LinearSolversApplication.pardiso_lu"
         },
         "solving_strategy_settings": {
             "advanced_settings": {
                 "max_line_search_iterations" : 5,
                 "first_alpha_value"          : 0.5,
-                "second_alpha_value"         : 1.0,
+                "second_alpha_value"         : 0.9,
                 "min_alpha"                  : 0.5,
                 "max_alpha"                  : 1.0,
                 "line_search_tolerance"      : 0.5},
             "type": "line_search"
         },    
-        "convergence_criterion": "solution_criterion",
+        "convergence_criterion": "residual_criterion",
         "echo_level"               : 1,
-        "reference_chord"          : 1.0,
+        "reference_chord"          : 0.7532,
         "volume_model_part_name"   : "MainModelPart.Fluid",
         "skin_parts"               : ["MainModelPart.FarField","MainModelPart.Wing"],
         "assign_neighbour_elements_to_conditions": true,
@@ -72,7 +63,7 @@
             "process_name"  : "FarFieldProcess",
             "Parameters"    : {
                 "model_part_name" : "MainModelPart.FarField",
-                "angle_of_attack_units"         : "degrees",
+                "angle_of_attack_units": "degrees",
                 "free_stream_density": 1.225,
                 "angle_of_attack": 0.0,
                 "mach_infinity": 0.03,
@@ -87,9 +78,7 @@
                 "model_part_name" : "MainModelPart.TE_Wing",
                 "body_model_part_name" : "MainModelPart.Wing",
                 "wake_stl_file_name" : "",   
-                "dz": 0.0, 
-                "vtk_output_wake": true,
-                "gid_output_wake": false,
+                "output_wake": false,
                 "wake_process_cpp_parameters":    {
                     "tolerance"                     : 1e-9,
                     "wake_normal"                   : [0.0,0.0,1.0],
@@ -97,9 +86,8 @@
                     "count_elements_number"         : false,
                     "write_elements_ids_to_file"    : false,
                     "shed_wake_from_trailing_edge"  : true,
-                    "shedded_wake_distance"         : 3.0,
-                    "shedded_wake_element_size"     : 0.2,
-                    "decrease_wake_width_at_the_wing_tips" : false,
+                    "shedded_wake_distance"         : 17.0,
+                    "shedded_wake_element_size"     : 0.1,
                     "echo_level": 1
                 }
              }
@@ -117,8 +105,8 @@
             "kratos_module" : "KratosMultiphysics.CompressiblePotentialFlowApplication",
             "Parameters"    : {
                 "model_part_name" : "MainModelPart.Wing",
-                "moment_reference_point" : [0.6,0.0,0.0],
-                "mean_aerodynamic_chord" : 1.0,
+                "moment_reference_point" : [0.201475,0.0,0.0],
+                "mean_aerodynamic_chord" : 0.64607,
                 "trailing_edge_model_part_name": "MainModelPart.TE_Wing",
                 "far_field_model_part_name"   : "MainModelPart.FarField",
                 "is_infinite_wing": false

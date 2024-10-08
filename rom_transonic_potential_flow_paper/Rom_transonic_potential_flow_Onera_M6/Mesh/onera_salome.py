@@ -15,20 +15,23 @@ notebook = salome_notebook.NoteBook()
 
 WingAngle        = 0.0
 ########################
-DomainHeight     = 6.0 #X
-DomainWidth      = 3.0 #Y
-DomainLength     = 6.0 #Z
+# DomainHeight     = 6.0 #X
+# DomainWidth      = 3.0 #Y
+# DomainLength     = 6.0 #Z
+DomainHeight     = 25.0 #X
+DomainWidth      = 25.0 #Y
+DomainLength     = 25.0 #Z
 ########################
 MeshGrowthRate   = 0.2
 ########################
-MeshMaxSize      = 1.0
-MeshMinSize      = 0.025
+MeshMaxSize      = 2.0
+MeshMinSize      = 0.001
 ########################
-MeshWingSize     = 0.025
-MeshTEWingSize   = 0.025
-MeshLEWingSize   = 0.025
-MeshTipWingSize  = 0.025
-MeshRootFoilSize = 0.025
+MeshWingSize     = 0.004
+MeshTEWingSize   = 0.002
+MeshLEWingSize   = 0.002
+MeshTipWingSize  = 0.002
+MeshRootFoilSize = 0.004
 ########################
 # Wake_angle         = 3.06
 # Wake_length        = DomainWidth
@@ -149,7 +152,7 @@ geompy.addToStudyInFather( Domain, TE_Points, 'TE_Points' )
 import  SMESH # type: ignore
 from salome.smesh import smeshBuilder # type: ignore
 
-sys.path.append("../../../../KratosSalomePlugin") # adding root folder of plugin to path
+sys.path.append("../../../../../KratosSalomePlugin") # adding root folder of plugin to path
 import create_kratos_input_tui # type: ignore
 
 mesh_description_domain  = { "elements"   : {"Tetra"    : {"Element3D4N"       : 0}}}

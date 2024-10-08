@@ -105,8 +105,6 @@ def CustomizeSimulation(cls, global_model, parameters):
                         cp = node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
                         fout.write("%s %s %s %s\n" %(x,y,z,cp))
                     fout.close()
-                    cp = np.block(np.array(modelpart.GetValue(KratosMultiphysics.RomApplication.ROM_CURRENT_SOLUTION_TOTAL)).reshape(-1,1))
-                    np.save(f"FOM_cp_snapshots/{case_name}", cp)
 
                     info_steps_list.append([case_type,
                                             angle,
@@ -223,7 +221,7 @@ if __name__ == "__main__":
 
     ###############################
     # PARAMETERS SETTINGS
-    update_values        = True
+    update_values        = False
     number_of_mu_values  = 2000
     mach_range           = [ 0.60, 0.75]
     angle_range          = [ 0.00, 2.00]
@@ -231,17 +229,17 @@ if __name__ == "__main__":
 
     if update_values:
         mu = get_multiple_parameters( number_of_values = number_of_mu_values,
-                                                    angle             = angle_range        , 
-                                                    mach              = mach_range         , 
-                                                    method            = 'Halton'           )
+                                     angle             = angle_range        , 
+                                     mach              = mach_range         , 
+                                     method            = 'Halton'           )
     else:
         mu = load_mu_parameters()
 
     # I had to correct values
     # mu = []
-    # mu.append([1.96619381513718, 0.747609454205878]) (update mach 0.85 -> 0.92)
-    # mu.append([1.79041256513718, 0.749872828691474]) (update mach-> 0.92)
-    # mu.append([1.97302975263718, 0.749186957635233]) (update mach 0.85 -> 0.92)
+    # mu.append([1.9661938151371774, 0.7476094542058775]) #(target mach      -> 0.92)
+    # mu.append([1.7904125651371774, 0.7498728286914742]) #(target mach 0.85 -> 0.92)
+    # mu.append([1.9730297526371774, 0.7491869576352328]) #(target mach 0.85 -> 0.92)
 
     general_rom_manager_parameters = GetRomManagerParameters()
     project_parameters_name = "ProjectParameters.json"
@@ -253,11 +251,11 @@ if __name__ == "__main__":
     Plot_Cps(mu, 'Mu_Captures')
 
 
-    mu_test = []
-    mu_test.append([1.0,0.72])
-    mu_test.append([1.0,0.73])
-    mu_test.append([1.0,0.75])
-    mu_test.append([2.0,0.75])
+    # mu_test = []
+    # mu_test.append([1.0,0.72])
+    # mu_test.append([1.0,0.73])
+    # mu_test.append([1.0,0.75])
+    # mu_test.append([2.0,0.75])
 
-    rom_manager.RunFOM(mu_run=mu_test)
-    Plot_Cps(mu_test, 'Validation')
+    # rom_manager.RunFOM(mu_run=mu_test)
+    # Plot_Cps(mu_test, 'Validation')

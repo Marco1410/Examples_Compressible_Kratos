@@ -30,7 +30,7 @@ indices = [1,2,0]
 fig = plt.figure(figsize=(10, 10))
 
 # Posición y tamaño del gráfico central (ajustable)
-central_plot_position = [0.3, 0.3, 0.4, 0.4]  # [left, bottom, width, height]
+central_plot_position = [0.35, 0.35, 0.3, 0.3]  # [left, bottom, width, height]
 ax = fig.add_axes(central_plot_position)
 ax.scatter(mach_train, alpha_train, color='blue', label='Train')
 ax.scatter(mach_test, alpha_test, color='red', label='Test')
@@ -43,10 +43,10 @@ ax.set_title('Parameter space', size=13, pad=8)
 
 # Posiciones relativas de los subplots
 positions = [
-    [0.05, 0.75, 0.15, 0.15],
-    [0.75, 0.75, 0.15, 0.15],
-    [0.05, 0.05, 0.15, 0.15],
-    [0.75, 0.05, 0.15, 0.15]
+    [0.05, 0.70, 0.25, 0.25],
+    [0.68, 0.70, 0.25, 0.25],
+    [0.05, 0.05, 0.25, 0.25],
+    [0.68, 0.05, 0.25, 0.25]
 ]
 
 # Dibujar subplots
