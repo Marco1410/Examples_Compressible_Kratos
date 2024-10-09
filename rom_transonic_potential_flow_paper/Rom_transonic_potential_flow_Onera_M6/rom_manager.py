@@ -40,7 +40,6 @@ def get_multiple_parameters(number_train_values=0, number_test_values=0,
         values = qmc.scale(transformed_points, [angle[0],mach[0]], [angle[1],mach[1]])
         for i in range(number_train_values):
             #Angle of attack , Mach infinit
-            # if values[i,0] > (-28.889*values[i,1]+21.522):
             mu_train.append([values[i,0], values[i,1]])
             mu_train_not_scaled.append([transformed_points[i,0], transformed_points[i,1]])
         np.save(f'mu_train', mu_train)
@@ -538,14 +537,14 @@ if __name__ == "__main__":
     update_parameters  = True
     update_mu_test     = True
     VALIDATION         = True
-    number_of_mu_train = 25
-    number_of_mu_test  = 5
+    number_of_mu_train = 50
+    number_of_mu_test  = 50
     alpha              = 0.6
     beta               = 0.6
     re_dim_mu_train    = 0
     re_dim_mu_test     = 0
     delete_new_mu_val  = False
-    angle_range        = [ 2.50, 3.25]
+    angle_range        = [ 2.25, 3.25]
     mach_range         = [ 0.80, 0.85]
     ###############################
 

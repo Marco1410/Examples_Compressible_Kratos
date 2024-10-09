@@ -34,7 +34,16 @@
         "relative_tolerance": 1e-8,
         "absolute_tolerance": 1e-8,   
         "linear_solver_settings"  : {
-            "solver_type": "LinearSolversApplication.pardiso_lu"
+            "solver_type": "amgcl",
+            "max_iteration": 400,
+            "gmres_krylov_space_dimension": 100,
+            "smoother_type":"ilu0",
+            "coarsening_type":"ruge_stuben",
+            "coarse_enough" : 5000,
+            "krylov_type": "lgmres",
+            "tolerance": 1e-7,
+            "verbosity": 0,
+            "scaling": false
         },
         "solving_strategy_settings": {
             "advanced_settings": {
@@ -87,7 +96,7 @@
                     "write_elements_ids_to_file"    : false,
                     "shed_wake_from_trailing_edge"  : true,
                     "shedded_wake_distance"         : 17.0,
-                    "shedded_wake_element_size"     : 0.05,
+                    "shedded_wake_element_size"     : 0.01,
                     "echo_level": 1
                 }
              }

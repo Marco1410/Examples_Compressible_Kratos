@@ -47,7 +47,16 @@
         "relative_tolerance"               : 1e-8,
         "absolute_tolerance"               : 1e-8,
         "linear_solver_settings"  : {
-            "solver_type": "LinearSolversApplication.pardiso_lu"
+            "solver_type": "amgcl",
+            "max_iteration": 400,
+            "gmres_krylov_space_dimension": 100,
+            "smoother_type":"ilu0",
+            "coarsening_type":"ruge_stuben",
+            "coarse_enough" : 5000,
+            "krylov_type": "lgmres",
+            "tolerance": 1e-7,
+            "verbosity": 0,
+            "scaling": false
         },
         "volume_model_part_name"   : "MainModelPart.Parts_Parts_Auto1",
         "skin_parts"               : ["MainModelPart.PotentialWallCondition2D_Far_field_Auto1","MainModelPart.Body2D_Body"],
