@@ -123,6 +123,6 @@ def Plot_Modes(modes_to_plot):
 
 if __name__ == "__main__":
 
-    modes_to_plot = [0,1,2,3,4,-1]
+    modes_to_plot = [0,1,2,3,4,5]
 
     Plot_Modes(modes_to_plot)

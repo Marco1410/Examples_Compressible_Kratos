@@ -23,27 +23,18 @@
         },
         "scheme_settings" :{
             "is_transonic": true,
-            "initial_critical_mach"          : 0.85,
+            "initial_critical_mach"          : 0.80,
             "initial_upwind_factor_constant" : 2.0,
-            "target_critical_mach"           : 0.95,
+            "target_critical_mach"           : 0.90,
             "target_upwind_factor_constant"  : 1.6,
             "update_relative_residual_norm"  : 1e-3,
             "mach_number_squared_limit"      : 3.0
         }, 
-        "maximum_iterations": 150,
+        "maximum_iterations": 50,
         "relative_tolerance": 1e-8,
         "absolute_tolerance": 1e-8,   
         "linear_solver_settings"  : {
-            "solver_type": "amgcl",
-            "max_iteration": 400,
-            "gmres_krylov_space_dimension": 100,
-            "smoother_type":"ilu0",
-            "coarsening_type":"ruge_stuben",
-            "coarse_enough" : 5000,
-            "krylov_type": "lgmres",
-            "tolerance": 1e-7,
-            "verbosity": 0,
-            "scaling": false
+            "solver_type": "LinearSolversApplication.pardiso_lu"
         },
         "solving_strategy_settings": {
             "advanced_settings": {

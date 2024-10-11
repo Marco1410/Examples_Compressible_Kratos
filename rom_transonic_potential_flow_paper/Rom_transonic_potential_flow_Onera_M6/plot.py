@@ -387,7 +387,7 @@ def Plot_Cps(mu_list, capture_directory):
                     cp_interpolated_fom = griddata((x_fom, y_fom), cp_fom, (x_grid, y_target), method='linear', fill_value=0.25)
                     cp_interpolated_fom_inf = griddata((x_fom_inf, y_fom_inf), cp_fom_inf, (x_grid, y_target), method='linear')
                     cp_interpolated_fom_full = np.concatenate((cp_interpolated_fom_inf, cp_interpolated_fom))
-                    if capture_directory == 'Validation':
+                    if capture_directory == 'Validation' and VALIDATION and POTENTIAL:
                         error_pot_fom = np.linalg.norm(-cp_interpolated_fom_full-cp_validation_pot_interpolated)/np.linalg.norm(cp_validation_pot_interpolated)
                         sub_ax.scatter(x_airfoil_normalized_full, -cp_interpolated_fom_full, marker="s", label=f"FOM-FV solver e: {error_pot_fom:.2E}", s=4)
                     else:

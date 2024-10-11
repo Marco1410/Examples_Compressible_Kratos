@@ -537,8 +537,8 @@ if __name__ == "__main__":
     update_parameters  = True
     update_mu_test     = True
     VALIDATION         = True
-    number_of_mu_train = 50
-    number_of_mu_test  = 50
+    number_of_mu_train = 3
+    number_of_mu_test  = 1
     alpha              = 0.6
     beta               = 0.6
     re_dim_mu_train    = 0
