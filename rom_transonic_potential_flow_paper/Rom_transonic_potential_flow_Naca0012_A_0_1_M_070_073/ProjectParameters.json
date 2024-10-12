@@ -23,11 +23,11 @@
         },
         "scheme_settings"          : {
             "is_transonic": true,
-            "initial_critical_mach"          : 0.99,
+            "initial_critical_mach"          : 0.97,
             "initial_upwind_factor_constant" : 3.0,
             "target_critical_mach"           : 0.99,
-            "target_upwind_factor_constant"  : 1.0,
-            "update_relative_residual_norm"  : 1e-30,
+            "target_upwind_factor_constant"  : 1.5,
+            "update_relative_residual_norm"  : 1e-3,
             "mach_number_squared_limit"      : 3.0
         },
         "maximum_iterations"       : 150,

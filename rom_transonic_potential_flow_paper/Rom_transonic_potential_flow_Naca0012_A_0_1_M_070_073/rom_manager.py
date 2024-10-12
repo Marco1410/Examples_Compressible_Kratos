@@ -31,8 +31,8 @@ def get_multiple_parameters(number_train_values=0, number_test_values=0,
     if number_train_values > 0:
         sample = sampler.random(number_train_values)
         # Transformación de densidad
-        # Alpha Controla la densidad en x
-        # Beta  Controla la densidad en y
+        # Alpha Controla la densidad en y
+        # Beta  Controla la densidad en x
         transformed_points = np.zeros_like(sample)
         transformed_points[:, 0] = sample[:, 0]**alpha
         transformed_points[:, 1] = sample[:, 1]**beta
@@ -441,12 +441,51 @@ def UpdateProjectParameters(parameters, mu=None):
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(np.double(angle_of_attack))
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(np.double(mach_infinity))
 
-    if (mach_infinity > 0.73 or angle_of_attack > 1.00):
-        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
+    if (mach_infinity > 0.73 and angle_of_attack <= 1.00):
+        # input("1")
+        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.97)
         parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
         parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.91)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.8)
+        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.97)
+        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.0)
+
+    if (mach_infinity > 0.74 and angle_of_attack <= 1.00):
+        # input("2")
+        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.95)
+        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
+        parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
+        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.95)
+        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.0)
+
+    if (mach_infinity > 0.75 and angle_of_attack <= 1.00):
+        # input("3")
+        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.90)
+        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
+        parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
+        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.90)
+        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.0)
+
+    # if (mach_infinity > 0.73 and angle_of_attack > 1.00):
+    #     parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
+    #     parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
+    #     parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
+    #     parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.91)
+    #     parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.8)
+
+    # if (mach_infinity > 0.74 and angle_of_attack > 1.75):
+    #     parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
+    #     parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
+    #     parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
+    #     parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.90)
+    #     parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.0)
+
+    # if (mach_infinity > 0.75 and angle_of_attack > 2.00):
+    #     parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
+    #     parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(8.0)
+    #     parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
+    #     parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.85)
+    #     parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(7.0)
+
 
     return parameters
 
@@ -461,8 +500,8 @@ def UpdateMaterialParametersFile(material_parametrs_file_name, mu):
 
 def GetRomManagerParameters():
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
-            "rom_stages_to_train" : ["ROM","HHROM"],            // ["FOM","ROM","HROM","HHROM"]
-            "rom_stages_to_test"  : ["ROM","HHROM"],            // ["FOM","ROM","HROM","HHROM"]
+            "rom_stages_to_train" : ["ROM"],            // ["FOM","ROM","HROM","HHROM"]
+            "rom_stages_to_test"  : ["ROM"],            // ["FOM","ROM","HROM","HHROM"]
             "paralellism" : null,                       // null, TODO: add "compss"
             "projection_strategy": "galerkin",          // "lspg", "galerkin", "petrov_galerkin"
             "type_of_decoder" : "linear",               // "linear" "ann_enhanced",  TODO: add "quadratic"
@@ -507,8 +546,9 @@ def GetRomManagerParameters():
                 "initial_candidate_elements_model_part_list" : [],
                 "initial_candidate_conditions_model_part_list" : [],
                 "include_nodal_neighbouring_elements_model_parts_list":[],
-                "include_elements_model_parts_list": ["MainModelPart.trailing_edge_element"],
-                "include_conditions_model_parts_list": [],
+                "include_elements_model_parts_list": ["MainModelPart.trailing_edge_element","MainModelPart.upwind_elements"],
+                "include_conditions_model_parts_list": ["MainModelPart.PotentialWallCondition2D_Far_field_Auto1",
+                                                        "MainModelPart.Body2D_Body"],
                 "include_minimum_condition": false,
                 "include_condition_parents": true
             }
@@ -541,17 +581,17 @@ if __name__ == "__main__":
 
     ###############################
     # PARAMETERS SETTINGS
-    update_parameters  = False
+    update_parameters  = True
     update_mu_test     = True
     VALIDATION         = True
     number_of_mu_train = 100
-    number_of_mu_test  = 50
-    alpha              = 0.6
-    beta               = 0.6
+    number_of_mu_test  = 5
+    alpha              = 0.45
+    beta               = 0.70
     re_dim_mu_train    = 0
     re_dim_mu_test     = 0
     delete_new_mu_val  = False
-    mach_range         = [0.70, 0.73]
+    mach_range         = [0.70, 0.76]
     angle_range        = [0.00, 1.00]
     ###############################
 
@@ -575,8 +615,8 @@ if __name__ == "__main__":
                                                             angle                = angle_range       , 
                                                             mach                 = mach_range        , 
                                                             mu_validation        = mu_validation     ,
-                                                            method               = 'LatinHypercube',
-                                                            # method               = 'Halton'          ,
+                                                            # method               = 'LatinHypercube',
+                                                            method               = 'Halton'          ,
                                                             update_mu_test       = update_mu_test    ,
                                                             alpha = alpha, beta = beta )
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('upwind_elements_list.txt')
@@ -629,7 +669,7 @@ if __name__ == "__main__":
 
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
                              CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
-                             relaunch_FOM=False, relaunch_ROM=False, relaunch_HROM=True, rebuild_phi=True)
+                             relaunch_FOM=False, relaunch_ROM=True, relaunch_HROM=True, rebuild_phi=True)
 
     rom_manager.Fit(mu_train)
 
