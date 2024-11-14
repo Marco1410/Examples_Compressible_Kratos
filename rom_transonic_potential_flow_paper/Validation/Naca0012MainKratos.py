@@ -91,6 +91,7 @@ if __name__ == "__main__":
             parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.5)
 
         if (mach_infinity > 0.74 or angle_of_attack > 1.75):
+            input('2')
             parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
             parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
             parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)

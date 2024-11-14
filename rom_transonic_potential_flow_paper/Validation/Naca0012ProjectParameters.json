@@ -13,7 +13,7 @@
         "solver_type"              : "potential_flow",
         "model_import_settings"    : {
             "input_type"     : "mdpa",
-            "input_filename" : "../Rom_transonic_potential_flow_Naca0012_A_0_1_M_070_073/Mesh/model_mesh_0"
+            "input_filename" : "../Rom_transonic_potential_flow_Naca0012_C1/Mesh/model_mesh_0"
         },
         "material_import_settings" : {
             "materials_filename" : ""

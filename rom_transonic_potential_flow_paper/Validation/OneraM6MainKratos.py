@@ -71,7 +71,7 @@ def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
 
 if __name__ == "__main__":
 
-    UPDATE_DATA     = True
+    UPDATE_DATA     = False
     PLOTCPS         = True
     PLOT2D          = True
     PLOT3D          = True
@@ -172,7 +172,7 @@ if __name__ == "__main__":
             ax.set_zlabel('Z')
             ax.set_title(f' Wing Pressure distribution - Angle={np.round(mu[0],3)}, Mach={np.round(mu[1],3)}', size=13, pad=8, y=-0.15)
             # plt.show()
-            plt.savefig("Onera M6 Validation 3D view.pdf", dpi=400)
+            plt.savefig("Onera M6 Validation 3D view.png", dpi=200)
             plt.close('all')
 
         ########## 2D PLOT #####################################################################
@@ -200,13 +200,13 @@ if __name__ == "__main__":
             ax.set_ylabel('Y')
             ax.set_title(f' Wing Pressure distribution - Angle={np.round(mu[0],3)}, Mach={np.round(mu[1],3)}', size=13, pad=8, y=-0.125)
             # plt.show()
-            plt.savefig("Onera M6 Validation 2D view.pdf", dpi=400)
+            plt.savefig("Onera M6 Validation 2D view.png", dpi=200)
             plt.close('all')
 
         # WRITE CP SUBPLOTS 
         #########################################################
         if PLOTCPS:
-            fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(15, 9))
+            fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(13, 7))
             labels = [95, 90, 80, 65, 44, 20] 
             fv_potential_lines_in_data_files = [117, 116, 116, 116, 119, 122]
             fe_kratos_inigo_lines_in_data = [80, 73, 72, 74, 74, 81]
@@ -254,7 +254,7 @@ if __name__ == "__main__":
                     x_validation_exp  = np.loadtxt(experimental_skin_data_filename, usecols=(0,))
                     cp_validation_exp = np.loadtxt(experimental_skin_data_filename, usecols=(1,))
                     # ORIGINAL
-                    sub_ax.scatter(x_validation_exp, cp_validation_exp, marker="+", label="Experimental orig", s=7)
+                    sub_ax.scatter(x_validation_exp, cp_validation_exp, marker="+", label="Experimental data", s=15, color='red')
                     ####################################################################################################################
                     # INTERPOLATED
                     cp_interpolated_exp = np.interp(x_airfoil_normalized, x_validation_exp[13:], cp_validation_exp[13:])
@@ -268,7 +268,7 @@ if __name__ == "__main__":
                     x_validation_pot  = np.loadtxt(potential_skin_data_filename, usecols=(0,))
                     cp_validation_pot = np.loadtxt(potential_skin_data_filename, usecols=(1,))
                     # ORIGINAL
-                    sub_ax.scatter(x_validation_pot, cp_validation_pot, marker="*", label="FV Potential solver", s=4)
+                    sub_ax.scatter(x_validation_pot, cp_validation_pot, marker="*", label="FV Potential Solver", s=10)
                     ####################################################################################################################
                     # INTERPOLATED
                     cp_interpolated_pot = np.interp(x_airfoil_normalized, x_validation_pot[fv_potential_lines_in_data_files[idx]+1:], cp_validation_pot[fv_potential_lines_in_data_files[idx]+1:])
@@ -296,19 +296,22 @@ if __name__ == "__main__":
                     cp_interpolated_fe_kratos = griddata((x_k, y_k), cp_k, (x_grid, y_target), method='linear', fill_value=0.25)
                     cp_interpolated_fe_kratos_inf = griddata((x_k_inf, y_k_inf), cp_k_inf, (x_grid, y_target), method='linear')
                     cp_interpolated_fe_kratos_full = np.concatenate((cp_interpolated_fe_kratos_inf, cp_interpolated_fe_kratos))
-                    sub_ax.scatter(x_airfoil_normalized_full, -cp_interpolated_fe_kratos_full, marker="^", label=f"FE kratos potential solver", s=4)
+                    sub_ax.scatter(x_airfoil_normalized_full, -cp_interpolated_fe_kratos_full, marker="^", label=f"FE Kratos Potential Solver", s=7)
 
-                if FV_POTENTIAL and FE_KRATOS:
-                    error_pot_fe_kratos = np.linalg.norm(-cp_interpolated_fe_kratos_full-cp_validation_pot_interpolated)/np.linalg.norm(cp_validation_pot_interpolated)
-                    t = (f'Kratos vs FV pot. sol. \n Diff. {error_pot_fe_kratos:.2E}')
-                    sub_ax.text(0.25, -0.6, t, size=9, bbox=dict(boxstyle="round", facecolor='red', alpha=0.5))
+                # if FV_POTENTIAL and FE_KRATOS:
+                #     error_pot_fe_kratos = np.linalg.norm(-cp_interpolated_fe_kratos_full-cp_validation_pot_interpolated)/np.linalg.norm(cp_validation_pot_interpolated)
+                #     t = (f'Kratos vs FV pot. sol. \n Diff. {error_pot_fe_kratos:.2E}')
+                #     sub_ax.text(0.25, -0.6, t, size=9, bbox=dict(boxstyle="round", facecolor='red', alpha=0.5))
 
-                plt.legend(loc='upper left')
+                if idx == 2:
+                    sub_ax.legend(bbox_to_anchor=(1.04, 1), loc='upper left', borderaxespad=0.0)
                 sub_ax.set_title(f'Section y/b = {np.round(y_target/b,2)}')
-                sub_ax.set_xlabel('x')
-                sub_ax.set_ylabel('-Cp')
+                if idx == 3 or idx == 4 or idx == 5:
+                    sub_ax.set_xlabel('x')
+                if idx == 0 or idx == 3:
+                    sub_ax.set_ylabel('-Cp')
 
-            ax.set_title(f' Wing Pressure distribution - Angle={np.round(mu[0],3)}, Mach={np.round(mu[1],3)}', size=13, pad=8, y=-0.125)
+            plt.tight_layout()
             # plt.show()
-            plt.savefig("Onera M6 Validation 2D CPs view.pdf", dpi=400)
+            plt.savefig("Onera M6 Validation 2D CPs view.png", dpi=200)
             plt.close('all')
