@@ -449,10 +449,21 @@ def GetRomManagerParameters():
                 "initial_candidate_elements_model_part_list" : [],
                 "initial_candidate_conditions_model_part_list" : [],
                 "include_nodal_neighbouring_elements_model_parts_list":[],
-                "include_elements_model_parts_list": ["MainModelPart.trailing_edge"],
-                "include_conditions_model_parts_list": [],
+                "include_elements_model_parts_list": ["MainModelPart.kutta","MainModelPart.trailing_edge"],
+                "include_conditions_model_parts_list": ["MainModelPart.Wing"],
                 "include_minimum_condition": false,
-                "include_condition_parents": true
+                "include_condition_parents": true,             
+                "use_dask": true,
+                "use_svd_dask": false,
+                "use_block_svd_dask": true,
+                "use_block_svd": false,
+                "use_rows_equal_to_columns_in_block": false,
+                "block_size": 1000,
+                "n_workers": 4,
+                "threads_per_worker": 1,
+                "memory_limit": "4GB",
+                "scheduler": false,
+                "ip_scheduler": "0" 
             }
         }""")
 
@@ -476,19 +487,21 @@ if __name__ == "__main__":
 
     #################################
     # PARAMETERS SETTINGS
-    update_parameters  = True
+    update_parameters  = False
     update_mu_test     = True
     VALIDATION         = True
-    update_residuals   = True
+    update_residuals   = False
+    update_phi_hrom    = False
     angle_range        = [ 2.90, 3.17]
     mach_range         = [ 0.829, 0.849]
     ###############################
 
     regions = [
-        ((0.829, 0.839),(2.95, 3.05), 5, 3),
-        ((0.829, 0.839),(3.05, 3.20), 5, 3),
-        ((0.839, 0.849),(2.95, 3.05), 5, 3),
-        ((0.839, 0.849),(3.05, 3.20), 5, 3)
+        # ((0.829, 0.839),(2.95, 3.05), 5, 3),
+        # ((0.829, 0.839),(3.05, 3.20), 5, 3),
+        # ((0.839, 0.849),(2.95, 3.05), 5, 3),
+        # ((0.839, 0.849),(3.05, 3.20), 5, 3)
+        ((0.829, 0.849),(2.90, 3.17), 25, 5)
     ] #, 1  'orange' 
 
     mu_validation = []
@@ -514,15 +527,17 @@ if __name__ == "__main__":
     else:
         if update_residuals:
             KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResidualsSnapshotsMatrix.zarr')
-        KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('case_data.xlsx')
+        if update_phi_hrom:
+            KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('PhiHROMMatrix.zarr')
+        # KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('case_data.xlsx')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Train_Captures')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Test_Captures')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Validation')
         for name in folder_names:
             if not os.path.exists(name):
                 os.mkdir(name)
-        mu_train_list = load_mu_parameters('train')[:10]
-        mu_train_not_scaled_list = load_mu_parameters('train_not_scaled')[:10]
+        mu_train_list = load_mu_parameters('train')
+        mu_train_not_scaled_list = load_mu_parameters('train_not_scaled')
         mu_test_list = load_mu_parameters('test')
         mu_test_not_scaled_list = load_mu_parameters('test_not_scaled')
         mu_validation_list = load_mu_parameters('validation')
@@ -563,7 +578,8 @@ if __name__ == "__main__":
 
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
                             CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
-                            relaunch_FOM=False, relaunch_ROM=False, relaunch_HROM=True, rebuild_phi=False)
+                            relaunch_FOM=False, relaunch_ROM=False, relaunch_HROM=True, 
+                            rebuild_phi=False, rebuild_phiHROM=update_phi_hrom, relaunch_TrainHROM=True)
 
     rom_manager.Fit(mu_train)
 

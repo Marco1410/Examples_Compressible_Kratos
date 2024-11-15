@@ -25,13 +25,13 @@ DomainLength     = 25.0 #Z
 MeshGrowthRate   = 0.2
 ########################
 MeshMaxSize      = 2.0
-MeshMinSize      = 0.001
+MeshMinSize      = 0.006
 ########################
-MeshWingSize     = 0.004
-MeshTEWingSize   = 0.002
-MeshLEWingSize   = 0.002
-MeshTipWingSize  = 0.002
-MeshRootFoilSize = 0.004
+MeshWingSize     = 0.009
+MeshTEWingSize   = 0.007
+MeshLEWingSize   = 0.007
+MeshTipWingSize  = 0.007
+MeshRootFoilSize = 0.009
 ########################
 # Wake_angle         = 3.06
 # Wake_length        = DomainWidth
