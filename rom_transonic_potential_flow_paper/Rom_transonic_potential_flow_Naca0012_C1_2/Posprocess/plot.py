@@ -140,7 +140,7 @@ def Plot_Cps(mu_list, capture_directory):
 
     for mu in mu_list:
         case_name = f'{mu[0]}, {mu[1]}'
-        capture_filename   = f"{capture_directory}/{case_name}.pdf"
+        capture_filename   = f"{capture_directory}/{case_name}.png"
 
         #### CP PLOT
         ######################################################################

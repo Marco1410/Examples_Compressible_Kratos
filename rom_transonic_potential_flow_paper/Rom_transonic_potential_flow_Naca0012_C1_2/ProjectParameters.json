@@ -23,8 +23,8 @@
         },
         "scheme_settings"          : {
             "is_transonic": true,
-            "initial_critical_mach"          : 0.97,
-            "initial_upwind_factor_constant" : 1.2,
+            "initial_critical_mach"          : 0.80,
+            "initial_upwind_factor_constant" : 6.0,
             "target_critical_mach"           : 0.99,
             "target_upwind_factor_constant"  : 1.0,
             "update_relative_residual_norm"  : 1e-3,

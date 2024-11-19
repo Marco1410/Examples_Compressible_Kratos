@@ -395,11 +395,11 @@ def UpdateProjectParameters(parameters, mu=None):
     if (mach_infinity > 0.73 and mach_infinity <= 0.74 and angle_of_attack >= 0.0 and angle_of_attack <= 1.00):
         # input("2")
         parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('2')
-        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.92)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(1.8)
+        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
+        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(6.0)
         parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
         parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.95)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.3)
+        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.5)
 
     if (mach_infinity > 0.74 and mach_infinity <= 0.75 and angle_of_attack >= 0.0 and angle_of_attack <= 1.00):
         # input("3")
@@ -422,8 +422,8 @@ def UpdateProjectParameters(parameters, mu=None):
     if (mach_infinity > 0.71 and mach_infinity <= 0.73 and angle_of_attack > 0.5 and angle_of_attack <= 1.00):
         # input("5")
         parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('5')
-        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.90)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(1.8)
+        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
+        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(6.0)
         parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
         parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.95)
         parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.5)
@@ -431,20 +431,20 @@ def UpdateProjectParameters(parameters, mu=None):
     if (mach_infinity >= 0.70 and mach_infinity <= 0.73 and angle_of_attack > 1.0 and angle_of_attack <= 1.75):
         # input("6")
         parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('6')
-        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.90)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(2.0)
+        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
+        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(6.0)
         parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.95)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.8)
+        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.97)
+        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.5)
 
     if (mach_infinity > 0.73 and mach_infinity <= 0.74 and angle_of_attack > 1.0 and angle_of_attack <= 1.75):
         # input("7")
         parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('7')
-        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.90)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(3.0)
+        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
+        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(6.0)
         parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.95)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.0)
+        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.97)
+        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.5)
 
     if (mach_infinity > 0.74 and mach_infinity <= 0.75 and angle_of_attack > 1.0 and angle_of_attack <= 1.75):
         # input("8")
@@ -515,9 +515,9 @@ def UpdateMaterialParametersFile(material_parametrs_file_name, mu):
 def GetRomManagerParameters():
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
             "rom_stages_to_train" : ["ROM"],            // ["FOM","ROM","HROM","HHROM"]
-            "rom_stages_to_test"  : ["ROM"],            // ["FOM","ROM","HROM","HHROM"]
+            "rom_stages_to_test"  : [],            // ["FOM","ROM","HROM","HHROM"]
             "paralellism" : null,                       // null, TODO: add "compss"
-            "projection_strategy": "lspg",          // "lspg", "galerkin", "petrov_galerkin"
+            "projection_strategy": "galerkin",          // "lspg", "galerkin", "petrov_galerkin"
             "type_of_decoder" : "linear",               // "linear" "ann_enhanced",  TODO: add "quadratic"
             "assembling_strategy": "global",            // "global", "elemental"
             "save_gid_output": true,                    // false, true #if true, it must exits previously in the ProjectParameters.json
@@ -526,7 +526,7 @@ def GetRomManagerParameters():
             "store_nonconverged_fom_solutions": true,
             "ROM":{
                 "analysis_stage" : "KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis",
-                "svd_truncation_tolerance": 1e-12,
+                "svd_truncation_tolerance": 1e-9,
                 "print_singular_values": true,
                 "use_non_converged_sols" : false,
                 "model_part_name": "MainModelPart",                         // This changes depending on the simulation: Structure, FluidModelPart, ThermalPart #TODO: Idenfity it automatically
@@ -553,26 +553,28 @@ def GetRomManagerParameters():
             },
             "HROM":{
                 "element_selection_type": "empirical_cubature",
-                "element_selection_svd_truncation_tolerance": 0,
+                "element_selection_svd_truncation_tolerance": 1e-12,
                 "create_hrom_visualization_model_part" : true,
                 "echo_level" : 1,                                       
                 "hrom_format": "numpy",
                 "initial_candidate_elements_model_part_list" : [],
                 "initial_candidate_conditions_model_part_list" : [],
                 "include_nodal_neighbouring_elements_model_parts_list":[],
-                "include_elements_model_parts_list": ["MainModelPart.trailing_edge"],
+                "include_elements_model_parts_list": ["MainModelPart.trailing_edge","MainModelPart.kutta"],
                 "include_conditions_model_parts_list": [],
                 "include_minimum_condition": false,
                 "include_condition_parents": true,             
-                "use_dask_matrix": true,
-                "use_svd_dask": true,
-                "use_block_svd_dask": false,
+                "use_dask": true,
+                "use_svd_dask": false,
+                "use_block_svd_dask": true,
                 "use_block_svd": false,
                 "use_rows_equal_to_columns_in_block": false,
                 "block_size": 5000,
-                "n_workers": 8,
+                "n_workers": 2,
                 "threads_per_worker": 1,
-                "memory_limit": "3GB"
+                "memory_limit": "4GB",
+                "scheduler": false,
+                "ip_scheduler": "0"
             }
         }""")
 
@@ -584,8 +586,8 @@ def GetRomManagerParameters():
 
 if __name__ == "__main__":
 
-    MEMORY_LIMIT = 25 * 1024**3
-    resource.setrlimit(resource.RLIMIT_AS, (MEMORY_LIMIT, MEMORY_LIMIT))
+    # MEMORY_LIMIT = 8 * 1024**3
+    # resource.setrlimit(resource.RLIMIT_AS, (MEMORY_LIMIT, MEMORY_LIMIT))
 
     folder_names = ["FOM_Snapshots"  , "FOM_Skin_Data", 
                     "ROM_Snapshots"  , "ROM_Skin_Data", 
@@ -602,14 +604,13 @@ if __name__ == "__main__":
     update_parameters  = True
     update_mu_test     = True
     VALIDATION         = True
-    number_of_mu_test  = 15
+    number_of_mu_test  = 0
     alpha              = 0.5
     beta               = 0.5
     update_residuals   = True
-    mach_range         = [0.70, 0.76]
-    angle_range        = [0.00, 2.50]
-    # mach_range         = [0.70, 0.74]
-    # angle_range        = [0.00, 1.75]
+    update_phi_hrom    = True
+    mach_range         = [0.73, 0.74]
+    angle_range        = [0.50, 1.50]
     ################################
 
     regions = [
@@ -662,12 +663,20 @@ if __name__ == "__main__":
         # angle_coords = np.random.uniform(angle_range[0], angle_range[1], num_puntos)
         # puntos = np.column_stack((angle_coords, mach_coords))
 
-        num_puntos_mach  = 9
-        num_puntos_angle = 9
-        mach_coords = np.linspace(mach_range[0], mach_range[1], num_puntos_mach)
-        angle_coords = np.linspace(angle_range[0], angle_range[1], num_puntos_angle)
-        xx, yy = np.meshgrid(angle_coords, mach_coords)
-        puntos = np.column_stack((xx.ravel(), yy.ravel()))
+        num_puntos_mach  = 4
+        num_puntos_angle = 4
+        mach_base_coords  = np.linspace(0,1, num_puntos_mach)
+        angle_base_coords = np.linspace(0,1, num_puntos_angle)
+
+        mach_coords  = mach_base_coords**1.0
+        angle_coords = angle_base_coords**1.0
+
+        xx, yy = np.meshgrid(mach_coords,angle_coords)
+
+        xx = mach_range[0]+(mach_range[1]-mach_range[0])*xx.ravel()
+        yy = angle_range[0]+(angle_range[1]-angle_range[0])*yy.ravel()
+
+        puntos = np.column_stack((yy,xx))
 
         # puntos= [
         #     [0.000,0.76],
@@ -677,9 +686,10 @@ if __name__ == "__main__":
         #     [2.500,0.76]
         #     ]
 
-        mu_train = []
-        for mu in puntos:
+        mu_train = []; mu_train_not_scaled = []
+        for id, mu in enumerate(puntos):
             mu_train.append([mu[0],mu[1]])
+            mu_train_not_scaled.append([yy.ravel()[id],xx.ravel()[id]])
 
         # mu_train.append([2.5, 0.7075]); mu_train.append([2.5,0.7225]); mu_train.append([2.5,0.7375]); mu_train.append([2.5,0.7525])
         # mu_train.append([2.1875,0.715]); mu_train.append([2.1875,0.73]); mu_train.append([2.1875,0.745]); mu_train.append([2.1875,0.76])
@@ -694,7 +704,7 @@ if __name__ == "__main__":
         # mu_train.append([0.625,0.7525])
         # mu_train.append([0.3125,0.7375]); mu_train.append([0.3125,0.7525]); mu_train.append([0.3125,0.76])
 
-        mu_train_not_scaled = get_not_scale_parameters(mu_train,angle_range,mach_range)
+        # mu_train_not_scaled = get_not_scale_parameters(mu_train,angle_range,mach_range)
         np.save('mu_train',mu_train)
         np.save('mu_train_not_scaled',mu_train_not_scaled)
         plot_mu_values(mu_train, mu_test, mu_validation, 'MuValues')
@@ -751,7 +761,8 @@ if __name__ == "__main__":
 
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
                              CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
-                             relaunch_FOM=False, relaunch_ROM=True, relaunch_HROM=True, rebuild_phi=True)
+                             relaunch_FOM=False, relaunch_ROM=False, relaunch_HROM=True,
+                             rebuild_phi=False, rebuild_phiHROM=update_phi_hrom, relaunch_TrainHROM=True)
 
     rom_manager.Fit(mu_train)
 

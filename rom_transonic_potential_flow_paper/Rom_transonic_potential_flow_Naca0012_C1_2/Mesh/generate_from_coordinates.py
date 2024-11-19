@@ -178,7 +178,7 @@ file_name = "/generate_cosine.hdf"
 salome.myStudy.SaveAs(file_name, salome.myStudy, 0)
 
 
-sys.path.append("../../../../../KratosSalomePlugin") # adding root folder of plugin to path
+sys.path.append("../../../../KratosSalomePlugin") # adding root folder of plugin to path
 import create_kratos_input_tui# type: ignore
 
 mesh_description_domain = { "elements"   : {"Triangle" : {"Element2D3N" : 0} } }
