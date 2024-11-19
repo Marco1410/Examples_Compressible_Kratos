@@ -24,7 +24,7 @@
         "scheme_settings" :{
             "is_transonic": true,
             "initial_critical_mach"          : 0.80,
-            "initial_upwind_factor_constant" : 2.0,
+            "initial_upwind_factor_constant" : 6.0,
             "target_critical_mach"           : 0.85,
             "target_upwind_factor_constant"  : 1.7,
             "update_relative_residual_norm"  : 1e-3,
@@ -80,17 +80,18 @@
                 "model_part_name" : "MainModelPart.TE_Wing",
                 "body_model_part_name" : "MainModelPart.Wing",
                 "wake_stl_file_name" : "",   
-                "output_wake": false,
+                "vtk_output_wake": true,
+                "gid_output_wake": false,
                 "wake_process_cpp_parameters":    {
                     "tolerance"                    : 1e-9,
                     "wake_normal"                  : [0.0,0.0,1.0],
                     "switch_wake_normal"           : false,
                     "count_elements_number"        : false,
                     "write_elements_ids_to_file"   : false,
-                    "shed_wake_from_trailing_edge" : true,
-                    "shedded_wake_distance"        : 17.0,
+                    "shed_wake_from_trailing_edge" : false,
+                    "shedded_wake_distance"        : 12.0,
                     "shedded_wake_element_size"    : 0.02,
-                    "shedded_grow_factor"          : 3.5,
+                    "shedded_grow_factor"          : 2.5,
                     "echo_level": 1
                 }
              }

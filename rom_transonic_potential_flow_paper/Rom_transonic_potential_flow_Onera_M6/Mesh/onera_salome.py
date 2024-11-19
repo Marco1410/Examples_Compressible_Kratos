@@ -25,7 +25,7 @@ DomainLength     = 25.0 #Z
 MeshGrowthRate   = 0.2
 ########################
 MeshMaxSize      = 2.0
-MeshMinSize      = 0.006
+MeshMinSize      = 0.007
 ########################
 MeshWingSize     = 0.009
 MeshTEWingSize   = 0.007

@@ -389,6 +389,8 @@ def UpdateProjectParameters(parameters, mu=None):
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(np.double(angle_of_attack))
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(np.double(mach_infinity))
     parameters["processes"]["boundary_conditions_process_list"][1]["Parameters"]["wake_process_cpp_parameters"]["wake_normal"].SetVector(wake_normal)
+    # parameters["processes"]["boundary_conditions_process_list"][1]["Parameters"]["wake_stl_file_name"].SetString(f'WakeFiles/Wake_{angle_of_attack}.stl')
+    parameters["processes"]["boundary_conditions_process_list"][1]["Parameters"]["wake_process_cpp_parameters"]["shed_wake_from_trailing_edge"].SetBool(True)
 
     return parameters
 
@@ -450,7 +452,7 @@ def GetRomManagerParameters():
                 "initial_candidate_conditions_model_part_list" : [],
                 "include_nodal_neighbouring_elements_model_parts_list":[],
                 "include_elements_model_parts_list": ["MainModelPart.kutta","MainModelPart.trailing_edge"],
-                "include_conditions_model_parts_list": ["MainModelPart.Wing"],
+                "include_conditions_model_parts_list": [],
                 "include_minimum_condition": false,
                 "include_condition_parents": true,             
                 "use_dask": true,
@@ -487,11 +489,11 @@ if __name__ == "__main__":
 
     #################################
     # PARAMETERS SETTINGS
-    update_parameters  = False
+    update_parameters  = True
     update_mu_test     = True
     VALIDATION         = True
-    update_residuals   = False
-    update_phi_hrom    = False
+    update_residuals   = True
+    update_phi_hrom    = True
     angle_range        = [ 2.90, 3.17]
     mach_range         = [ 0.829, 0.849]
     ###############################
@@ -501,7 +503,7 @@ if __name__ == "__main__":
         # ((0.829, 0.839),(3.05, 3.20), 5, 3),
         # ((0.839, 0.849),(2.95, 3.05), 5, 3),
         # ((0.839, 0.849),(3.05, 3.20), 5, 3)
-        ((0.829, 0.849),(2.90, 3.17), 25, 5)
+        ((0.829, 0.849),(2.90, 3.17), 5, 2)
     ] #, 1  'orange' 
 
     mu_validation = []
@@ -524,12 +526,16 @@ if __name__ == "__main__":
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('trailing_edge_elements_list.txt')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('WakeFiles')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('wake_angles.dat')
+
+        # SaveAngles(mu_train+mu_test+mu_validation)
+        # LaunchSalome()
+
     else:
         if update_residuals:
             KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResidualsSnapshotsMatrix.zarr')
         if update_phi_hrom:
             KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('PhiHROMMatrix.zarr')
-        # KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('case_data.xlsx')
+        KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('case_data.xlsx')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Train_Captures')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Test_Captures')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Validation')
@@ -570,6 +576,10 @@ if __name__ == "__main__":
 
         plot_mu_values(mu_train, mu_test, mu_validation, 'MuValues')
 
+
+    # SaveAngles(mu_train+mu_test+mu_validation)
+    # LaunchSalome()
+
     print('Number of train cases: ', len(mu_train))
     input('Pause')
 
@@ -578,7 +588,7 @@ if __name__ == "__main__":
 
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
                             CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
-                            relaunch_FOM=False, relaunch_ROM=False, relaunch_HROM=True, 
+                            relaunch_FOM=False, relaunch_ROM=True, relaunch_HROM=True, 
                             rebuild_phi=False, rebuild_phiHROM=update_phi_hrom, relaunch_TrainHROM=True)
 
     rom_manager.Fit(mu_train)
