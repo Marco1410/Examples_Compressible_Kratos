@@ -25,6 +25,7 @@ def ClearAll():
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('rom_data')
 
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResidualsSnapshotsMatrix.zarr')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('PhiHROMMatrix.zarr')
     
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('__pycache__')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('dask-scratch-space')

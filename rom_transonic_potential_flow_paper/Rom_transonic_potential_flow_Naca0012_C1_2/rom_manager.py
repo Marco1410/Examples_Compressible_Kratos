@@ -93,21 +93,15 @@ def plot_mu_values(mu_train, mu_test, mu_validation, name):
         max_alpha, max_mach = np.max(all_mu_values[:, 0]), np.max(all_mu_values[:, 1])
         regions = [
             # ((min_mach, min_alpha), (max_mach, max_alpha), 'orange')
-            ((0.70, 0.00), (0.71, 1.00), 'red'),    
-            ((0.71, 0.00), (0.73, 0.50), 'red'),    
-            ((0.73, 0.00), (0.74, 1.00), 'green'),  
-            ((0.74, 0.00), (0.75, 1.00), 'yellow'),  
-            ((0.75, 0.00), (0.76, 1.00), 'magenta'),  
-            ((0.71, 0.50), (0.73, 1.00), 'blue'),   
-            ((0.70, 1.00), (0.73, 1.75), 'purple'),  
-            ((0.73, 1.00), (0.74, 1.75), 'orange'),  
-            ((0.74, 1.00), (0.75, 1.75), 'brown'),  
+            ((0.70, 0.00), (0.76, 1.00), 'red'),    
+            ((0.70, 1.00), (0.75, 1.75), 'red'), 
+            ((0.70, 1.75), (0.72, 2.50), 'red'), 
             ((0.75, 1.00), (0.76, 1.75), 'pink'),  
-            ((0.70, 1.75), (0.73, 2.50), 'cyan'),  
+            ((0.72, 1.75), (0.73, 2.50), 'cyan'),  
             ((0.73, 1.75), (0.74, 2.50), 'gray'),  
             ((0.74, 1.75), (0.75, 2.50), 'lime'),  
             ((0.75, 1.75), (0.76, 2.50), 'olive')  
-        ]
+        ] 
         for bottom_left, top_right, color in regions:
             rect = plt.Rectangle(bottom_left, top_right[0] - bottom_left[0], top_right[1] - bottom_left[1], 
                                  facecolor=color, edgecolor=color, alpha=0.25)
@@ -146,7 +140,18 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
         def __init__(self, model,project_parameters):
             if self._GetSimulationName() == "::[ROM Simulation]:: ": # Global ROM
                 parameters["solver_settings"]["convergence_criterion"].SetString("solution_criterion")
+                # parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.99)
+                parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(3.0)
+                # parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-30)
                 # parameters["solver_settings"]["solving_strategy_settings"]["type"].SetString("newton_raphson")
+                # angle = parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].GetDouble()
+                # mach  = parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].GetDouble()
+                # if (mach > 0.73 and mach <= 0.74 and angle >= 0.0 and angle <= 1.00):
+                #     # input("2")
+                #     parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.1)
+                # if (mach > 0.71 and mach <= 0.73 and angle > 0.5 and angle <= 1.00):
+                #     # input("5")
+                # parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.95)
             super().__init__(model,project_parameters)
         
         def Initialize(self):
@@ -392,114 +397,51 @@ def UpdateProjectParameters(parameters, mu=None):
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(np.double(angle_of_attack))
     parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(np.double(mach_infinity))
 
-    if (mach_infinity > 0.73 and mach_infinity <= 0.74 and angle_of_attack >= 0.0 and angle_of_attack <= 1.00):
+    if (mach_infinity > 0.75 and mach_infinity <= 0.76 and angle_of_attack > 1.0 and angle_of_attack <= 1.75):
         # input("2")
         parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('2')
         parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(6.0)
+        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(7.0)
         parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.95)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.5)
+        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.92)
+        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(5.0)
 
-    if (mach_infinity > 0.74 and mach_infinity <= 0.75 and angle_of_attack >= 0.0 and angle_of_attack <= 1.00):
+    if (mach_infinity >= 0.72 and mach_infinity <= 0.73 and angle_of_attack > 1.75 and angle_of_attack <= 2.50):
         # input("3")
         parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('3')
-        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.90)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(2.0)
-        parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.93)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.5)
-
-    if (mach_infinity > 0.75 and mach_infinity <= 0.76 and angle_of_attack >= 0.0 and angle_of_attack <= 1.00):
-        # input("4")
-        parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('4')
-        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.90)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(2.5)
-        parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.95)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.7)
-
-    if (mach_infinity > 0.71 and mach_infinity <= 0.73 and angle_of_attack > 0.5 and angle_of_attack <= 1.00):
-        # input("5")
-        parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('5')
         parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(6.0)
+        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(7.0)
         parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.95)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.5)
-
-    if (mach_infinity >= 0.70 and mach_infinity <= 0.73 and angle_of_attack > 1.0 and angle_of_attack <= 1.75):
-        # input("6")
-        parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('6')
-        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(6.0)
-        parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.97)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.5)
-
-    if (mach_infinity > 0.73 and mach_infinity <= 0.74 and angle_of_attack > 1.0 and angle_of_attack <= 1.75):
-        # input("7")
-        parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('7')
-        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(6.0)
-        parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.97)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.5)
-
-    if (mach_infinity > 0.74 and mach_infinity <= 0.75 and angle_of_attack > 1.0 and angle_of_attack <= 1.75):
-        # input("8")
-        parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('8')
-        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.85)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(3.0)
-        parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.95)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.0)
-
-    if (mach_infinity > 0.75 and mach_infinity <= 0.76 and angle_of_attack > 1.0 and angle_of_attack <= 1.75):
-        # input("9")
-        parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('9')
-        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(3.5)
-        parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.90)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.8)
-
-    if (mach_infinity >= 0.70 and mach_infinity <= 0.73 and angle_of_attack > 1.75 and angle_of_attack <= 2.50):
-        # input("10)
-        parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('10')
-        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
-        parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.90)
+        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.94)
         parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.0)
 
 
     if (mach_infinity > 0.73 and mach_infinity <= 0.74 and angle_of_attack > 1.75 and angle_of_attack <= 2.50):
-        # input("11")
-        parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('11')
-        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
-        parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.90)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.0)
-
-    if (mach_infinity > 0.74 and mach_infinity <= 0.75 and angle_of_attack > 1.75 and angle_of_attack <= 2.50):
-        # input("12")
-        parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('12')
-        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(5.0)
-        parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.85)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(3.0)
-
-    if (mach_infinity > 0.75 and mach_infinity <= 0.76 and angle_of_attack > 1.75 and angle_of_attack <= 2.50):
-        # input("13")
-        parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('13')
+        # input("4")
+        parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('4')
         parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
         parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(7.0)
         parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.85)
-        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(6.2)
+        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.94)
+        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(3.5)
+
+    if (mach_infinity > 0.74 and mach_infinity <= 0.75 and angle_of_attack > 1.75 and angle_of_attack <= 2.50):
+        # input("5")
+        parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('5')
+        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
+        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(7.0)
+        parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
+        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.83)
+        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(4.5)
+
+    if (mach_infinity > 0.75 and mach_infinity <= 0.76 and angle_of_attack > 1.75 and angle_of_attack <= 2.50):
+        # input("6")
+        parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString('6')
+        parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
+        parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(7.0)
+        parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
+        parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.84)
+        parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(4.5)
 
     return parameters
 
@@ -515,7 +457,7 @@ def UpdateMaterialParametersFile(material_parametrs_file_name, mu):
 def GetRomManagerParameters():
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
             "rom_stages_to_train" : ["ROM"],            // ["FOM","ROM","HROM","HHROM"]
-            "rom_stages_to_test"  : [],            // ["FOM","ROM","HROM","HHROM"]
+            "rom_stages_to_test"  : ["ROM"],            // ["FOM","ROM","HROM","HHROM"]
             "paralellism" : null,                       // null, TODO: add "compss"
             "projection_strategy": "galerkin",          // "lspg", "galerkin", "petrov_galerkin"
             "type_of_decoder" : "linear",               // "linear" "ann_enhanced",  TODO: add "quadratic"
@@ -526,7 +468,7 @@ def GetRomManagerParameters():
             "store_nonconverged_fom_solutions": true,
             "ROM":{
                 "analysis_stage" : "KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis",
-                "svd_truncation_tolerance": 1e-9,
+                "svd_truncation_tolerance": 1e-12,
                 "print_singular_values": true,
                 "use_non_converged_sols" : false,
                 "model_part_name": "MainModelPart",                         // This changes depending on the simulation: Structure, FluidModelPart, ThermalPart #TODO: Idenfity it automatically
@@ -544,7 +486,7 @@ def GetRomManagerParameters():
                     "basis_strategy": "reactions",                        // 'residuals', 'jacobian', 'reactions'
                     "include_phi": false,
                     "svd_truncation_tolerance": 0,
-                    "solving_technique": "normal_equations",              // 'normal_equations', 'qr_decomposition'
+                    "solving_technique": "qr_decomposition",              // 'normal_equations', 'qr_decomposition'
                     "monotonicity_preserving": false
                 },
                 "petrov_galerkin_rom_bns_settings": {
@@ -586,9 +528,6 @@ def GetRomManagerParameters():
 
 if __name__ == "__main__":
 
-    # MEMORY_LIMIT = 8 * 1024**3
-    # resource.setrlimit(resource.RLIMIT_AS, (MEMORY_LIMIT, MEMORY_LIMIT))
-
     folder_names = ["FOM_Snapshots"  , "FOM_Skin_Data", 
                     "ROM_Snapshots"  , "ROM_Skin_Data", 
                     "HROM_Snapshots" , "HROM_Skin_Data",
@@ -603,32 +542,28 @@ if __name__ == "__main__":
     # PARAMETERS SETTINGS
     update_parameters  = True
     update_mu_test     = True
-    VALIDATION         = True
-    number_of_mu_test  = 0
-    alpha              = 0.5
-    beta               = 0.5
+    VALIDATION         = False
+    number_of_mu_test  = 5
+    num_puntos_angle   = 4
+    num_puntos_mach    = 5
+    alpha              = 0.8
+    beta               = 0.85
     update_residuals   = True
     update_phi_hrom    = True
-    mach_range         = [0.73, 0.74]
-    angle_range        = [0.50, 1.50]
+    mach_range         = [0.70, 0.73]
+    angle_range        = [0.00, 1.00]
     ################################
 
     regions = [
-        ((0.70, 0.76),(0.00, 2.50), 1)  
-        # ((0.71, 0.73),(0.00, 0.50), 10),#, 1  'red'    
-        # ((0.70, 0.71),(0.00, 1.00), 10),#, 1  'red'    
-        # ((0.73, 0.74),(0.00, 1.00), 40),#, 2  'green'  
-        # ((0.74, 0.75),(0.00, 1.00), 15),#, 3  'yellow' 
-        # ((0.75, 0.76),(0.00, 1.00), 15),#, 4  'magenta'
-        # ((0.71, 0.73),(0.50, 1.00), 10),#, 5  'blue'   
-        # ((0.70, 0.73),(1.00, 1.75), 15),#, 6  'purple'  
-        # ((0.73, 0.74),(1.00, 1.75), 40),#, 7  'orange'  
-        # ((0.74, 0.75),(1.00, 1.75), 15),#, 8  'brown'  
-        # ((0.75, 0.76),(1.00, 1.75), 15),#, 9  'pink'  
-        # ((0.70, 0.73),(1.75, 2.50), 25),#, 10 'cyan'  
-        # ((0.73, 0.74),(1.75, 2.50), 15),#, 11 'gray'  
-        # ((0.74, 0.75),(1.75, 2.50), 15),#, 12 'lime'  
-        # ((0.75, 0.76),(1.75, 2.50), 15) #  13 'olive'  
+        # ((0.70, 0.76),(0.00, 2.50), 0)  
+        # ((0.70, 0.76),(0.00, 1.00), 1),#, 1 'red'    
+        # ((0.70, 0.75),(1.00, 1.75), 1),#, 1 'red'         
+        # ((0.70, 0.72),(1.75, 2.50), 1),#, 1 'red'  
+        # ((0.75, 0.76),(1.00, 1.75), 1),#, 2  'pink'  
+        # ((0.72, 0.73),(1.75, 2.50), 1),#, 3 'cyan'  
+        # ((0.73, 0.74),(1.75, 2.50), 1),#, 4 'gray'  
+        # ((0.74, 0.75),(1.75, 2.50), 1),#, 5 'lime'  
+        # ((0.75, 0.76),(1.75, 2.50), 1) #  6 'olive'  
     ]
 
     mu_validation = []
@@ -658,18 +593,11 @@ if __name__ == "__main__":
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('trailing_edge_element_id.txt')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('case_data.xlsx')
 
-        # num_puntos = 5
-        # mach_coords = np.random.uniform(mach_range[0], mach_range[1], num_puntos)
-        # angle_coords = np.random.uniform(angle_range[0], angle_range[1], num_puntos)
-        # puntos = np.column_stack((angle_coords, mach_coords))
-
-        num_puntos_mach  = 4
-        num_puntos_angle = 4
         mach_base_coords  = np.linspace(0,1, num_puntos_mach)
         angle_base_coords = np.linspace(0,1, num_puntos_angle)
 
-        mach_coords  = mach_base_coords**1.0
-        angle_coords = angle_base_coords**1.0
+        mach_coords  = mach_base_coords**alpha
+        angle_coords = angle_base_coords**beta
 
         xx, yy = np.meshgrid(mach_coords,angle_coords)
 
@@ -679,32 +607,32 @@ if __name__ == "__main__":
         puntos = np.column_stack((yy,xx))
 
         # puntos= [
-        #     [0.000,0.76],
-        #     [0.625,0.76],
-        #     [1.250,0.76],
-        #     [1.875,0.76],
-        #     [2.500,0.76]
+        # #     [0.50, 0.75], 
+        # #     [0.50, 0.76], 
+        # #     [0.50, 0.755],
+        # #     [0.75, 0.75], 
+        # #     [0.75, 0.755],
+        # #     [0.875, 0.7575],
+        # #     [0.75, 0.76],
+        # #     [1.00, 0.75], 
+        # #     [1.00, 0.755], 
+        #     # [1.75, 0.76]
+        #     # [2.50, 0.75]
+        #     [2.50, 0.76]
         #     ]
+        
+        # mu_test = [[0.75, 0.755]]
 
         mu_train = []; mu_train_not_scaled = []
         for id, mu in enumerate(puntos):
             mu_train.append([mu[0],mu[1]])
             mu_train_not_scaled.append([yy.ravel()[id],xx.ravel()[id]])
 
-        # mu_train.append([2.5, 0.7075]); mu_train.append([2.5,0.7225]); mu_train.append([2.5,0.7375]); mu_train.append([2.5,0.7525])
-        # mu_train.append([2.1875,0.715]); mu_train.append([2.1875,0.73]); mu_train.append([2.1875,0.745]); mu_train.append([2.1875,0.76])
-        # mu_train.append([1.875,0.7225]); mu_train.append([1.875,0.7375]); mu_train.append([1.875,0.7525])
-        # mu_train.append([1.5625,0.73]); mu_train.append([1.5625,0.745]); mu_train.append([1.5625,0.76])
-        # mu_train.append([1.25,0.7375]); mu_train.append([1.25,0.7525])
-        # mu_train.append([0.9375,0.745]); mu_train.append([0.9375,0.76])
+        # mu_train.append([0.0000,0.7375])
+        # mu_train.append([0.8750,0.7375])
+        # mu_train.append([1.7500,0.7375])
+        # mu_train.append([1.3125,0.7375])
 
-        # mu_train.append([2.1875,0.7075]); mu_train.append([2.1875,0.7225]); mu_train.append([2.1875,0.7375]); mu_train.append([2.1875,0.7525])
-        # mu_train.append([1.5625,0.7075]); mu_train.append([1.5625,0.7225]); mu_train.append([1.5625,0.7375]); mu_train.append([1.5625,0.7525])
-        # mu_train.append([0.9375,0.7375]); mu_train.append([0.9375,0.7525])
-        # mu_train.append([0.625,0.7525])
-        # mu_train.append([0.3125,0.7375]); mu_train.append([0.3125,0.7525]); mu_train.append([0.3125,0.76])
-
-        # mu_train_not_scaled = get_not_scale_parameters(mu_train,angle_range,mach_range)
         np.save('mu_train',mu_train)
         np.save('mu_train_not_scaled',mu_train_not_scaled)
         plot_mu_values(mu_train, mu_test, mu_validation, 'MuValues')
@@ -761,8 +689,8 @@ if __name__ == "__main__":
 
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
                              CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
-                             relaunch_FOM=False, relaunch_ROM=False, relaunch_HROM=True,
-                             rebuild_phi=False, rebuild_phiHROM=update_phi_hrom, relaunch_TrainHROM=True)
+                             relaunch_FOM=False, relaunch_ROM=True, relaunch_HROM=True,
+                             rebuild_phi=True, rebuild_phiHROM=update_phi_hrom, relaunch_TrainHROM=True)
 
     rom_manager.Fit(mu_train)
 
