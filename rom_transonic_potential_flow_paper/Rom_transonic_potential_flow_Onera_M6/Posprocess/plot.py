@@ -470,6 +470,6 @@ if __name__ == "__main__":
     mu_test       = load_mu_parameters('test')
     mu_validation = load_mu_parameters('validation')
 
-    Plot_Cps(mu_train     , 'Train_Captures', plot=['2D'])
-    # Plot_Cps(mu_test      , 'Test_Captures' , plot=['CP'])
-    # Plot_Cps(mu_validation, 'Validation'    , plot=['2D'])
+    Plot_Cps(mu_train     , 'Train_Captures', plot=['CP'])
+    Plot_Cps(mu_test      , 'Test_Captures' , plot=['CP'])
+    Plot_Cps(mu_validation, 'Validation'    , plot=['CP'])

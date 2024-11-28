@@ -408,7 +408,7 @@ def GetRomManagerParameters():
             "rom_stages_to_train" : ["ROM","HHROM"],            // ["FOM","ROM","HROM","HHROM"]
             "rom_stages_to_test"  : ["ROM","HHROM"],            // ["FOM","ROM","HROM","HHROM"]
             "paralellism" : null,                       // null, TODO: add "compss"
-            "projection_strategy": "galerkin",          // "lspg", "galerkin", "petrov_galerkin"
+            "projection_strategy": "lspg",          // "lspg", "galerkin", "petrov_galerkin"
             "type_of_decoder" : "linear",               // "linear" "ann_enhanced",  TODO: add "quadratic"
             "assembling_strategy": "global",            // "global", "elemental"
             "save_gid_output": true,                    // false, true #if true, it must exits previously in the ProjectParameters.json
@@ -451,14 +451,14 @@ def GetRomManagerParameters():
                 "initial_candidate_elements_model_part_list" : [],
                 "initial_candidate_conditions_model_part_list" : [],
                 "include_nodal_neighbouring_elements_model_parts_list":[],
-                "include_elements_model_parts_list": ["MainModelPart.kutta","MainModelPart.trailing_edge"],
+                "include_elements_model_parts_list": ["MainModelPart.trailing_edge","MainModelPart.kutta"],
                 "include_conditions_model_parts_list": [],
                 "include_minimum_condition": false,
                 "include_condition_parents": true,             
-                "use_dask": true,
+                "use_dask": false,
                 "use_svd_dask": false,
-                "use_block_svd_dask": true,
-                "use_block_svd": false,
+                "use_block_svd_dask": false,
+                "use_block_svd": true,
                 "use_rows_equal_to_columns_in_block": false,
                 "block_size": 1000,
                 "n_workers": 4,
@@ -489,13 +489,22 @@ if __name__ == "__main__":
 
     #################################
     # PARAMETERS SETTINGS
-    update_parameters  = True
-    update_mu_test     = True
-    VALIDATION         = True
-    update_residuals   = True
-    update_phi_hrom    = True
-    angle_range        = [ 2.90, 3.17]
-    mach_range         = [ 0.829, 0.849]
+    update_parameters     = True
+    use_structured_points = True
+    update_mu_test        = True
+    relaunch_FOM          = True
+    rebuild_phi           = True
+    relaunch_ROM          = True
+    update_case_data      = True 
+    relaunch_TrainHROM    = True
+    update_residuals      = True
+    update_phi_hrom       = True
+    relaunch_HROM         = True
+    VALIDATION            = True
+    angle_range           = [ 2.90, 3.17]
+    mach_range            = [ 0.829, 0.849]
+    use_full_model_part   = True
+    show_q_errors         = False
     ###############################
 
     regions = [
@@ -503,7 +512,7 @@ if __name__ == "__main__":
         # ((0.829, 0.839),(3.05, 3.20), 5, 3),
         # ((0.839, 0.849),(2.95, 3.05), 5, 3),
         # ((0.839, 0.849),(3.05, 3.20), 5, 3)
-        ((0.829, 0.849),(2.90, 3.17), 5, 2)
+        ((0.829, 0.849),(2.90, 3.17), 10, 2)
     ] #, 1  'orange' 
 
     mu_validation = []
@@ -527,6 +536,26 @@ if __name__ == "__main__":
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('WakeFiles')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('wake_angles.dat')
 
+        #### STRUCTURED
+        if use_structured_points:
+            num_puntos_mach  = 6
+            num_puntos_angle = 6
+            mach_base_coords  = np.linspace(0,1, num_puntos_mach)
+            angle_base_coords = np.linspace(0,1, num_puntos_angle)
+            mach_coords  = mach_base_coords**1.0
+            angle_coords = angle_base_coords**1.0
+            xx, yy = np.meshgrid(mach_coords,angle_coords)
+            xx = mach_range[0]+(mach_range[1]-mach_range[0])*xx.ravel()
+            yy = angle_range[0]+(angle_range[1]-angle_range[0])*yy.ravel()
+            puntos = np.column_stack((yy,xx))
+            mu_train = []; mu_train_not_scaled = []
+            for id, mu in enumerate(puntos):
+                mu_train.append([mu[0],mu[1]])
+                mu_train_not_scaled.append([yy.ravel()[id],xx.ravel()[id]])
+            np.save('mu_train',mu_train)
+            np.save('mu_train_not_scaled',mu_train_not_scaled)
+            plot_mu_values(mu_train, mu_test, mu_validation, 'MuValues')
+
         # SaveAngles(mu_train+mu_test+mu_validation)
         # LaunchSalome()
 
@@ -535,7 +564,8 @@ if __name__ == "__main__":
             KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResidualsSnapshotsMatrix.zarr')
         if update_phi_hrom:
             KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('PhiHROMMatrix.zarr')
-        KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('case_data.xlsx')
+        if update_case_data:
+            KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('case_data.xlsx')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Train_Captures')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Test_Captures')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Validation')
@@ -576,10 +606,6 @@ if __name__ == "__main__":
 
         plot_mu_values(mu_train, mu_test, mu_validation, 'MuValues')
 
-
-    # SaveAngles(mu_train+mu_test+mu_validation)
-    # LaunchSalome()
-
     print('Number of train cases: ', len(mu_train))
     input('Pause')
 
@@ -588,8 +614,8 @@ if __name__ == "__main__":
 
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
                             CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
-                            relaunch_FOM=False, relaunch_ROM=True, relaunch_HROM=True, 
-                            rebuild_phi=False, rebuild_phiHROM=update_phi_hrom, relaunch_TrainHROM=True)
+                            relaunch_FOM=relaunch_FOM, relaunch_ROM=relaunch_ROM, relaunch_HROM=relaunch_HROM, 
+                            rebuild_phi=rebuild_phi, rebuild_phiHROM=update_phi_hrom, relaunch_TrainHROM=relaunch_TrainHROM)
 
     rom_manager.Fit(mu_train)
 
@@ -602,8 +628,8 @@ if __name__ == "__main__":
         if any(item == "ROM" for item in training_stages):
             rom_manager.RunROM(mu_run=mu_validation)
         if any(item == "HROM" for item in training_stages):
-            rom_manager.RunHROM(mu_run=mu_validation,use_full_model_part=True)
+            rom_manager.RunHROM(mu_run=mu_validation,use_full_model_part=use_full_model_part)
         if any(item == "HHROM" for item in training_stages):
             rom_manager.RunHHROM(mu_run=mu_validation)
 
-    rom_manager.PrintErrors(show_q_errors=False)
+    rom_manager.PrintErrors(show_q_errors=show_q_errors)

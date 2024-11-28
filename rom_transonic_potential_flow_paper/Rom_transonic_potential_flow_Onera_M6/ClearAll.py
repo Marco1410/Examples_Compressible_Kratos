@@ -49,6 +49,7 @@ def ClearAll():
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('rom_database')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('wake_output')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResidualsSnapshotsMatrix.zarr')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('PhiHROMMatrix.zarr')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('dask-scratch-space')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('WakeFiles')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Modes')

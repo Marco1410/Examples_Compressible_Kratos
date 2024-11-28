@@ -138,35 +138,33 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
     class CustomSimulation(cls):
 
         def __init__(self, model,project_parameters):
-            if self._GetSimulationName() == "::[ROM Simulation]:: ": # Global ROM
-                parameters["solver_settings"]["convergence_criterion"].SetString("solution_criterion")
-                # parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.99)
-                parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(3.0)
-                # parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-30)
-                # parameters["solver_settings"]["solving_strategy_settings"]["type"].SetString("newton_raphson")
-                # angle = parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].GetDouble()
-                # mach  = parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].GetDouble()
-                # if (mach > 0.73 and mach <= 0.74 and angle >= 0.0 and angle <= 1.00):
-                #     # input("2")
-                #     parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.1)
-                # if (mach > 0.71 and mach <= 0.73 and angle > 0.5 and angle <= 1.00):
-                #     # input("5")
-                # parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.95)
+            self.initialize = False
+            if self._GetSimulationName() == "::[ROM Simulation]:: " or (self._GetSimulationName() == "Analysis" and self.initialize):
+                target_constant = parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].GetDouble()
+                target_mach = parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].GetDouble()
+                parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(target_constant)
+                parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(target_mach)
             super().__init__(model,project_parameters)
-        
-        def Initialize(self):
-            super().Initialize()
-            if self._GetSimulationName() == "Analysis": # FOM
-                    for elem in self.model["MainModelPart"].Elements:
-                        elem.SetValue(CPFApp.SAVE_UPWIND_ELEMENT, True)
+
+        def InitializeSolutionStep(self):
+            super().InitializeSolutionStep()
+            self.case_name = f'{mu[0]}, {mu[1]}'
+            if self.initialize: 
+                model_part = self.model["MainModelPart"]
+                if os.path.exists(f'RBF_Snapshots/{self.case_name}.npy'):
+                    for node in model_part.Nodes:
+                        offset = np.where(np.arange(1,model_part.NumberOfNodes()+1, dtype=int) == node.Id)[0][0]*2
+                        node.SetSolutionStepValue(CPFApp.AUXILIARY_VELOCITY_POTENTIAL, np.load(f'RBF_Snapshots/{self.case_name}.npy')[offset])
+                        node.SetSolutionStepValue(CPFApp.VELOCITY_POTENTIAL, np.load(f'RBF_Snapshots/{self.case_name}.npy')[offset+1])
+            
+            # if self._GetSimulationName() == "Analysis": # FOM
+            #     for elem in self.model["MainModelPart"].Elements:
+            #         elem.SetValue(CPFApp.SAVE_UPWIND_ELEMENT, True)
 
         def Run(self):
-            angle = parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].GetDouble()
-            mach  = parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].GetDouble()
             parameters_number = parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].GetString()
             parameters["solver_settings"]["solving_strategy_settings"]["advanced_settings"]["name"].SetString("")
 
-            case_name = f'{angle}, {mach}'
             info_steps_list = []
             error = 0
             modes = 0
@@ -194,9 +192,9 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
                             modes = np.load('rom_data/RightBasisMatrix.npy').shape[1]
                     elif 'Run' in simulation_name:
                         case_type = 'run_fom' 
-                    skin_data_filename = f"FOM_Skin_Data/{case_name}.dat"
+                    skin_data_filename = f"FOM_Skin_Data/{self.case_name}.dat"
                     fom = BasisOutputProcess._GetSnapshotsMatrix()
-                    np.save(f'FOM_Snapshots/{case_name}',fom)
+                    np.save(f'FOM_Snapshots/{self.case_name}',fom)
 
                     fout = open(skin_data_filename,'w')
                     modelpart = self.model["MainModelPart.Body2D_Body"]
@@ -229,11 +227,14 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
                             fout.write("%s\n" %(elem.GetValue(CPFApp.ID_UPWIND_ELEMENT)))
                     fout.close()
                 
+                    if os.path.exists(f'FOM_Snapshots_original/{self.case_name}.npy'):
+                        fom_original = np.load(f'FOM_Snapshots_original/{self.case_name}.npy')
+                        error = np.linalg.norm(fom-fom_original)/np.linalg.norm(fom_original)
                 
                     info_steps_list.append([parameters_number,
                                             case_type,
-                                            angle,
-                                            mach, 
+                                            mu[0],
+                                            mu[1], 
                                             self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.NL_ITERATION_NUMBER],
                                             self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.RESIDUAL_NORM],
                                             error,
@@ -282,7 +283,7 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
                             case_type = 'run_' 
                             
                         hrom = BasisOutputProcess._GetSnapshotsMatrix()
-                        fom = np.load(f'FOM_Snapshots/{case_name}.npy')
+                        fom = np.load(f'FOM_Snapshots/{self.case_name}.npy')
 
                         if (len(fom) != len(hrom) or 'HHROM' in simulation_name):
                             q_matrix = []
@@ -292,12 +293,12 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
                             phi = np.load(f'rom_data/RightBasisMatrix.npy')
                             if (q_matrix.shape[0] == 1): q_matrix = q_matrix.T
                             hrom = phi @ q_matrix
-                            np.save(f'HHROM_Snapshots/{case_name}', hrom)
+                            np.save(f'HHROM_Snapshots/{self.case_name}', hrom)
                             case_type = case_type + 'hhrom'
                         else:
-                            np.save(f'HROM_Snapshots/{case_name}', hrom)
+                            np.save(f'HROM_Snapshots/{self.case_name}', hrom)
                             case_type = case_type + 'hrom'
-                            skin_data_filename = f"HROM_Skin_Data/{case_name}.dat"
+                            skin_data_filename = f"HROM_Skin_Data/{self.case_name}.dat"
                             fout = open(skin_data_filename,'w')
                             modelpart = self.model["MainModelPart.Body2D_Body"]
                             for node in modelpart.Nodes:
@@ -311,8 +312,8 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
                     
                         info_steps_list.append([parameters_number,
                                                 case_type,
-                                                angle,
-                                                mach, 
+                                                mu[0],
+                                                mu[1], 
                                                 self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.NL_ITERATION_NUMBER],
                                                 self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.RESIDUAL_NORM],
                                                 error,
@@ -344,11 +345,11 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
                         elif 'Run' in simulation_name:
                             case_type = 'run_rom' 
                         modes = np.load('rom_data/RightBasisMatrix.npy').shape[1]
-                        skin_data_filename = f"ROM_Skin_Data/{case_name}.dat"
+                        skin_data_filename = f"ROM_Skin_Data/{self.case_name}.dat"
 
                         rom = BasisOutputProcess._GetSnapshotsMatrix()
-                        np.save(f'ROM_Snapshots/{case_name}',rom)
-                        fom = np.load(f'FOM_Snapshots/{case_name}.npy')
+                        np.save(f'ROM_Snapshots/{self.case_name}',rom)
+                        fom = np.load(f'FOM_Snapshots/{self.case_name}.npy')
                         error = np.linalg.norm(fom-rom)/np.linalg.norm(fom)
 
                         fout = open(skin_data_filename,'w')
@@ -361,8 +362,8 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
                     
                         info_steps_list.append([parameters_number,
                                                 case_type,
-                                                angle,
-                                                mach, 
+                                                mu[0],
+                                                mu[1], 
                                                 self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.NL_ITERATION_NUMBER],
                                                 self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.RESIDUAL_NORM],
                                                 error,
@@ -542,20 +543,20 @@ if __name__ == "__main__":
     # PARAMETERS SETTINGS
     update_parameters  = True
     update_mu_test     = True
-    VALIDATION         = False
+    VALIDATION         = True
     number_of_mu_test  = 5
-    num_puntos_angle   = 4
-    num_puntos_mach    = 5
-    alpha              = 0.8
-    beta               = 0.85
+    num_puntos_angle   = 0
+    num_puntos_mach    = 0
+    alpha              = 1.0
+    beta               = 1.0
     update_residuals   = True
     update_phi_hrom    = True
-    mach_range         = [0.70, 0.73]
-    angle_range        = [0.00, 1.00]
+    mach_range         = [0.72, 0.75]
+    angle_range        = [0.50, 1.75]
     ################################
 
     regions = [
-        # ((0.70, 0.76),(0.00, 2.50), 0)  
+        ((0.70, 0.75),(0.00, 1.75), 30)  
         # ((0.70, 0.76),(0.00, 1.00), 1),#, 1 'red'    
         # ((0.70, 0.75),(1.00, 1.75), 1),#, 1 'red'         
         # ((0.70, 0.72),(1.75, 2.50), 1),#, 1 'red'  
@@ -593,49 +594,30 @@ if __name__ == "__main__":
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('trailing_edge_element_id.txt')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('case_data.xlsx')
 
-        mach_base_coords  = np.linspace(0,1, num_puntos_mach)
-        angle_base_coords = np.linspace(0,1, num_puntos_angle)
+        # mach_base_coords  = np.linspace(0,1, num_puntos_mach)
+        # angle_base_coords = np.linspace(0,1, num_puntos_angle)
 
-        mach_coords  = mach_base_coords**alpha
-        angle_coords = angle_base_coords**beta
+        # mach_coords  = mach_base_coords**alpha
+        # angle_coords = angle_base_coords**beta
 
-        xx, yy = np.meshgrid(mach_coords,angle_coords)
+        # xx, yy = np.meshgrid(mach_coords,angle_coords)
 
-        xx = mach_range[0]+(mach_range[1]-mach_range[0])*xx.ravel()
-        yy = angle_range[0]+(angle_range[1]-angle_range[0])*yy.ravel()
+        # xx = mach_range[0]+(mach_range[1]-mach_range[0])*xx.ravel()
+        # yy = angle_range[0]+(angle_range[1]-angle_range[0])*yy.ravel()
 
-        puntos = np.column_stack((yy,xx))
+        # puntos = np.column_stack((yy,xx))
 
-        # puntos= [
-        # #     [0.50, 0.75], 
-        # #     [0.50, 0.76], 
-        # #     [0.50, 0.755],
-        # #     [0.75, 0.75], 
-        # #     [0.75, 0.755],
-        # #     [0.875, 0.7575],
-        # #     [0.75, 0.76],
-        # #     [1.00, 0.75], 
-        # #     [1.00, 0.755], 
-        #     # [1.75, 0.76]
-        #     # [2.50, 0.75]
-        #     [2.50, 0.76]
-        #     ]
-        
-        # mu_test = [[0.75, 0.755]]
+        # mu_train = []; mu_train_not_scaled = []
+        # for id, mu in enumerate(puntos):
+        #     mu_train.append([mu[0],mu[1]])
+        #     mu_train_not_scaled.append([yy.ravel()[id],xx.ravel()[id]])
 
-        mu_train = []; mu_train_not_scaled = []
-        for id, mu in enumerate(puntos):
-            mu_train.append([mu[0],mu[1]])
-            mu_train_not_scaled.append([yy.ravel()[id],xx.ravel()[id]])
+        # mu_train = mu_train
+        # mu_train_not_scaled = mu_train_not_scaled
 
-        # mu_train.append([0.0000,0.7375])
-        # mu_train.append([0.8750,0.7375])
-        # mu_train.append([1.7500,0.7375])
-        # mu_train.append([1.3125,0.7375])
-
-        np.save('mu_train',mu_train)
-        np.save('mu_train_not_scaled',mu_train_not_scaled)
-        plot_mu_values(mu_train, mu_test, mu_validation, 'MuValues')
+        # np.save('mu_train',mu_train)
+        # np.save('mu_train_not_scaled',mu_train_not_scaled)
+        # plot_mu_values(mu_train, mu_test, mu_validation, 'MuValues')
 
     else:
         if update_residuals:
