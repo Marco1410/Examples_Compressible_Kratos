@@ -5,7 +5,7 @@
         "parallel_type" : "OpenMP",
         "echo_level"    : 0,
         "start_time"    : 0.0,
-        "end_time"      : 1.0
+        "end_time"      : 2.0
     },
     "output_processes" : {
         "gid_output" : [{
@@ -51,31 +51,34 @@
                     "element_type":"perturbation_transonic"
         },
         "scheme_settings"          : {
-            "model_part_name" : "Body2D_Body",
-            "critical_mach"                 : 0.85,
-            "upwind_factor_constant"        : 3.0,
-            "update_critical_mach"          : 0.9,
-            "update_upwind_factor_constant" : 2.0,
-            "update_transonic_tolerance"    : 1e-3,
-            "mach_number_squared_limit"     : 3.0
+            "is_transonic"                   : true,
+            "initial_critical_mach"          : 0.85,
+            "initial_upwind_factor_constant" : 4.0,
+            "target_critical_mach"           : 0.90,
+            "target_upwind_factor_constant"  : 2.0,
+            "update_relative_residual_norm"  : 1e-2,
+            "mach_number_squared_limit"      : 3.0
         },
         "maximum_iterations"       : 500,
         "echo_level"               : 1,
-        "relative_tolerance"               : 1e-8,
-        "absolute_tolerance"               : 1e-8,
         "solving_strategy_settings"         : {
             "type" : "line_search",
             "advanced_settings": {
                 "first_alpha_value"         : 0.5,
                 "second_alpha_value"        : 1.0,
-                "min_alpha"                 : 0.01,
+                "min_alpha"                 : 0.1,
                 "max_alpha"                 : 1.0,
-                "line_search_tolerance"     : 0.25,
+                "line_search_tolerance"     : 0.5,
                 "max_line_search_iterations": 5
             }
         },
+        "convergence_criterion": "residual_criterion",
+        "relative_tolerance"               : 1e-8,
+        "absolute_tolerance"               : 1e-8,
         "linear_solver_settings"  : {
-                "solver_type"             : "LinearSolversApplication.pardiso_lu"
+            "solver_type": "LinearSolversApplication.amgcl",
+            "max_iteration": 400,
+            "tolerance": 1e-9
         },
         "volume_model_part_name"   : "Parts_Parts_Auto1",
         "skin_parts"               : ["PotentialWallCondition2D_Far_field_Auto1","Body2D_Body"],
@@ -90,8 +93,9 @@
             "process_name"  : "FarFieldProcess",
             "Parameters"    : {
                 "model_part_name" : "FluidModelPart.PotentialWallCondition2D_Far_field_Auto1",
+                "angle_of_attack_units" : "degrees",
                 "free_stream_density"   : 1.225,
-                "angle_of_attack"       : 2.2,
+                "angle_of_attack"       : 1.2,
                 "mach_infinity"         : 0.75,
                 "perturbation_field"    : true 
             }

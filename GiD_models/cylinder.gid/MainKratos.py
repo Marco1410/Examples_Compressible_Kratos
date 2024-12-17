@@ -17,6 +17,9 @@ def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
             super().Initialize()
             sys.stdout.flush()
 
+        def InitializeSolutionStep(self):
+            super().InitializeSolutionStep() 
+
         def FinalizeSolutionStep(self):
             super().FinalizeSolutionStep() 
 

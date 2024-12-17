@@ -71,7 +71,7 @@ def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
 
 if __name__ == "__main__":
 
-    UPDATE_DATA     = False
+    UPDATE_DATA     = True
     PLOTCPS         = True
     PLOT2D          = True
     PLOT3D          = True

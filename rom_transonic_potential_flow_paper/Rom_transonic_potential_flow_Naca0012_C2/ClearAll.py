@@ -55,12 +55,13 @@ def ClearAll():
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('wake_elements_list.txt')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('kutta_elements_list.txt')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('trailing_edge_elements_list.txt')
+    KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('selected_elements_list.txt')
 
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('Mu_parameters_cp.pdf')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('Singular_values_decay.pdf')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('EmpiricalCubaturePlot.pdf')
 
-    KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('Rom_transonic_potential_flow_Naca0012_C1_2.post.lst')
+    KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('Rom_transonic_potential_flow_Naca0012_C2.post.lst')
 
 if __name__ == "__main__":
 

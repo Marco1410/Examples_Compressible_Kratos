@@ -23,9 +23,9 @@
         "shock_capturing_settings": {
             "type" : "physics_based",
             "Parameters" : {
-                            "artificial_bulk_viscosity_constant": 0.5,
-                            "artificial_conductivity_constant": 3000000.0,
-                            "artificial_dynamic_viscosity_constant": 1000.0,
+                            "artificial_bulk_viscosity_constant": 1.0,
+                            "artificial_conductivity_constant": 1.0,
+                            "artificial_dynamic_viscosity_constant": 1.0,
                             "calculate_nodal_area_at_each_step": false,
                             "far_field_prandtl_number": 0.0,
                             "shear_sensor": true,
@@ -41,8 +41,9 @@
         "no_skin_parts"               : [],
         "time_stepping": {
             "automatic_time_step": true,
-            "CFL_number": 0.2,
-            "minimum_delta_time": 1e-8
+            "CFL_number": 0.1,
+            "minimum_delta_time": 1e-8,
+            "maximum_delta_time": 1e-3
         },
         "reform_dofs_at_each_step": false
     },
@@ -89,14 +90,6 @@
         }
         ],
         "boundary_conditions_process_list" : [
-        {
-            "python_module" : "apply_slip_process",
-            "kratos_module" : "KratosMultiphysics.FluidDynamicsApplication",
-            "process_name"  : "ApplySlipProcess",
-            "Parameters"    : {
-                "model_part_name" : "FluidModelPart.Slip2D"
-            }
-        },
             {
                 "kratos_module": "KratosMultiphysics",
                 "process_name": "AssignScalarVariableProcess",
@@ -136,6 +129,32 @@
                     "value": ["1.0*1.0","0.0*0.0",null]
                 }
             }
+            ,{
+                "kratos_module": "KratosMultiphysics",
+                "process_name": "AssignVectorVariableProcess",
+                "python_module": "assign_vector_variable_process",
+                "Parameters":
+                {
+                    "model_part_name": "FluidModelPart.Slip2D",
+                    "variable_name": "MOMENTUM",
+                    "interval": [0.0, "End"],
+                    "constrained": [true,true,false],
+                    "value": ["0.0","0.0",null]
+                }
+            }
+            // ,{
+            //     "kratos_module": "KratosMultiphysics",
+            //     "process_name": "AssignScalarVariableProcess",
+            //     "python_module": "assign_scalar_variable_process",
+            //     "Parameters":
+            //     {
+            //         "model_part_name": "FluidModelPart.Slip2D",
+            //         "variable_name": "TOTAL_ENERGY",
+            //         "interval": [0.0, "End"],
+            //         "constrained": true,
+            //         "value": "0.0"
+            //     }
+            // }
         ],
         "auxiliar_process_list"            : [
         ]
@@ -143,51 +162,33 @@
     "output_processes": {
         "gid_output": [
             {
-                "python_module": "gid_output_process",
-                "kratos_module": "KratosMultiphysics",
-                "process_name": "GiDOutputProcess",
-                "help": "This process writes postprocessing files for GiD",
-                "Parameters": {
-                    "model_part_name": "FluidModelPart.fluid_computational_model_part",
-                    "output_name"    : "cylinder",
-                    "postprocess_parameters": {
-                        "result_file_configuration": {
-                            "gidpost_flags": {
-                                "GiDPostMode": "GiD_PostBinary",
-                                "WriteDeformedMeshFlag": "WriteDeformed",
-                                "WriteConditionsFlag": "WriteConditions",
-                                "MultiFileFlag": "SingleFile"
+                "python_module" : "gid_output_process",
+                "kratos_module" : "KratosMultiphysics",
+                "process_name"  : "GiDOutputProcess",
+                "Parameters"    : {
+                    "model_part_name"        : "FluidModelPart.fluid_computational_model_part",
+                    "postprocess_parameters" : {
+                        "result_file_configuration" : {
+                            "gidpost_flags"               : {
+                                "GiDPostMode"           : "GiD_PostBinary",
+                                "WriteDeformedMeshFlag" : "WriteDeformed",
+                                "WriteConditionsFlag"   : "WriteConditions",
+                                "MultiFileFlag"         : "SingleFile"
                             },
-                            "file_label": "time",
-                            "output_control_type": "time",
-                            "output_interval": 0.1,
-                            "body_output": true,
-                            "node_output": false,
-                            "skin_output": false,
-                            "plane_output": [],
-                            "nodal_results": [
-                            "MOMENTUM",
-                            "DENSITY",
-                            "TOTAL_ENERGY",
-                            "PRESSURE",
-                            "TEMPERATURE",
-                            "VELOCITY",
-                            "NUMERICAL_ENTROPY"],
-                            "gauss_point_results": [
-                            "SHOCK_SENSOR",
-                            "THERMAL_SENSOR",
-                            "SHEAR_SENSOR", 
-                            "VELOCITY_DIVERGENCE"],
-                            "nodal_nonhistorical_results": [
-                            "SOUND_VELOCITY", 
-                            "ARTIFICIAL_MASS_DIFFUSIVITY", 
-                            "ARTIFICIAL_BULK_VISCOSITY",
-                            "ARTIFICIAL_DYNAMIC_VISCOSITY",
-                            "ARTIFICIAL_CONDUCTIVITY",
-                            "MACH"]
+                            "file_label"                  : "step",
+                            "output_control_type"         : "step",
+                            "output_interval"             : 10,
+                            "body_output"                 : true,
+                            "node_output"                 : false,
+                            "skin_output"                 : false,
+                            "plane_output"                : [],
+                            "nodal_results"               : ["VELOCITY","PRESSURE","MOMENTUM","DENSITY","TOTAL_ENERGY","TEMPERATURE"],
+                            "nodal_nonhistorical_results" : ["SOUND_VELOCITY","ARTIFICIAL_BULK_VISCOSITY","ARTIFICIAL_DYNAMIC_VISCOSITY","ARTIFICIAL_CONDUCTIVITY","MACH"],
+                            "gauss_point_results"         : ["SHOCK_SENSOR","THERMAL_SENSOR","SHEAR_SENSOR","VELOCITY_DIVERGENCE"]
                         },
-                        "point_data_configuration": []
-                    }
+                        "point_data_configuration"  : []
+                    },
+                    "output_name"            : "cylinder"
                 }
             }
         ]

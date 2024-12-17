@@ -5,7 +5,7 @@
         "parallel_type" : "OpenMP",
         "echo_level"    : 0,
         "start_time"    : 0.0,
-        "end_time"      : 1.0
+        "end_time"      : 4.0
     },
     "solver_settings"  : {
         "model_part_name"          : "MainModelPart",
@@ -25,38 +25,32 @@
             "is_transonic": true,
             "initial_critical_mach"          : 0.80,
             "initial_upwind_factor_constant" : 4.0,
-            "target_critical_mach"           : 0.99,
-            "target_upwind_factor_constant"  : 1.0,
+            "target_critical_mach"           : 0.95,
+            "target_upwind_factor_constant"  : 1.2,
             "update_relative_residual_norm"  : 1e-3,
-            "mach_number_squared_limit"      : 3.0
+            "mach_number_squared_limit"      : 3.0,
+            "steps_strategy"                 : 4
         },
         "maximum_iterations"       : 50,
         "echo_level"               : 1,
         "solving_strategy_settings": {
             "type": "line_search",
             "advanced_settings" : {
-                                    "max_line_search_iterations" : 5,
-                                    "first_alpha_value"          : 0.5,
-                                    "second_alpha_value"         : 0.9,
-                                    "min_alpha"                  : 0.5,
-                                    "max_alpha"                  : 1.0,
-                                    "line_search_tolerance"      : 0.5 
+                "max_line_search_iterations" : 5,
+                "first_alpha_value"          : 0.5,
+                "second_alpha_value"         : 1.0,
+                "min_alpha"                  : 0.5,
+                "max_alpha"                  : 1.0,
+                "line_search_tolerance"      : 0.5 
             }
         }, 
-        "convergence_criterion": "residual_criterion",
+        "convergence_criterion": "solution_criterion",
         "relative_tolerance"               : 1e-8,
         "absolute_tolerance"               : 1e-8,
         "linear_solver_settings"  : {
-            "solver_type": "amgcl",
+            "solver_type": "LinearSolversApplication.amgcl",
             "max_iteration": 400,
-            "gmres_krylov_space_dimension": 100,
-            "smoother_type":"ilu0",
-            "coarsening_type":"ruge_stuben",
-            "coarse_enough" : 5000,
-            "krylov_type": "lgmres",
-            "tolerance": 1e-7,
-            "verbosity": 0,
-            "scaling": false
+            "tolerance": 1e-9
         },
         "volume_model_part_name"   : "MainModelPart.Parts_Parts_Auto1",
         "skin_parts"               : ["MainModelPart.PotentialWallCondition2D_Far_field_Auto1","MainModelPart.Body2D_Body"],

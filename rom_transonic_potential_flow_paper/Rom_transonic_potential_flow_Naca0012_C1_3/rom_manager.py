@@ -315,8 +315,8 @@ def UpdateMaterialParametersFile(material_parametrs_file_name, mu):
 
 def GetRomManagerParameters():
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
-            "rom_stages_to_train" : ["HHROM"],            // ["FOM","ROM","HROM","HHROM"]
-            "rom_stages_to_test"  : ["HHROM"],            // ["FOM","ROM","HROM","HHROM"]
+            "rom_stages_to_train" : ["ROM"],            // ["FOM","ROM","HROM","HHROM"]
+            "rom_stages_to_test"  : ["ROM"],            // ["FOM","ROM","HROM","HHROM"]
             "paralellism" : null,                       // null, TODO: add "compss"
             "projection_strategy": "galerkin",          // "lspg", "galerkin", "petrov_galerkin"
             "type_of_decoder" : "linear",               // "linear" "ann_enhanced",  TODO: add "quadratic"
@@ -345,7 +345,7 @@ def GetRomManagerParameters():
                     "basis_strategy": "reactions",                        // 'residuals', 'jacobian', 'reactions'
                     "include_phi": false,
                     "svd_truncation_tolerance": 0,
-                    "solving_technique": "qr_decomposition",              // 'normal_equations', 'qr_decomposition'
+                    "solving_technique": "normal_equations",              // 'normal_equations', 'qr_decomposition'
                     "monotonicity_preserving": false
                 },
                 "petrov_galerkin_rom_bns_settings": {
@@ -399,22 +399,22 @@ if __name__ == "__main__":
 
     ###############################
     # PARAMETERS SETTINGS
-    update_parameters  = False
+    update_parameters  = True
     update_mu_test     = True
-    VALIDATION         = True
-    number_of_mu_test  = 10
+    VALIDATION         = False
+    number_of_mu_test  = 0
     num_puntos_angle   = 0
     num_puntos_mach    = 0
     alpha              = 1.0
     beta               = 1.0
     update_residuals   = True
     update_phi_hrom    = True
-    mach_range         = [0.71, 0.74]
+    mach_range         = [0.72, 0.74]
     angle_range        = [0.50, 1.50]
     ################################
 
     regions = [
-        ((0.70, 0.75),(0.00, 2.00), 50)  
+        ((0.72, 0.74),(0.50, 1.50), 5)  
     ]
 
     mu_validation = []
@@ -443,7 +443,7 @@ if __name__ == "__main__":
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('upwind_elements_list.txt')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('trailing_edge_element_id.txt')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('ROM_data.xlsx')
-        KratosMultiphysics.kratos_utilities.DeleteFTrueileIfExisting('HROM_data.xlsx')
+        KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('HROM_data.xlsx')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('HHROM_data.xlsx')
     else:
         if update_residuals:

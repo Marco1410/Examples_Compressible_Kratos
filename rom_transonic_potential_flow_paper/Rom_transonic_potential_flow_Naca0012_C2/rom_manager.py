@@ -1,9 +1,9 @@
 import os
 import time
 import openpyxl
-import resource
 import numpy as np
 import matplotlib
+import matplotlib.patheffects as path_effects
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 from scipy.stats import qmc  
@@ -87,28 +87,36 @@ def plot_mu_values(mu_train, mu_test, mu_validation, name):
     mu_train = np.array(mu_train).reshape(-1, 2) if len(mu_train) > 0 else np.empty((0, 2))
     mu_test = np.array(mu_test).reshape(-1, 2) if len(mu_test) > 0 else np.empty((0, 2))
     mu_validation = np.array(mu_validation).reshape(-1, 2) if len(mu_validation) > 0 else np.empty((0, 2))
-    if len(mu_train) + len(mu_test) + len(mu_validation) > 0: 
+    if len(mu_train) + len(mu_test) + len(mu_validation) > 0:
         all_mu_values = np.concatenate((mu_train, mu_test, mu_validation), axis=0)
         min_alpha, min_mach = np.min(all_mu_values[:, 0]), np.min(all_mu_values[:, 1])
         max_alpha, max_mach = np.max(all_mu_values[:, 0]), np.max(all_mu_values[:, 1])
         regions = [
-            # ((min_mach, min_alpha), (max_mach, max_alpha), 'orange')
-            ((0.70, 0.00), (0.76, 1.00), 'red'),    
-            ((0.70, 1.00), (0.75, 1.75), 'red'), 
-            ((0.70, 1.75), (0.72, 2.50), 'red'), 
-            ((0.75, 1.00), (0.76, 1.75), 'pink'),  
-            ((0.72, 1.75), (0.73, 2.50), 'cyan'),  
-            ((0.73, 1.75), (0.74, 2.50), 'gray'),  
-            ((0.74, 1.75), (0.75, 2.50), 'lime'),  
-            ((0.75, 1.75), (0.76, 2.50), 'olive')  
-        ] 
+            ((min_mach, min_alpha), (max_mach, max_alpha), 'red')
+        ]
+        # regions = [
+        #     ((0.70, 0.00), (0.75, 2.00), 'red')
+        # ]
         for bottom_left, top_right, color in regions:
-            rect = plt.Rectangle(bottom_left, top_right[0] - bottom_left[0], top_right[1] - bottom_left[1], 
-                                 facecolor=color, edgecolor=color, alpha=0.25)
+            rect = plt.Rectangle(
+                bottom_left,
+                top_right[0] - bottom_left[0],
+                top_right[1] - bottom_left[1],
+                facecolor=color, edgecolor=color, alpha=0.25
+            )
             ax.add_patch(rect)
-    if len(mu_train) > 0: ax.plot(np.array(mu_train)[:,1], np.array(mu_train)[:,0], 'bs', label="Train Values", markersize=4)
-    if len(mu_test ) > 0: ax.plot(np.array(mu_test)[:,1], np.array(mu_test)[:,0], 'rx', label="Test Values", markersize=7)
-    if len(mu_validation ) > 0: ax.plot(np.array(mu_validation)[:,1], np.array(mu_validation)[:,0], 'g*', label="Validation Values", markersize=10)
+    def plot_points_with_labels(data, marker, color, label, dx=0.0, dy=-0.08):
+        if len(data) > 0:
+            for i, (alpha, mach) in enumerate(data):
+                ax.plot(mach, alpha, marker, color=color, label=label if i == 0 else "", markersize=8)
+                text = ax.text(mach + dx, alpha + dy, str(i), fontsize=8, ha='center', va='center', color=color)
+                text.set_path_effects([
+                    path_effects.Stroke(linewidth=1.5, foreground='black'),
+                    path_effects.Normal()
+                ])
+    plot_points_with_labels(mu_train, 's', 'blue', "Train Values")
+    plot_points_with_labels(mu_test, 'x', 'red', "Test Values")
+    plot_points_with_labels(mu_validation, '*', 'green', "Validation Values")
     plt.title('Mu Values')
     plt.ylabel('Alpha')
     plt.xlabel('Mach')
@@ -136,32 +144,30 @@ def load_mu_parameters(name):
 def CustomizeSimulation(cls, global_model, parameters, mu):
 
     class CustomSimulation(cls):
+
+        def __init__(self, model,project_parameters):
+            super().__init__(model,project_parameters)
+            if len(mu) > 0:
+                self.case_name = f'{mu[0]}, {mu[1]}'
             
         def InitializeSolutionStep(self):
             super().InitializeSolutionStep()
-            self.case_name = f'{mu[0]}, {mu[1]}'
-            initialize = False
-            if initialize: 
-                # and self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.STEP] == 0:
-            # if initialize and self._GetSimulationName() == "Analysis" and self._GetSimulationName() == "::[ROM Simulation]:: ":
-                if self._GetSimulationName() == "::[ROM Simulation]:: ":
-                    directory = 'ROM_Snapshots_0'
-                else:
-                    directory = 'FOM_Snapshots_0'
-                model_part = self.model["MainModelPart"]
-                for node in model_part.Nodes:
-                    offset = np.where(np.arange(1,model_part.NumberOfNodes()+1, dtype=int) == node.Id)[0][0]*2
-                    node.SetSolutionStepValue(CPFApp.AUXILIARY_VELOCITY_POTENTIAL, np.load(f'{directory}/{self.case_name}.npy')[offset])
-                    node.SetSolutionStepValue(CPFApp.VELOCITY_POTENTIAL, np.load(f'{directory}/{self.case_name}.npy')[offset+1])
 
         def Run(self):
 
             start_time = time.time()
             self.Initialize()
+            if parameters["output_processes"].Has("gid_output"):
+                self.simulation_name = parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].GetString().removeprefix('Results/')
             
-            # if self._GetSimulationName() == "Analysis": # FOM
-            #     for elem in self.model["MainModelPart"].Elements:
-            #         elem.SetValue(CPFApp.SAVE_UPWIND_ELEMENT, True)
+            if self._GetSimulationName() == "Analysis" and 'Fit' in self.simulation_name: # FOM only train
+                for elem in self.model["MainModelPart"].Elements:
+                    elem.SetValue(CPFApp.SAVE_UPWIND_ELEMENT, True)
+            if self._GetSimulationName() == "::[ROM Simulation]:: ": # ROM
+                # self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.CONSTRAINT_SCALE_FACTOR] = 100 ### Galerkin
+                self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.CONSTRAINT_SCALE_FACTOR] = 1.0 ### LSPG
+                # self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.CONSTRAINT_SCALE_FACTOR] = 1
+                self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.PRINTED_STEP] = 1
 
             self.RunSolutionLoop()
             self.Finalize()
@@ -169,90 +175,117 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
             exe_time = time.time() - start_time
 
             if parameters["output_processes"].Has("gid_output"):
-                simulation_name = parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].GetString().removeprefix('Results/')
                 info_steps_list = []
-                error = 0
+                u_error = q_error = 0
                 modes = 0
 
                 for process in self._GetListOfOutputProcesses():
                         if isinstance(process, CalculateRomBasisOutputProcess):
                             BasisOutputProcess = process
 
-                if 'FOM' in simulation_name:
+                if 'FOM' in self.simulation_name:
                     case = 'FOM'
-                    if 'Fit' in simulation_name:
+                    if 'Fit' in self.simulation_name:
                         case_type = 'train_fom'
-                    elif 'Test' in simulation_name:
+                    elif 'Test' in self.simulation_name:
                         case_type = 'test_fom'
-                    elif 'Run' in simulation_name:
+                    elif 'Run' in self.simulation_name:
                         case_type = 'run_fom' 
 
                     fom = BasisOutputProcess._GetSnapshotsMatrix()
                     np.save(f'{case}_Snapshots/{self.case_name}',fom)
 
-                    modelpart = self.model["MainModelPart"]
-                    fout = open("trailing_edge_elements_list.txt",'a')
-                    for elem in modelpart.Elements:
-                        if elem.GetValue(CPFApp.TRAILING_EDGE) != 0.0:
-                            fout.write("%s\n" %(elem.Id))
-                    fout.close()
-                    fout = open("kutta_elements_list.txt",'a')
-                    for elem in modelpart.Elements:
-                        if elem.GetValue(CPFApp.KUTTA) != 0.0:
-                            fout.write("%s\n" %(elem.Id))
-                    fout.close()
-                    # fout = open("wake_elements_list.txt",'a')
-                    # for elem in modelpart.Elements:
-                    #     if elem.GetValue(CPFApp.WAKE) != 0.0:
-                    #         fout.write("%s\n" %(elem.Id))
-                    # fout.close()
-                    # fout = open("upwind_elements_list.txt",'a')
-                    # for elem in modelpart.Elements:
-                    #     if elem.GetValue(CPFApp.ID_UPWIND_ELEMENT) != 0.0:
-                    #         fout.write("%s\n" %(elem.Id))
-                    #         fout.write("%s\n" %(elem.GetValue(CPFApp.ID_UPWIND_ELEMENT)))
-                    # fout.close()
+                    if case_type == 'train_fom': #Only for train FOM
+                        modelpart = self.model["MainModelPart"]
+                        fout = open("trailing_edge_elements_list.txt",'a')
+                        for elem in modelpart.Elements:
+                            if elem.GetValue(CPFApp.TRAILING_EDGE) != 0.0:
+                                fout.write("%s\n" %(elem.Id))
+                        fout.close()
+                        fout = open("kutta_elements_list.txt",'a')
+                        for elem in modelpart.Elements:
+                            if elem.GetValue(CPFApp.KUTTA) != 0.0:
+                                fout.write("%s\n" %(elem.Id))
+                        fout.close()
+                        fout = open("wake_elements_list.txt",'a')
+                        for elem in modelpart.Elements:
+                            if elem.GetValue(CPFApp.WAKE) != 0.0:
+                                fout.write("%s\n" %(elem.Id))
+                        fout.close()
+                        fout = open("upwind_elements_list.txt",'a')
+                        for elem in modelpart.Elements:
+                            if elem.GetValue(CPFApp.ID_UPWIND_ELEMENT) != 0.0:
+                                fout.write("%s\n" %(elem.Id))
+                                fout.write("%s\n" %(elem.GetValue(CPFApp.ID_UPWIND_ELEMENT)))
+                        fout.close()
+                        fout = open("selected_elements_list.txt",'a')
+                        for elem in modelpart.Elements:
+                            if elem.GetValue(KratosMultiphysics.ACTIVATION_LEVEL) != 0.0:
+                                fout.write("%s\n" %(elem.Id))
+                            # if elem.GetValue(CPFApp.ID_UPWIND_ELEMENT) != 0.0:
+                            #     fout.write("%s\n" %(elem.Id))
+                            # if elem.GetValue(CPFApp.TRAILING_EDGE) != 0.0:
+                            #     fout.write("%s\n" %(elem.Id))
+                            # if elem.GetValue(CPFApp.KUTTA) != 0.0:
+                            #     fout.write("%s\n" %(elem.Id))
+                            # if elem.GetValue(CPFApp.WAKE) != 0.0:
+                            #     fout.write("%s\n" %(elem.Id))
+                        fout.close()
     
-                elif 'HROM' in simulation_name:
-                    if 'Fit' in simulation_name:
+                elif 'HROM' in self.simulation_name:
+                    if 'Fit' in self.simulation_name:
                         case_type = 'train_'
-                    elif 'Test' in simulation_name:
+                    elif 'Test' in self.simulation_name:
                         case_type = 'test_'
-                    elif 'Run' in simulation_name:
+                    elif 'Run' in self.simulation_name:
                         case_type = 'run_' 
                         
-                    hrom = BasisOutputProcess._GetSnapshotsMatrix()
-                    fom = np.load(f'FOM_Snapshots/{self.case_name}.npy')
+                    u_hrom = BasisOutputProcess._GetSnapshotsMatrix()
+                    u_fom = np.load(f'FOM_Snapshots/{self.case_name}.npy')
 
-                    if (len(fom) != len(hrom) or 'HHROM' in simulation_name):
+                    q_hrom = []
+                    q_hrom.append(np.array(self.model["MainModelPart"].GetValue(KratosMultiphysics.RomApplication.ROM_SOLUTION_INCREMENT)).reshape(-1,1))
+                    q_hrom = np.block(q_hrom)
+                    phi = np.load(f'rom_data/RightBasisMatrix.npy')
+                    if (q_hrom.shape[0] == 1): q_hrom = q_hrom.T
+                    q_fom = (phi.T @ u_fom)           
+
+                    if (len(u_fom) != len(u_hrom) or 'HHROM' in self.simulation_name):
                         case = 'HHROM'
-                        q_matrix = []
-                        q_matrix.append(np.array(self.model["MainModelPart"].GetValue(KratosMultiphysics.RomApplication.ROM_SOLUTION_INCREMENT)).reshape(-1,1))
-                        q_matrix = np.block(q_matrix)
-                        phi = np.load(f'rom_data/RightBasisMatrix.npy')
-                        if (q_matrix.shape[0] == 1): q_matrix = q_matrix.T
-                        hrom = phi @ q_matrix
-                        np.save(f'{case}_Snapshots/{self.case_name}', hrom)
                         case_type = case_type + 'hhrom'
+                        u_hrom = phi @ q_hrom  
                     else:
                         case = 'HROM'
-                        np.save(f'{case}_Snapshots/{self.case_name}', hrom)
                         case_type = case_type + 'hrom'
-                    error = np.linalg.norm(fom-hrom)/np.linalg.norm(fom)
+
+                    np.save(f'{case}_Snapshots/{self.case_name}', u_hrom)
                     
-                elif 'ROM' in simulation_name:
+                    u_error = np.linalg.norm(u_fom-u_hrom)/np.linalg.norm(u_fom)
+                    q_error = np.linalg.norm(q_fom-q_hrom)/np.linalg.norm(q_fom)
+                    
+                elif 'ROM' in self.simulation_name:
                     case = 'ROM'
-                    if 'Fit' in simulation_name:
+                    if 'Fit' in self.simulation_name:
                         case_type = 'train_rom'
-                    elif 'Test' in simulation_name:
+                    elif 'Test' in self.simulation_name:
                         case_type = 'test_rom' 
-                    elif 'Run' in simulation_name:
+                    elif 'Run' in self.simulation_name:
                         case_type = 'run_rom' 
 
-                    rom = BasisOutputProcess._GetSnapshotsMatrix()
-                    np.save(f'{case}_Snapshots/{self.case_name}',rom)
-                    fom = np.load(f'FOM_Snapshots/{self.case_name}.npy')
-                    error = np.linalg.norm(fom-rom)/np.linalg.norm(fom)
+                    u_rom = BasisOutputProcess._GetSnapshotsMatrix()
+                    u_fom = np.load(f'FOM_Snapshots/{self.case_name}.npy')
+
+                    q_rom = []
+                    q_rom.append(np.array(self.model["MainModelPart"].GetValue(KratosMultiphysics.RomApplication.ROM_SOLUTION_INCREMENT)).reshape(-1,1))
+                    q_rom = np.block(q_rom)
+                    phi = np.load(f'rom_data/RightBasisMatrix.npy')
+                    if (q_rom.shape[0] == 1): q_rom = q_rom.T
+                    q_fom = (phi.T @ u_fom)           
+
+                    np.save(f'{case}_Snapshots/{self.case_name}', u_rom)
+                                        
+                    u_error = np.linalg.norm(u_fom-u_rom)/np.linalg.norm(u_fom)
+                    q_error = np.linalg.norm(q_fom-q_rom)/np.linalg.norm(q_fom)
 
                 if os.path.exists('rom_data/RightBasisMatrix.npy'): 
                     modes = np.load('rom_data/RightBasisMatrix.npy').shape[1]
@@ -270,7 +303,8 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
                                         mu[0],
                                         mu[1], 
                                         self.model["MainModelPart"].ProcessInfo[KratosMultiphysics.RESIDUAL_NORM],
-                                        error,
+                                        u_error,
+                                        q_error,
                                         modes,
                                         round(exe_time, 2),
                                         self.model["MainModelPart"].NumberOfNodes(),
@@ -286,7 +320,7 @@ def CustomizeSimulation(cls, global_model, parameters, mu):
                 else:
                     wb = openpyxl.Workbook()
                     hoja = wb.active
-                    hoja.append(('Case name','Angle [º]', 'Mach', 'Residual norm', 'Approximation error [%]', 'Modes', 'Time [sec]', 'Nodes', 'Cl', 'Cd'))
+                    hoja.append(('Case name','Angle [º]', 'Mach', 'Residual norm', 'u relative error', 'q relative error', 'Modes', 'Time [sec]', 'Nodes', 'Cl', 'Cd'))
                     for item in info_steps_list:
                         hoja.append(item)
                     wb.save(f'{case}_data.xlsx')
@@ -315,10 +349,10 @@ def UpdateMaterialParametersFile(material_parametrs_file_name, mu):
 
 def GetRomManagerParameters():
     general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
-            "rom_stages_to_train" : ["HHROM"],            // ["FOM","ROM","HROM","HHROM"]
-            "rom_stages_to_test"  : ["HHROM"],            // ["FOM","ROM","HROM","HHROM"]
+            "rom_stages_to_train" : ["ROM"],            // ["FOM","ROM","HROM","HHROM"]
+            "rom_stages_to_test"  : ["ROM"],            // ["FOM","ROM","HROM","HHROM"]
             "paralellism" : null,                       // null, TODO: add "compss"
-            "projection_strategy": "galerkin",          // "lspg", "galerkin", "petrov_galerkin"
+            "projection_strategy": "lspg",          // "lspg", "galerkin", "petrov_galerkin"
             "type_of_decoder" : "linear",               // "linear" "ann_enhanced",  TODO: add "quadratic"
             "assembling_strategy": "global",            // "global", "elemental"
             "save_gid_output": true,                    // false, true #if true, it must exits previously in the ProjectParameters.json
@@ -345,7 +379,7 @@ def GetRomManagerParameters():
                     "basis_strategy": "reactions",                        // 'residuals', 'jacobian', 'reactions'
                     "include_phi": false,
                     "svd_truncation_tolerance": 0,
-                    "solving_technique": "qr_decomposition",              // 'normal_equations', 'qr_decomposition'
+                    "solving_technique": "normal_equations",              // 'normal_equations', 'qr_decomposition'
                     "monotonicity_preserving": false
                 },
                 "petrov_galerkin_rom_bns_settings": {
@@ -361,14 +395,12 @@ def GetRomManagerParameters():
                 "initial_candidate_elements_model_part_list" : [],
                 "initial_candidate_conditions_model_part_list" : [],
                 "include_nodal_neighbouring_elements_model_parts_list":[],
-                "include_elements_model_parts_list": ["MainModelPart.trailing_edge","MainModelPart.kutta"],
-                "include_conditions_model_parts_list": ["MainModelPart.PotentialWallCondition2D_Far_field_Auto1","MainModelPart.Body2D_Body"],
                 "include_minimum_condition": false,
-                "include_condition_parents": true,             
+                "include_condition_parents": true,  
                 "use_dask": false,
                 "use_svd_dask": false,
                 "use_block_svd_dask": false,
-                "use_block_svd": true,
+                "use_block_svd": false,
                 "use_rows_equal_to_columns_in_block": false,
                 "block_size": 5000,
                 "n_workers": 2,
@@ -378,6 +410,8 @@ def GetRomManagerParameters():
                 "ip_scheduler": "0"
             }
         }""")
+                # "include_elements_model_parts_list": ["MainModelPart.trailing_edge","MainModelPart.kutta","MainModelPart.upwind","MainModelPart.wake"],
+                # "include_conditions_model_parts_list": ["MainModelPart.PotentialWallCondition2D_Far_field_Auto1","MainModelPart.Body2D_Body"],
 
     return general_rom_manager_parameters
 
@@ -399,22 +433,22 @@ if __name__ == "__main__":
 
     ###############################
     # PARAMETERS SETTINGS
-    update_parameters  = False
+    update_parameters  = True
     update_mu_test     = True
     VALIDATION         = True
-    number_of_mu_test  = 10
+    number_of_mu_test  = 15
     num_puntos_angle   = 0
     num_puntos_mach    = 0
-    alpha              = 1.0
-    beta               = 1.0
+    alpha              = 0.75
+    beta               = 0.75
     update_residuals   = True
     update_phi_hrom    = True
-    mach_range         = [0.71, 0.74]
-    angle_range        = [0.50, 1.50]
+    mach_range         = [0.70, 0.75]
+    angle_range        = [0.00, 2.00]
     ################################
 
     regions = [
-        ((0.70, 0.75),(0.00, 2.00), 50)  
+        ((0.70, 0.75),(0.00, 2.00), 70)  
     ]
 
     mu_validation = []
@@ -443,7 +477,7 @@ if __name__ == "__main__":
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('upwind_elements_list.txt')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('trailing_edge_element_id.txt')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('ROM_data.xlsx')
-        KratosMultiphysics.kratos_utilities.DeleteFTrueileIfExisting('HROM_data.xlsx')
+        KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('HROM_data.xlsx')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('HHROM_data.xlsx')
     else:
         if update_residuals:
@@ -491,9 +525,6 @@ if __name__ == "__main__":
 
         plot_mu_values(mu_train, mu_test, mu_validation, 'MuValues')
 
-    print('Number of train cases: ', len(mu_train))
-    input('Pause')
-
     general_rom_manager_parameters = GetRomManagerParameters()
     project_parameters_name = "ProjectParameters.json"
 
@@ -507,9 +538,7 @@ if __name__ == "__main__":
     rom_manager.Test(mu_test)
 
     if VALIDATION:
-        for mu in mu_validation:
-            if not os.path.exists(f'FOM_Snapshots/{mu[0]},{mu[1]}.npy'):
-                rom_manager.RunFOM(mu_run=[mu])
+        rom_manager.RunFOM(mu_run=mu_validation)
         training_stages = rom_manager.general_rom_manager_parameters["rom_stages_to_test"].GetStringArray()
         if any(item == "ROM" for item in training_stages):
             rom_manager.RunROM(mu_run=mu_validation)
@@ -518,4 +547,33 @@ if __name__ == "__main__":
         if any(item == "HHROM" for item in training_stages):
             rom_manager.RunHHROM(mu_run=mu_validation)
 
+        for mu in mu_validation:
+            run_fom = []
+            run_rom = []
+            run_hrom = []
+            run_hhrom = []
+            if os.path.exists(f'FOM_Snapshots/{mu[0]}, {mu[1]}.npy'):
+                run_fom.append(np.load(f'FOM_Snapshots/{mu[0]}, {mu[1]}.npy'))
+            if os.path.exists(f'ROM_Snapshots/{mu[0]}, {mu[1]}.npy'):
+                run_rom.append(np.load(f'ROM_Snapshots/{mu[0]}, {mu[1]}.npy'))
+            if os.path.exists(f'HROM_Snapshots/{mu[0]}, {mu[1]}.npy'):
+                run_hrom.append(np.load(f'HROM_Snapshots/{mu[0]},{mu[1]}.npy'))
+            if os.path.exists(f'HHROM_Snapshots/{mu[0]}, {mu[1]}.npy'):
+                run_hhrom.append(np.load(f'HHROM_Snapshots/{mu[0]}, {mu[1]}.npy'))
+        
+        run_fom = np.block(run_fom)
+        if any(item == "ROM" for item in training_stages):
+            run_rom = np.block(run_rom)
+        if any(item == "HROM" for item in training_stages):
+            run_hrom = np.block(run_hrom)
+        if any(item == "HHROM" for item in training_stages):
+            run_hhrom = np.block(run_hhrom)
+
     rom_manager.PrintErrors(show_q_errors=False)
+
+    if VALIDATION:
+        if any(item == "ROM" for item in training_stages):
+            run_error = np.linalg.norm(run_fom-run_rom)/np.linalg.norm(run_fom)
+            print('')
+            print('approximation error in run set FOM vs ROM:', run_error)
+            print('')

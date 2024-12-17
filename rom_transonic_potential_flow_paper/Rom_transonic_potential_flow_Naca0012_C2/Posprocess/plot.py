@@ -1,10 +1,14 @@
 import os
+import re
 import importlib
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
+import pyvista as pv 
 import KratosMultiphysics
+import matplotlib.cm as cm
+import matplotlib.tri as tri
 import KratosMultiphysics.kratos_utilities
 import KratosMultiphysics.CompressiblePotentialFlowApplication as CPFApp
 from KratosMultiphysics.gid_output_process import GiDOutputProcess
@@ -89,21 +93,14 @@ def FakeSimulation(cls, global_model, parameters, data_set):
 #
 # load parameters
 #
-def load_mu_parameters():
-    if os.path.exists("mu_train.npy") and os.path.exists("mu_test.npy"):
-        mu_train = np.load('mu_train.npy')
-        mu_test = np.load('mu_test.npy')
-        mu_train =  [mu.tolist() for mu in mu_train]
-        mu_test =  [mu.tolist() for mu in mu_test]
-    elif os.path.exists("mu_train.npy"):
-        mu_train = np.load('mu_train.npy')
-        mu_train =  [mu.tolist() for mu in mu_train]
-        mu_test = []
-    elif os.path.exists("mu_test.npy"):
-        mu_test = np.load('mu_test.npy')
-        mu_test =  [mu.tolist() for mu in mu_test]
-        mu_train = []
-    return mu_train, mu_test
+def load_mu_parameters(name):
+    filename = f'mu_{name}.npy'
+    if os.path.exists(filename):
+        mu_npy = np.load(filename)
+        mu =  [mu.tolist() for mu in mu_npy]
+    else:
+        mu = []
+    return mu
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
@@ -138,7 +135,7 @@ def Plot_Cps(mu_list, capture_directory):
     #Disable logs
     KratosMultiphysics.Logger.GetDefaultOutput().SetSeverity(KratosMultiphysics.Logger.Severity.WARNING)
 
-    for mu in mu_list:
+    for id, mu in enumerate(mu_list):
         case_name = f'{mu[0]}, {mu[1]}'
         capture_filename   = f"{capture_directory}/{case_name}.png"
 
@@ -238,21 +235,94 @@ def Plot_Cps(mu_list, capture_directory):
         fig = plt.savefig(capture_filename, dpi=400)
         fig = plt.close('all')
 
+        plot_Cps_2d([mu], capture_directory, i=id)
+
+def get_latest_vtk_file(directory):
+    vtk_files = []
+    base_filename_pattern = re.compile(r"MainModelPart_0(?:_(\d+))?\.vtk")
+    
+    for filename in os.listdir(directory):
+        match = base_filename_pattern.match(filename)
+        if match:
+            step = int(match.group(1)) if match.group(1) else -1  
+            vtk_files.append((step, filename))
+    
+    if not vtk_files:
+        raise FileNotFoundError("No se encontraron archivos que coincidan con el patrón en el directorio.")
+    
+    vtk_files.sort(reverse=True, key=lambda x: x[0])
+    
+    return os.path.join(directory, vtk_files[0][1])
+
+def plot_Cps_2d(mu_list, capture_directory, i=-1):
+    # Disable logs
+    KratosMultiphysics.Logger.GetDefaultOutput().SetSeverity(KratosMultiphysics.Logger.Severity.WARNING)
+
+    for id, mu in enumerate(mu_list):
+        if i > 0: id = i
+        case_name = f'{mu[0]}, {mu[1]}.png'
+        case_type = ['FOM','ROM','HROM', 'HHROM','RBF']
+        if 'Train' in capture_directory:
+            simulation_type = 'Fit'
+        elif 'Test' in capture_directory:
+            simulation_type = 'Test'
+        elif 'Validation' in capture_directory:
+            simulation_type = 'Run'
+        ########## 2D PLOT #####################################################################
+        for case in case_type:
+            if os.path.exists(f"Results/vtk_output_{case}_{simulation_type}{id}"):
+                vtk_filename = get_latest_vtk_file(f"Results/vtk_output_{case}_{simulation_type}{id}/")
+                if os.path.exists(vtk_filename):
+                    ######################################################################
+                    # Cargar el archivo .vtk
+                    mesh = pv.read(vtk_filename)
+
+                    # Extraer la geometría superficial
+                    surface_mesh = mesh.extract_geometry()
+
+                    # Extraer los puntos y las celdas
+                    points = surface_mesh.points
+                    cells = surface_mesh.faces.reshape(-1, 4)[:, 1:4]
+
+                    # Extraer los valores de la variable 'PRESSURE_COEFFICIENT'
+                    pressure_coeff = surface_mesh.point_data['PRESSURE_COEFFICIENT']
+
+                    # Normalizar los valores del coeficiente de presión para mapearlos a la escala de colores
+                    norm = plt.Normalize(vmin=pressure_coeff.min(), vmax=pressure_coeff.max())
+                    cmap = cm.get_cmap('viridis')
+
+                    ax = plt.figure(figsize=(10, 8)).add_subplot()
+
+                    triang = tri.Triangulation(points[:, 0], points[:, 1], cells)
+                    ax.tripcolor(triang, pressure_coeff, cmap='viridis', linewidth=0.5)
+
+                    # Configurar límites para la región central (ajustar valores según necesidad)
+                    x_min, x_max = -0.5, 1.5  # Ejemplo de límites del eje X
+                    y_min, y_max = -0.75, 1.0  # Ejemplo de límites del eje Y
+                    ax.set_xlim(x_min, x_max)
+                    ax.set_ylim(y_min, y_max)
+
+                    mappable = cm.ScalarMappable(norm=norm, cmap='viridis')
+                    mappable.set_array(pressure_coeff)
+                    plt.colorbar(mappable, ax=ax, label='PRESSURE COEFFICIENT', location='right')
+                    ax.set_xlabel('X')
+                    ax.set_ylabel('Y')
+                    ax.set_title(f' {case} Pressure distribution - Angle={np.round(mu[0],3)}, Mach={np.round(mu[1],3)}', size=13, pad=8, y=-0.125)
+                    # plt.show()
+                    plt.savefig(f'{capture_directory}/2D_{case}_{case_name}', dpi=200)
+                    plt.close('all')
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 if __name__ == "__main__":
 
-    mu_train, mu_test = load_mu_parameters()
+    mu_train = load_mu_parameters('train')
+    mu_test = load_mu_parameters('test')
+    mu_validation = load_mu_parameters('validation')
 
     Plot_Cps(mu_train, 'Train_Captures')
+
     Plot_Cps(mu_test, 'Test_Captures')
 
-    mu = []
-    mu.append([1.0,0.72])
-    mu.append([1.0,0.73])
-    mu.append([1.0,0.75])
-    mu.append([2.0,0.75])
-
-    Plot_Cps(mu, 'Validation')
+    Plot_Cps(mu_validation, 'Validation')

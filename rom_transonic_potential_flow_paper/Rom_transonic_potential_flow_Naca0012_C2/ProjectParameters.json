@@ -5,7 +5,7 @@
         "parallel_type" : "OpenMP",
         "echo_level"    : 0,
         "start_time"    : 0.0,
-        "end_time"      : 2.0
+        "end_time"      : 1
     },
     "solver_settings"  : {
         "model_part_name"          : "MainModelPart",
@@ -23,25 +23,26 @@
         },
         "scheme_settings"          : {
             "is_transonic": true,
+            "echo_level"                     : 0,
             "initial_critical_mach"          : 0.80,
             "initial_upwind_factor_constant" : 4.0,
-            "target_critical_mach"           : 0.95,
-            "target_upwind_factor_constant"  : 2.5,
+            "target_critical_mach"           : 0.92,
+            "target_upwind_factor_constant"  : 1.5,
             "update_relative_residual_norm"  : 1e-2,
-            "mach_number_squared_limit"      : 3.0
+            "mach_number_squared_limit"      : 3.0,
+            "steps_strategy"                 : 1
         },
         "maximum_iterations"       : 50,
         "echo_level"               : 1,
         "solving_strategy_settings": {
-            "type": "newton_raphson",
+            "type": "line_search",
             "advanced_settings" : {
-                "name": "1", 
+                "max_line_search_iterations" : 5,
                 "first_alpha_value"          : 0.5,
                 "second_alpha_value"         : 1.0,
-                "line_search_tolerance"      : 0.5,
+                "min_alpha"                  : 0.5,
                 "max_alpha"                  : 1.0,
-                "min_alpha"                  : 0.1,
-                "max_line_search_iterations" : 5
+                "line_search_tolerance"      : 0.5 
             }
         }, 
         "convergence_criterion": "solution_criterion",
@@ -133,7 +134,7 @@
                        "nodal_nonhistorical_results": ["VELOCITY","PRESSURE_COEFFICIENT",
                                                         "POTENTIAL_JUMP","TRAILING_EDGE","WAKE_DISTANCE","WING_TIP"],
                        "nodal_results"       : ["VELOCITY_POTENTIAL", "AUXILIARY_VELOCITY_POTENTIAL"],
-                       "gauss_point_results" : ["WAKE","KUTTA","DENSITY","MACH"]
+                       "gauss_point_results" : ["WAKE","KUTTA","DENSITY","MACH","ID_UPWIND_ELEMENT","ACTIVATION_LEVEL"]
                    },
                    "point_data_configuration"  : []
                }
@@ -158,7 +159,7 @@
                "nodal_data_value_variables"         : ["PRESSURE_COEFFICIENT","VELOCITY","DENSITY",
                                                        "MACH","POTENTIAL_JUMP","TRAILING_EDGE","WAKE_DISTANCE","WING_TIP"],
                "element_data_value_variables"       : ["WAKE","KUTTA"],
-               "gauss_point_variables_in_elements"  : ["PRESSURE_COEFFICIENT","VELOCITY","MACH"],
+               "gauss_point_variables_in_elements"  : ["PRESSURE_COEFFICIENT","VELOCITY","MACH","ID_UPWIND_ELEMENT","ACTIVATION_LEVEL"],
                "condition_data_value_variables"     : []
            }
        }]

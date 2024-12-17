@@ -47,11 +47,11 @@ def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
 if __name__ == "__main__":
 
     mu_validation = []
-    # mu_validation.append([1.0,0.72])
-    # mu_validation.append([1.0,0.73])
+    mu_validation.append([1.0,0.72])
+    mu_validation.append([1.0,0.73])
     mu_validation.append([1.0,0.75])
     mu_validation.append([2.0,0.75])
-    mu_validation.append([2.5,0.76])
+    # mu_validation.append([2.5,0.76])
 
     with open("Naca0012ProjectParameters.json", 'r') as parameter_file:
         parameters = KratosMultiphysics.Parameters(parameter_file.read())
@@ -84,37 +84,37 @@ if __name__ == "__main__":
         parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString(f'Results_Naca0012/{angle_of_attack}, {mach_infinity}')
         parameters["output_processes"]["vtk_output"][0]["Parameters"]["output_path"].SetString(f'Results_Naca0012/{angle_of_attack}, {mach_infinity}')
 
-        if (mach_infinity == 0.72 and angle_of_attack == 1.00):
-            input('0')
-            # parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-            # parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
-            # parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-            parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.99)
-            parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.5)
+        # if (mach_infinity == 0.72 and angle_of_attack == 1.00):
+        #     input('0')
+        #     # parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
+        #     # parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
+        #     # parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
+        #     parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.97)
+        #     parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.2)
 
-        if (mach_infinity == 0.73 and angle_of_attack == 1.00):
-            input('1')
-            # parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-            # parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
-            # parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-            parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.99)
-            parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(2.5)
+        # if (mach_infinity == 0.73 and angle_of_attack == 1.00):
+        #     input('1')
+        #     # parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
+        #     # parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
+        #     # parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
+        #     parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.97)
+        #     parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.2)
 
-        if (mach_infinity == 0.75 and angle_of_attack == 1.00):
-            input('2')
-            # parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-            # parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
-            # parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-            parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.95)
-            parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(3.8)
+        # if (mach_infinity == 0.75 and angle_of_attack == 1.00):
+        #     input('2')
+        #     # parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
+        #     # parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
+        #     # parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
+        #     parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.97)
+        #     parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.2)
 
-        if (mach_infinity >= 0.75 and angle_of_attack >= 2.00):
-            input('3')
-            # parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-            # parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
-            # parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-            parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.92)
-            parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(3.8)
+        # if (mach_infinity >= 0.75 and angle_of_attack >= 2.00):
+        #     input('3')
+        #     # parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
+        #     # parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(4.0)
+        #     # parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
+        #     parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.97)
+        #     parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.2)
 
         global_model = KratosMultiphysics.Model()
         simulation = CreateAnalysisStageWithFlushInstance(analysis_stage_class, global_model, parameters)

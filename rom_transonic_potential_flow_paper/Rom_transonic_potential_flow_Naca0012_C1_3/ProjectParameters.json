@@ -5,7 +5,7 @@
         "parallel_type" : "OpenMP",
         "echo_level"    : 0,
         "start_time"    : 0.0,
-        "end_time"      : 2.0
+        "end_time"      : 1.0
     },
     "solver_settings"  : {
         "model_part_name"          : "MainModelPart",
@@ -23,17 +23,19 @@
         },
         "scheme_settings"          : {
             "is_transonic": true,
-            "initial_critical_mach"          : 0.80,
-            "initial_upwind_factor_constant" : 4.0,
-            "target_critical_mach"           : 0.95,
-            "target_upwind_factor_constant"  : 2.5,
+            "initial_critical_mach"           : 0.95,
+            "initial_upwind_factor_constant"  : 2.5,
+            // "initial_critical_mach"          : 0.80,
+            // "initial_upwind_factor_constant" : 4.0,
+            // "target_critical_mach"           : 0.95,
+            // "target_upwind_factor_constant"  : 2.5,
             "update_relative_residual_norm"  : 1e-2,
             "mach_number_squared_limit"      : 3.0
         },
         "maximum_iterations"       : 50,
         "echo_level"               : 1,
         "solving_strategy_settings": {
-            "type": "newton_raphson",
+            "type": "line_search",
             "advanced_settings" : {
                 "name": "1", 
                 "first_alpha_value"          : 0.5,
