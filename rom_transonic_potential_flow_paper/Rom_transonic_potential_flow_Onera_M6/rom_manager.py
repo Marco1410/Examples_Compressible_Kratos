@@ -74,22 +74,6 @@ def get_not_scale_parameters(mu=[None], angle=[], mach=[]):
             #Angle of attack , Mach infinit
             mu_not_scaled.append([values[i,0], values[i,1]])    
     return mu_not_scaled
-    
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#
-# wake angles Salome
-#
-def SaveAngles(mu_list):
-    fout = open('wake_angles.dat','w')
-    for mu in mu_list:
-        fout.write("%s\n" %(mu[0]))
-    fout.close()
-
-def LaunchSalome():
-    salome_cmd = "salome -t python"
-    salome_script_name = "wake_salome.py"
-    salome_exe = " ".join([salome_cmd, salome_script_name])
-    subprocess.Popen(["/bin/bash", "-i", "-c", salome_exe])
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
@@ -489,31 +473,16 @@ if __name__ == "__main__":
 
     #################################
     # PARAMETERS SETTINGS
-    update_parameters     = True
-    use_structured_points = True
-    update_mu_test        = True
-    relaunch_FOM          = True
-    rebuild_phi           = True
-    relaunch_ROM          = True
-    update_case_data      = True 
-    relaunch_TrainHROM    = True
-    update_residuals      = True
-    update_phi_hrom       = True
-    relaunch_HROM         = True
-    VALIDATION            = True
-    angle_range           = [ 2.90, 3.17]
-    mach_range            = [ 0.829, 0.849]
-    use_full_model_part   = True
-    show_q_errors         = False
+    update_parameters = True
+    update_mu_test    = True
+    VALIDATION        = True
+    angle_range       = [ 2.90, 3.17]
+    mach_range        = [ 0.829, 0.849]
     ###############################
 
     regions = [
-        # ((0.829, 0.839),(2.95, 3.05), 5, 3),
-        # ((0.829, 0.839),(3.05, 3.20), 5, 3),
-        # ((0.839, 0.849),(2.95, 3.05), 5, 3),
-        # ((0.839, 0.849),(3.05, 3.20), 5, 3)
         ((0.829, 0.849),(2.90, 3.17), 10, 2)
-    ] #, 1  'orange' 
+    ] 
 
     mu_validation = []
     mu_validation_not_scaled = []
@@ -528,44 +497,14 @@ if __name__ == "__main__":
                                                             mu_validation       = mu_validation     ,
                                                             method              = 'Halton'          ,
                                                             update_mu_test      = update_mu_test    )
-        
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('upwind_elements_list.txt')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('wake_elements_list.txt')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('kutta_elements_list.txt')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('trailing_edge_elements_list.txt')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('WakeFiles')
         KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('wake_angles.dat')
-
-        #### STRUCTURED
-        if use_structured_points:
-            num_puntos_mach  = 6
-            num_puntos_angle = 6
-            mach_base_coords  = np.linspace(0,1, num_puntos_mach)
-            angle_base_coords = np.linspace(0,1, num_puntos_angle)
-            mach_coords  = mach_base_coords**1.0
-            angle_coords = angle_base_coords**1.0
-            xx, yy = np.meshgrid(mach_coords,angle_coords)
-            xx = mach_range[0]+(mach_range[1]-mach_range[0])*xx.ravel()
-            yy = angle_range[0]+(angle_range[1]-angle_range[0])*yy.ravel()
-            puntos = np.column_stack((yy,xx))
-            mu_train = []; mu_train_not_scaled = []
-            for id, mu in enumerate(puntos):
-                mu_train.append([mu[0],mu[1]])
-                mu_train_not_scaled.append([yy.ravel()[id],xx.ravel()[id]])
-            np.save('mu_train',mu_train)
-            np.save('mu_train_not_scaled',mu_train_not_scaled)
-            plot_mu_values(mu_train, mu_test, mu_validation, 'MuValues')
-
-        # SaveAngles(mu_train+mu_test+mu_validation)
-        # LaunchSalome()
-
     else:
-        if update_residuals:
-            KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('ResidualsSnapshotsMatrix.zarr')
-        if update_phi_hrom:
-            KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('PhiHROMMatrix.zarr')
-        if update_case_data:
-            KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('case_data.xlsx')
+        KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('case_data.xlsx')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Train_Captures')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Test_Captures')
         KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Validation')
@@ -606,16 +545,11 @@ if __name__ == "__main__":
 
         plot_mu_values(mu_train, mu_test, mu_validation, 'MuValues')
 
-    print('Number of train cases: ', len(mu_train))
-    input('Pause')
-
     general_rom_manager_parameters = GetRomManagerParameters()
     project_parameters_name = "ProjectParameters.json"
 
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
-                            CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
-                            relaunch_FOM=relaunch_FOM, relaunch_ROM=relaunch_ROM, relaunch_HROM=relaunch_HROM, 
-                            rebuild_phi=rebuild_phi, rebuild_phiHROM=update_phi_hrom, relaunch_TrainHROM=relaunch_TrainHROM)
+                            CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile)
 
     rom_manager.Fit(mu_train)
 
@@ -628,8 +562,8 @@ if __name__ == "__main__":
         if any(item == "ROM" for item in training_stages):
             rom_manager.RunROM(mu_run=mu_validation)
         if any(item == "HROM" for item in training_stages):
-            rom_manager.RunHROM(mu_run=mu_validation,use_full_model_part=use_full_model_part)
+            rom_manager.RunHROM(mu_run=mu_validation,use_full_model_part=True)
         if any(item == "HHROM" for item in training_stages):
-            rom_manager.RunHHROM(mu_run=mu_validation)
+            rom_manager.RunHROM(mu_run=mu_validation,use_full_model_part=False)
 
-    rom_manager.PrintErrors(show_q_errors=show_q_errors)
+    rom_manager.PrintErrors()
