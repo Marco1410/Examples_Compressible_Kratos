@@ -165,133 +165,6 @@ def Plot_Cps(mu_list, capture_directory, capture_subdirectory, plot=['CP']):
         elif 'Validation' in capture_directory:
             simulation_type = 'Run'
 
-        ########## 3D PLOT #####################################################################
-        if '3D' in plot:        
-            for case in case_type:
-                if case == 'FOM':
-                    vtk_filename = f'Results/vtk_output_{case}_{simulation_type}{id}/MainModelPart_Wing_0_1.vtk'
-                elif case == 'RBF' or case == 'HHROM':
-                    vtk_filename = f'Results/vtk_output_{case}_{mu[0]}, {mu[1]}/MainModelPart_Wing_0_0.vtk'
-                else:
-                    vtk_filename = f'Results/{capture_subdirectory}/vtk_output_{case}_{simulation_type}{id}/MainModelPart_Wing_0_1.vtk'
-                if os.path.exists(vtk_filename):
-                    ######################################################################
-                    # Cargar el archivo .vtk
-                    mesh = pv.read(vtk_filename)
-
-                    # Extraer la geometría superficial
-                    surface_mesh = mesh.extract_geometry()
-
-                    # Extraer los puntos y las celdas
-                    points = surface_mesh.points
-                    cells = surface_mesh.faces.reshape(-1, 4)[:, 1:4]
-
-                    # Extraer los valores de la variable 'PRESSURE_COEFFICIENT'
-                    pressure_coeff = surface_mesh.point_data['PRESSURE_COEFFICIENT']
-
-                    # Normalizar los valores del coeficiente de presión para mapearlos a la escala de colores
-                    norm = plt.Normalize(vmin=pressure_coeff.min(), vmax=pressure_coeff.max())
-                    cmap = cm.get_cmap('viridis') # viridis coolwarm
-
-                    ax = plt.figure(figsize=(10, 7)).add_subplot(projection='3d')
-
-                    triangles = [points[cell] for cell in cells]
-                    facecolors = []
-
-                    for cell in cells:
-                        vertex_colors = cmap(norm(pressure_coeff[cell]))
-                        facecolors.append(np.mean(vertex_colors, axis=0))
-
-                    tri_collection = Poly3DCollection(triangles,
-                                                    facecolors=facecolors, 
-                                                    linewidth=0.2, 
-                                                    edgecolor=facecolors,
-                                                    antialiased=True, 
-                                                    alpha=1.0)
-
-                    ax.add_collection3d(tri_collection)
-                    ax.view_init(elev=30, azim=135) 
-
-                    ax.set_xlim(points[:, 0].min(), points[:, 0].max())
-                    ax.set_ylim(points[:, 1].min(), points[:, 1].max())
-                    ax.set_zlim([-0.25, 0.25])
-
-                    # Agregar barra de color y etiquetas
-                    mappable = cm.ScalarMappable(norm=norm, cmap='viridis')
-                    mappable.set_array(pressure_coeff)
-                    cbar = plt.colorbar(mappable, ax=ax, label='PRESSURE COEFFICIENT', location='right')
-                    cbar.ax.tick_params(labelsize=10)
-
-                    ax.set_xlabel('X')
-                    ax.set_ylabel('Y')
-                    ax.set_zlabel('Z')
-                    ax.set_title(f'{case} Pressure distribution - Angle={np.round(mu[0],3)}, Mach={np.round(mu[1],3)}', size=13, pad=8, y=-0.15)
-                    # plt.show()
-                    plt.savefig(f'{capture_directory}/{capture_subdirectory}/3D_{case}_{capture_filename}', dpi=150)
-                    plt.close('all')
-
-        ########## 2D PLOT #####################################################################
-        if '2D' in plot:
-            for case in case_type:
-                if case == 'FOM':
-                    vtk_filename = f'Results/vtk_output_{case}_{simulation_type}{id}/MainModelPart_Wing_0_1.vtk'
-                elif case == 'RBF' or case == 'HHROM':
-                    vtk_filename = f'Results/vtk_output_{case}_{mu[0]}, {mu[1]}/MainModelPart_Wing_0_0.vtk'
-                else:
-                    vtk_filename = f'Results/{capture_subdirectory}/vtk_output_{case}_{simulation_type}{id}/MainModelPart_Wing_0_1.vtk'
-                if os.path.exists(vtk_filename):
-                    ######################################################################
-                    # Cargar el archivo .vtk
-                    mesh = pv.read(vtk_filename)
-
-                    # Extraer la geometría superficial
-                    surface_mesh = mesh.extract_geometry()
-
-                    # Extraer los puntos y las celdas
-                    points = surface_mesh.points
-                    cells = surface_mesh.faces.reshape(-1, 4)[:, 1:4]
-
-                    # Extraer los valores de la variable 'PRESSURE_COEFFICIENT'
-                    pressure_coeff = surface_mesh.point_data['PRESSURE_COEFFICIENT']
-
-                    # Normalizar los valores del coeficiente de presión para mapearlos a la escala de colores
-                    norm = plt.Normalize(vmin=pressure_coeff.min(), vmax=pressure_coeff.max())
-                    cmap = cm.get_cmap('viridis') # viridis coolwarm
-
-                    ax = plt.figure(figsize=(10, 10)).add_subplot()
-                    # EXTRACT Y > 0 POINTS
-                    mask = points[:, 2] > 0
-                    filtered_points = points[mask]
-                    filtered_pressure_coeff = pressure_coeff[mask]
-
-                    index_map = {old_idx: new_idx for new_idx, old_idx in enumerate(np.where(mask)[0])}
-
-                    filtered_cells = []
-                    for cell in cells:
-                        if all(mask[cell]):  
-                            filtered_cells.append([index_map[idx] for idx in cell])
-
-                    triang = tri.Triangulation(filtered_points[:, 0], filtered_points[:, 1], filtered_cells)
-                    
-                    # Gráfico principal
-                    ax.tripcolor(triang, filtered_pressure_coeff, cmap=cmap, linewidth=0.8)
-                    # Gráfico de contorno relleno
-                    # ax.tricontourf(triang, filtered_pressure_coeff, levels=15, cmap=cmap)
-                    # Líneas de contorno negras
-                    ax.tricontour(triang, filtered_pressure_coeff, levels=15, colors='k', linewidths=0.35)
-
-
-                    # Agregar barra de color y etiquetas
-                    mappable = cm.ScalarMappable(norm=norm, cmap='viridis')
-                    mappable.set_array(pressure_coeff)
-                    plt.colorbar(mappable, ax=ax, label='PRESSURE COEFFICIENT', location='right')
-                    ax.set_xlabel('X')
-                    ax.set_ylabel('Y')
-                    ax.set_title(f'{case} Pressure distribution - Angle={np.round(mu[0],3)}, Mach={np.round(mu[1],3)}', size=13, pad=8, y=-0.15)
-                    # plt.show()
-                    plt.savefig(f'{capture_directory}/{capture_subdirectory}/2D_{case}_{capture_filename}', dpi=150)
-                    plt.close('all')
-
         ########## CP PLOT #####################################################################
         if 'CP' in plot:
             fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(13, 7))
@@ -513,6 +386,133 @@ def Plot_Cps(mu_list, capture_directory, capture_subdirectory, plot=['CP']):
             plt.savefig(f'{capture_directory}/{capture_subdirectory}/2D_CP_{capture_filename}', dpi=200)
             plt.close('all')
 
+        ########## 3D PLOT #####################################################################
+        if '3D' in plot:        
+            for case in case_type:
+                if case == 'FOM':
+                    vtk_filename = f'Results/vtk_output_{case}_{simulation_type}{id}/MainModelPart_Wing_0_1.vtk'
+                elif case == 'RBF' or case == 'HHROM':
+                    vtk_filename = f'Results/vtk_output_{case}_{mu[0]}, {mu[1]}/MainModelPart_Wing_0_0.vtk'
+                else:
+                    vtk_filename = f'Results/{capture_subdirectory}/vtk_output_{case}_{simulation_type}{id}/MainModelPart_Wing_0_1.vtk'
+                if os.path.exists(vtk_filename):
+                    ######################################################################
+                    # Cargar el archivo .vtk
+                    mesh = pv.read(vtk_filename)
+
+                    # Extraer la geometría superficial
+                    surface_mesh = mesh.extract_geometry()
+
+                    # Extraer los puntos y las celdas
+                    points = surface_mesh.points
+                    cells = surface_mesh.faces.reshape(-1, 4)[:, 1:4]
+
+                    # Extraer los valores de la variable 'PRESSURE_COEFFICIENT'
+                    pressure_coeff = surface_mesh.point_data['PRESSURE_COEFFICIENT']
+
+                    # Normalizar los valores del coeficiente de presión para mapearlos a la escala de colores
+                    norm = plt.Normalize(vmin=pressure_coeff.min(), vmax=pressure_coeff.max())
+                    cmap = cm.get_cmap('viridis') # viridis coolwarm
+
+                    ax = plt.figure(figsize=(10, 7)).add_subplot(projection='3d')
+
+                    triangles = [points[cell] for cell in cells]
+                    facecolors = []
+
+                    for cell in cells:
+                        vertex_colors = cmap(norm(pressure_coeff[cell]))
+                        facecolors.append(np.mean(vertex_colors, axis=0))
+
+                    tri_collection = Poly3DCollection(triangles,
+                                                    facecolors=facecolors, 
+                                                    linewidth=0.2, 
+                                                    edgecolor=facecolors,
+                                                    antialiased=True, 
+                                                    alpha=1.0)
+
+                    ax.add_collection3d(tri_collection)
+                    ax.view_init(elev=30, azim=135) 
+
+                    ax.set_xlim(points[:, 0].min(), points[:, 0].max())
+                    ax.set_ylim(points[:, 1].min(), points[:, 1].max())
+                    ax.set_zlim([-0.25, 0.25])
+
+                    # Agregar barra de color y etiquetas
+                    mappable = cm.ScalarMappable(norm=norm, cmap='viridis')
+                    mappable.set_array(pressure_coeff)
+                    cbar = plt.colorbar(mappable, ax=ax, label='PRESSURE COEFFICIENT', location='right')
+                    cbar.ax.tick_params(labelsize=10)
+
+                    ax.set_xlabel('X')
+                    ax.set_ylabel('Y')
+                    ax.set_zlabel('Z')
+                    ax.set_title(f'{case} Pressure distribution - Angle={np.round(mu[0],3)}, Mach={np.round(mu[1],3)}', size=13, pad=8, y=-0.15)
+                    # plt.show()
+                    plt.savefig(f'{capture_directory}/{capture_subdirectory}/3D_{case}_{capture_filename}', dpi=150)
+                    plt.close('all')
+
+        ########## 2D PLOT #####################################################################
+        if '2D' in plot:
+            for case in case_type:
+                if case == 'FOM':
+                    vtk_filename = f'Results/vtk_output_{case}_{simulation_type}{id}/MainModelPart_Wing_0_1.vtk'
+                elif case == 'RBF' or case == 'HHROM':
+                    vtk_filename = f'Results/vtk_output_{case}_{mu[0]}, {mu[1]}/MainModelPart_Wing_0_0.vtk'
+                else:
+                    vtk_filename = f'Results/{capture_subdirectory}/vtk_output_{case}_{simulation_type}{id}/MainModelPart_Wing_0_1.vtk'
+                if os.path.exists(vtk_filename):
+                    ######################################################################
+                    # Cargar el archivo .vtk
+                    mesh = pv.read(vtk_filename)
+
+                    # Extraer la geometría superficial
+                    surface_mesh = mesh.extract_geometry()
+
+                    # Extraer los puntos y las celdas
+                    points = surface_mesh.points
+                    cells = surface_mesh.faces.reshape(-1, 4)[:, 1:4]
+
+                    # Extraer los valores de la variable 'PRESSURE_COEFFICIENT'
+                    pressure_coeff = surface_mesh.point_data['PRESSURE_COEFFICIENT']
+
+                    # Normalizar los valores del coeficiente de presión para mapearlos a la escala de colores
+                    norm = plt.Normalize(vmin=pressure_coeff.min(), vmax=pressure_coeff.max())
+                    cmap = cm.get_cmap('viridis') # viridis coolwarm
+
+                    ax = plt.figure(figsize=(10, 10)).add_subplot()
+                    # EXTRACT Y > 0 POINTS
+                    mask = points[:, 2] > 0
+                    filtered_points = points[mask]
+                    filtered_pressure_coeff = pressure_coeff[mask]
+
+                    index_map = {old_idx: new_idx for new_idx, old_idx in enumerate(np.where(mask)[0])}
+
+                    filtered_cells = []
+                    for cell in cells:
+                        if all(mask[cell]):  
+                            filtered_cells.append([index_map[idx] for idx in cell])
+
+                    triang = tri.Triangulation(filtered_points[:, 0], filtered_points[:, 1], filtered_cells)
+                    
+                    # Gráfico principal
+                    ax.tripcolor(triang, filtered_pressure_coeff, cmap=cmap, linewidth=0.8)
+                    # Gráfico de contorno relleno
+                    # ax.tricontourf(triang, filtered_pressure_coeff, levels=15, cmap=cmap)
+                    # Líneas de contorno negras
+                    ax.tricontour(triang, filtered_pressure_coeff, levels=15, colors='k', linewidths=0.35)
+
+
+                    # Agregar barra de color y etiquetas
+                    mappable = cm.ScalarMappable(norm=norm, cmap='viridis')
+                    mappable.set_array(pressure_coeff)
+                    plt.colorbar(mappable, ax=ax, label='PRESSURE COEFFICIENT', location='right')
+                    ax.set_xlabel('X')
+                    ax.set_ylabel('Y')
+                    ax.set_title(f'{case} Pressure distribution - Angle={np.round(mu[0],3)}, Mach={np.round(mu[1],3)}', size=13, pad=8, y=-0.15)
+                    # plt.show()
+                    plt.savefig(f'{capture_directory}/{capture_subdirectory}/2D_{case}_{capture_filename}', dpi=150)
+                    plt.close('all')
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -522,10 +522,10 @@ if __name__ == "__main__":
     # constants  = [1, 0.1, 0.01, 1e-3, 1e-4, 1e-5]
     strategies = ['galerkin']
 
-    mu_train = load_mu_parameters('Mu_history/2_galerkin_mu_train')
-    mu_train_not_scaled = load_mu_parameters('Mu_history/2_galerkin_mu_train_not_scaled')
-    mu_test = load_mu_parameters('Mu_history/2_galerkin_mu_test')
-    mu_test_not_scaled = load_mu_parameters('Mu_history/2_galerkin_mu_test_not_scaled')
+    mu_train = load_mu_parameters('Mu_history/4_galerkin_mu_train')
+    mu_train_not_scaled = load_mu_parameters('Mu_history/4_galerkin_mu_train_not_scaled')
+    mu_test = load_mu_parameters('Mu_history/4_galerkin_mu_test')
+    mu_test_not_scaled = load_mu_parameters('Mu_history/4_galerkin_mu_test_not_scaled')
     mu_validation = load_mu_parameters('mu_validation')
     mu_validation_not_scaled = load_mu_parameters('mu_validation_not_scaled')
 

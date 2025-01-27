@@ -1,6 +1,6 @@
 import os
 import time
-import openpyxl
+import openpyxl # type: ignore
 import numpy as np
 import matplotlib
 import matplotlib.patheffects as path_effects
@@ -431,15 +431,15 @@ if __name__ == "__main__":
     update_parameters  = True
     update_mu_test     = True
     VALIDATION         = True
-    number_of_mu_train = 35
+    number_of_mu_train = 20
     number_of_mu_test  = 15
     alpha              = 0.75
     beta               = 0.75
     tolerances_error   = [0.8,0.5,0.2,0.1,0.01]
     strategies         = ['galerkin']
-    angle_range        = [  3.00, 3.15]
-    mach_range         = [ 0.829, 0.849]
-    relaunch_FOM       = True 
+    angle_range        = [  3.00, 3.12]
+    mach_range         = [ 0.832, 0.845]
+    relaunch_FOM       = False 
     relaunch_ROM       = True
     relaunch_HROM      = True 
     rebuild_phi        = True 
