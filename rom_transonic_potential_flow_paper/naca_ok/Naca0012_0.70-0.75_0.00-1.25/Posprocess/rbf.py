@@ -11,7 +11,7 @@ import os
 # load parameters
 #
 def load_mu_parameters(name):
-    filename = f'mu_{name}.npy'
+    filename = f'{name}.npy'
     if os.path.exists(filename):
         mu_npy = np.load(filename)
         mu =  [mu.tolist() for mu in mu_npy]
@@ -105,12 +105,12 @@ if __name__ == "__main__":
 
     full = True
 
-    mu_train = load_mu_parameters('train')
-    mu_train_not_scaled = load_mu_parameters('train_not_scaled')
-    mu_test = load_mu_parameters('test')
-    mu_test_not_scaled = load_mu_parameters('test_not_scaled')
-    mu_validation = load_mu_parameters('validation')
-    mu_validation_not_scaled = load_mu_parameters('validation_not_scaled')
+    mu_train = load_mu_parameters('Mu_history/4_galerkin_mu_train')
+    mu_train_not_scaled = load_mu_parameters('Mu_history/4_galerkin_mu_train_not_scaled')
+    mu_test = load_mu_parameters('Mu_history/4_galerkin_mu_test')
+    mu_test_not_scaled = load_mu_parameters('Mu_history/4_galerkin_mu_test_not_scaled')
+    mu_validation = load_mu_parameters('mu_validation')
+    mu_validation_not_scaled = load_mu_parameters('mu_validation_not_scaled')
 
     if len(mu_train) >= 3:
         RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 

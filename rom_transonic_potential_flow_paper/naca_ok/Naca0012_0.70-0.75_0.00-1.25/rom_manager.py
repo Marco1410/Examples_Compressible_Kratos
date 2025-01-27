@@ -48,10 +48,11 @@ def get_multiple_parameters(regions=[], number_test_values=0,
     if number_test_values > 0 and update_mu_test:
         sample = sampler.random(number_test_values)
         # Density transformation: Alpha: density X; Beta:  density Y
-        transformed_points = np.zeros_like(sample)
-        transformed_points[:, 0] = sample[:, 0]**beta
-        transformed_points[:, 1] = sample[:, 1]**alpha
-        values = qmc.scale(transformed_points, [angle_common_min,mach_common_min], [angle_common_max,mach_common_max])
+        # transformed_points = np.zeros_like(sample)
+        # transformed_points[:, 0] = sample[:, 0]**beta
+        # transformed_points[:, 1] = sample[:, 1]**alpha
+        # values = qmc.scale(transformed_points, [angle_common_min,mach_common_min], [angle_common_max,mach_common_max])
+        values = qmc.scale(sample, [angle_common_min,mach_common_min], [angle_common_max,mach_common_max])
         for i in range(number_test_values):
             #Angle of attack , Mach infinit
             mu_test.append([values[i,0], values[i,1]])
@@ -421,23 +422,24 @@ if __name__ == "__main__":
 
     ###############################
     # PARAMETERS SETTINGS
-    update_parameters  = False
+    update_parameters  = True
     update_mu_test     = True
     VALIDATION         = True
     number_of_mu_train = 75
-    number_of_mu_test  = 150
-    alpha              = 0.75
-    beta               = 0.75
+    number_of_mu_test  = 100
+    alpha              = 0.7
+    beta               = 0.7
     tolerances_error   = [0.8,0.5,0.2,0.1,0.01]
-    strategies         = ['lspg']
-    mach_range         = [0.71, 0.74]
-    angle_range        = [0.75, 1.25]
+    strategies         = ['galerkin']
+    mach_range         = [0.70, 0.75]
+    angle_range        = [0.00, 1.25]
     relaunch_FOM       = False 
     relaunch_ROM       = True
     relaunch_HROM      = True 
     rebuild_phi        = True 
     rebuild_phiHROM    = True 
     relaunch_TrainHROM = True 
+    initial_fit        = True
     ################################
 
     regions = [
@@ -506,39 +508,38 @@ if __name__ == "__main__":
                                 relaunch_FOM=relaunch_FOM, relaunch_ROM=relaunch_ROM, relaunch_HROM=relaunch_HROM, 
                                 rebuild_phi=rebuild_phi, rebuild_phiHROM=rebuild_phiHROM, relaunch_TrainHROM=relaunch_TrainHROM, constant=[strategy])
 
-        fit = True
-
         for i_tol, tolerance in enumerate(tolerances_error):
             if mu_test==[]: break
+            while mu_test:
+                if initial_fit:
+                    rom_manager.Fit(validate=False, mu_train=mu_train)                            
+                    rom_manager.Test(mu_test)
 
-            if fit:
-                rom_manager.Fit(validate=False, mu_train=mu_train)                            
-                rom_manager.Test(mu_test)
+                fom_snapshots = rom_manager.data_base.get_snapshots_matrix_from_database(mu_test, table_name=f'FOM')
+                rom_snapshots = rom_manager.data_base.get_snapshots_matrix_from_database(mu_test, table_name=f'ROM')
+                errors = np.linalg.norm(fom_snapshots - rom_snapshots, axis=0) / np.linalg.norm(fom_snapshots, axis=0)
 
-            fom_snapshots = rom_manager.data_base.get_snapshots_matrix_from_database(mu_test, table_name=f'FOM')
-            rom_snapshots = rom_manager.data_base.get_snapshots_matrix_from_database(mu_test, table_name=f'ROM')
-            errors = np.linalg.norm(fom_snapshots - rom_snapshots, axis=0) / np.linalg.norm(fom_snapshots, axis=0)
+                new_mu_train = []; new_mu_train_not_scaled = []
+                for j, error in enumerate(errors):
+                    if error > tolerance:
+                        new_mu_train.append(mu_test[j])
+                        new_mu_train_not_scaled.append(mu_test_not_scaled[j])
 
-            new_mu_train = []; new_mu_train_not_scaled = []
-            for j, error in enumerate(errors):
-                if error > tolerance:
-                    new_mu_train.append(mu_test[j])
-                    new_mu_train_not_scaled.append(mu_test_not_scaled[j])
-
-            if len(new_mu_train)>0:
-                # Update mu_train mu_test
-                mu_train.extend(new_mu_train)
-                mu_train_not_scaled.extend(new_mu_train_not_scaled)
-                mu_test = [mu for i, mu in enumerate(mu_test) if errors[i] <= tolerance]
-                mu_test_not_scaled = [mu for i, mu in enumerate(mu_test_not_scaled) if errors[i] <= tolerance]
-                np.save(f'Mu_history/{i_tol}_{strategy}_mu_train', mu_train)
-                np.save(f'Mu_history/{i_tol}_{strategy}_mu_train_not_scaled', mu_train_not_scaled)
-                np.save(f'Mu_history/{i_tol}_{strategy}_mu_test', mu_test)        
-                np.save(f'Mu_history/{i_tol}_{strategy}_mu_test_not_scaled', mu_test_not_scaled)        
-                plot_mu_values(mu_train, mu_test, mu_validation, f'Mu_history/{i_tol}_{strategy}_MuValues')
-                fit = True
-            else:
-                fit = False
+                if len(new_mu_train)>0:
+                    # Update mu_train mu_test
+                    mu_train.extend(new_mu_train)
+                    mu_train_not_scaled.extend(new_mu_train_not_scaled)
+                    mu_test = [mu for i, mu in enumerate(mu_test) if errors[i] <= tolerance]
+                    mu_test_not_scaled = [mu for i, mu in enumerate(mu_test_not_scaled) if errors[i] <= tolerance]
+                    np.save(f'Mu_history/{i_tol}_{strategy}_mu_train', mu_train)
+                    np.save(f'Mu_history/{i_tol}_{strategy}_mu_train_not_scaled', mu_train_not_scaled)
+                    np.save(f'Mu_history/{i_tol}_{strategy}_mu_test', mu_test)        
+                    np.save(f'Mu_history/{i_tol}_{strategy}_mu_test_not_scaled', mu_test_not_scaled)        
+                    plot_mu_values(mu_train, mu_test, mu_validation, f'Mu_history/{i_tol}_{strategy}_MuValues')
+                    initial_fit = True
+                else:
+                    initial_fit = False
+                    break
 
         rom_manager.Fit(mu_train=mu_train)
         rom_manager.Test(mu_test=mu_test)

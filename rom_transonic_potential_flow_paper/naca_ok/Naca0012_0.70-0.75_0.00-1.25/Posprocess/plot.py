@@ -108,7 +108,7 @@ def FakeSimulation(cls, global_model, parameters, data_set, mu):
 # load parameters
 #
 def load_mu_parameters(name):
-    filename = f'mu_{name}.npy'
+    filename = f'{name}.npy'
     if os.path.exists(filename):
         mu_npy = np.load(filename)
         mu =  [mu.tolist() for mu in mu_npy]
@@ -359,13 +359,13 @@ if __name__ == "__main__":
     # constants  = [1, 0.1, 0.01, 1e-3, 1e-4, 1e-5]
     strategies = ['galerkin']
 
-    mu_train      = load_mu_parameters('train')
-    mu_test       = load_mu_parameters('test')
-    mu_validation = load_mu_parameters('validation')
+    mu_train      = load_mu_parameters('Mu_history/4_galerkin_mu_train')
+    mu_test       = load_mu_parameters('Mu_history/4_galerkin_mu_test')
+    mu_validation = load_mu_parameters('mu_validation')
 
     for strategy in strategies:
         # for constant in constants:
 
-        Plot_Cps(mu_train,      'Train_Captures', f'{strategy}', rbf_full=rbf_full)
-        Plot_Cps(mu_test,       'Test_Captures' , f'{strategy}', rbf_full=rbf_full)
         Plot_Cps(mu_validation, 'Validation'    , f'{strategy}', rbf_full=rbf_full)
+        Plot_Cps(mu_test,       'Test_Captures' , f'{strategy}', rbf_full=rbf_full)
+        Plot_Cps(mu_train,      'Train_Captures', f'{strategy}', rbf_full=rbf_full)

@@ -162,8 +162,8 @@ def CustomizeSimulation(cls, global_model, parameters, mu, constant):
                     vtk_output_name = parameters["output_processes"]["vtk_output"][0]["Parameters"]["output_path"].GetString().removeprefix('Results/')
                     parameters["output_processes"]["vtk_output"][0]["Parameters"]["output_path"].SetString(f'Results/{self.case_subname}/{vtk_output_name}')
 
-                # if 'ROM' in self.simulation_name: # Use Neton Raphson for rom simulations
-                #     parameters["solver_settings"]["solving_strategy_settings"]["type"].SetString("newton_raphson")
+                if 'ROM' in self.simulation_name: # Use Neton Raphson for rom simulations
+                    parameters["solver_settings"]["solving_strategy_settings"]["type"].SetString("newton_raphson")
             
         def InitializeSolutionStep(self):
             super().InitializeSolutionStep()
@@ -234,9 +234,21 @@ def CustomizeSimulation(cls, global_model, parameters, mu, constant):
 
                     if case_type == 'train_fom': #Only for train FOM
                         modelpart = self.model["MainModelPart"]
+                        fout = open("selected_elements_list_all.txt",'a') #Elements list for rom approximation
+                        for elem in modelpart.Elements:
+                            if elem.GetValue(KratosMultiphysics.ACTIVATION_LEVEL):
+                                fout.write("%s\n" %(elem.Id))
+                            if elem.GetValue(CPFApp.KUTTA):
+                                fout.write("%s\n" %(elem.Id))
+                        fout.close()
                         fout = open("selected_elements_list.txt",'a') #Elements list for rom approximation
                         for elem in modelpart.Elements:
                             if elem.GetValue(KratosMultiphysics.ACTIVATION_LEVEL):
+                                fout.write("%s\n" %(elem.Id))
+                        fout.close()
+                        fout = open("selected_elements_list_kutta.txt",'a') #Elements list for rom approximation
+                        for elem in modelpart.Elements:
+                            if elem.GetValue(CPFApp.KUTTA):
                                 fout.write("%s\n" %(elem.Id))
                         fout.close()
 
@@ -555,11 +567,11 @@ if __name__ == "__main__":
     number_of_mu_test  = 30
     alpha              = 0.7
     beta               = 0.7
-    optimal_constants  = [1.2]
+    optimal_constants  = [100]
     constant_range     = [1e-6, 100]
     strategies         = ['galerkin']
     mach_range         = [0.70, 0.75]
-    angle_range        = [0.75, 1.25]
+    angle_range        = [0.00, 1.25]
     relaunch_FOM       = False 
     relaunch_ROM       = True
     relaunch_HROM      = True 
@@ -645,9 +657,9 @@ if __name__ == "__main__":
                                 relaunch_FOM=relaunch_FOM, relaunch_ROM=relaunch_ROM, relaunch_HROM=relaunch_HROM, 
                                 rebuild_phi=rebuild_phi, rebuild_phiHROM=rebuild_phiHROM, relaunch_TrainHROM=relaunch_TrainHROM, constant=[strategy,optimal_constant])
 
-        if not os.path.exists(f'Results/{strategy}_{optimal_constant}'):
-            rom_manager.Fit(mu_train=mu_train)
-            rom_manager.Test(mu_test)
+        # if not os.path.exists(f'Results/{strategy}_{optimal_constant}'):
+        # rom_manager.Fit(mu_train=mu_train)
+        rom_manager.Test(mu_test)
 
         if VALIDATION:
             rom_manager.RunFOM(mu_run=mu_validation)

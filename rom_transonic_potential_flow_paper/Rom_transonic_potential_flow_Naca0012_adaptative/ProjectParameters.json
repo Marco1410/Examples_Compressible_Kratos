@@ -47,9 +47,10 @@
         "relative_tolerance"               : 1e-8,
         "absolute_tolerance"               : 1e-8,
         "linear_solver_settings"  : {
-            "solver_type": "LinearSolversApplication.amgcl",
-            "max_iteration": 400,
-            "tolerance": 1e-9
+            "solver_type": "LinearSolversApplication.pardiso_lu"
+            // "solver_type": "LinearSolversApplication.amgcl",
+            // "max_iteration": 400,
+            // "tolerance": 1e-9
         },
         "volume_model_part_name"   : "MainModelPart.Parts_Parts_Auto1",
         "skin_parts"               : ["MainModelPart.PotentialWallCondition2D_Far_field_Auto1","MainModelPart.Body2D_Body"],
