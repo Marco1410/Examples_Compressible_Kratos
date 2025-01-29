@@ -428,18 +428,18 @@ if __name__ == "__main__":
 
     #################################
     # PARAMETERS SETTINGS
-    update_parameters  = True
+    update_parameters  = False
     update_mu_test     = True
     VALIDATION         = True
-    number_of_mu_train = 20
-    number_of_mu_test  = 15
-    alpha              = 0.75
-    beta               = 0.75
+    number_of_mu_train = 3
+    number_of_mu_test  = 1
+    alpha              = 1.0
+    beta               = 1.0
     tolerances_error   = [0.8,0.5,0.2,0.1,0.01]
     strategies         = ['galerkin']
-    angle_range        = [  3.00, 3.12]
-    mach_range         = [ 0.832, 0.845]
-    relaunch_FOM       = False 
+    angle_range        = [ 2.80, 3.15]
+    mach_range         = [ 0.82, 0.85]
+    relaunch_FOM       = True 
     relaunch_ROM       = True
     relaunch_HROM      = True 
     rebuild_phi        = True 

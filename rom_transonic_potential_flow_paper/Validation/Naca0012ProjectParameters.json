@@ -5,7 +5,7 @@
         "parallel_type" : "OpenMP",
         "echo_level"    : 0,
         "start_time"    : 0.0,
-        "end_time"      : 4.0
+        "end_time"      : 1.0
     },
     "solver_settings"  : {
         "model_part_name"          : "MainModelPart",
@@ -13,7 +13,7 @@
         "solver_type"              : "potential_flow",
         "model_import_settings"    : {
             "input_type"     : "mdpa",
-            "input_filename" : "../Rom_transonic_potential_flow_Naca0012_C1/Mesh/model_mesh_0"
+            "input_filename" : "../Rom_transonic_potential_flow_Naca0012_adaptative/Mesh/model_mesh_0"
         },
         "material_import_settings" : {
             "materials_filename" : ""
@@ -28,8 +28,7 @@
             "target_critical_mach"           : 0.95,
             "target_upwind_factor_constant"  : 1.2,
             "update_relative_residual_norm"  : 1e-3,
-            "mach_number_squared_limit"      : 3.0,
-            "steps_strategy"                 : 4
+            "mach_number_squared_limit"      : 3.0
         },
         "maximum_iterations"       : 50,
         "echo_level"               : 1,

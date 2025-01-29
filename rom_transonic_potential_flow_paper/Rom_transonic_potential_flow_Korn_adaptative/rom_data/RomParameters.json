@@ -13,7 +13,7 @@
             "AUXILIARY_VELOCITY_POTENTIAL",
             "VELOCITY_POTENTIAL"
         ],
-        "number_of_rom_dofs": 2,
+        "number_of_rom_dofs": 28,
         "petrov_galerkin_number_of_rom_dofs": 0
     },
     "hrom_settings": {

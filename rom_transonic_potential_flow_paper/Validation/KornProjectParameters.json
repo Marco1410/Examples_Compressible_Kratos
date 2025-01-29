@@ -25,8 +25,8 @@
             "is_transonic": true,
             "initial_critical_mach"          : 0.80,
             "initial_upwind_factor_constant" : 2.0,
-            "target_critical_mach"           : 0.90,
-            "target_upwind_factor_constant"  : 1.5,
+            "target_critical_mach"           : 0.95,
+            "target_upwind_factor_constant"  : 1.8,
             "update_relative_residual_norm"  : 1e-2,
             "mach_number_squared_limit"      : 3.0
         },

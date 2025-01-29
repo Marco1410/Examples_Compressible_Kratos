@@ -11,6 +11,8 @@ import matplotlib.cm as cm
 import matplotlib.tri as tri
 import KratosMultiphysics.kratos_utilities
 import KratosMultiphysics.CompressiblePotentialFlowApplication as CPFApp
+import KratosMultiphysics.FluidDynamicsApplication 
+import KratosMultiphysics.RomApplication
 from KratosMultiphysics.gid_output_process import GiDOutputProcess
 from KratosMultiphysics.vtk_output_process import VtkOutputProcess
 
@@ -108,7 +110,7 @@ def FakeSimulation(cls, global_model, parameters, data_set, mu):
 # load parameters
 #
 def load_mu_parameters(name):
-    filename = f'mu_{name}.npy'
+    filename = f'{name}.npy'
     if os.path.exists(filename):
         mu_npy = np.load(filename)
         mu =  [mu.tolist() for mu in mu_npy]
@@ -174,7 +176,7 @@ def Plot_Cps(mu_list, capture_directory, capture_subdirectory, rbf_full=False):
             if os.path.exists(validation_skin_data_filename):
                 x  = np.loadtxt(validation_skin_data_filename, usecols=(0,))
                 cp_validation = np.loadtxt(validation_skin_data_filename, usecols=(1,))
-                fig = plt.plot(x, cp_validation, 'r.', markersize = 5.0, label = 'flo36')
+                fig = plt.plot(x, -cp_validation, 'r*-', markersize = 5.0, label = 'flo36')
             #### XFLR5 ######
             # validation_skin_data_filename = f"../reference_data/Naca0012_Xfoil_Xflr5/xflr5_polars/{case_name}.dat"
             # if os.path.exists(validation_skin_data_filename):
@@ -188,6 +190,7 @@ def Plot_Cps(mu_list, capture_directory, capture_subdirectory, rbf_full=False):
             y_fom  = np.loadtxt(fom_skin_data_filename, usecols=(1,))
             cp_fom = np.loadtxt(fom_skin_data_filename, usecols=(3,))
             if capture_directory == 'Validation':
+                data_file_line = {'0.2, 0.75': 59,'0.7, 0.75': 55,'1.0, 0.7': 61,'2.0, 0.7': 57}
                 y_gtz = y_fom > 0
                 y_lez = y_fom <= 0
                 x_gtz  = x_fom[y_gtz] 
@@ -200,12 +203,22 @@ def Plot_Cps(mu_list, capture_directory, capture_subdirectory, rbf_full=False):
                 indices_ordenados = sorted(range(len(x_lez)), key=lambda i: x_lez[i])
                 x_lez = [x_lez[i] for i in indices_ordenados]
                 cp_lez = [cp_lez[i] for i in indices_ordenados]
-                cp_val_gtz = np.interp(x_gtz, x[79:][::-1], cp_validation[79:][::-1])
-                cp_val_lez = np.interp(x_lez, x[:78], cp_validation[:78])
+
+
+                cp_val_gtz = np.interp(x_gtz, x[:data_file_line[case_name]], cp_validation[:data_file_line[case_name]])
+                cp_val_lez = np.interp(x_lez, x[data_file_line[case_name]+1:][::-1], cp_validation[data_file_line[case_name]+1:][::-1])
                 x_sim = np.concatenate((x_lez,x_gtz[::-1]))
                 cp_sim = np.concatenate((cp_lez, cp_gtz[::-1]))
                 cp_val = np.concatenate((cp_val_lez,cp_val_gtz[::-1]))
-                error = (np.linalg.norm(cp_sim-cp_val)/np.linalg.norm(cp_val))
+                error = (np.linalg.norm(cp_sim+cp_val)/np.linalg.norm(cp_val))
+
+                # cp_val_gtz = np.interp(x_gtz, x[79:][::-1], cp_validation[79:][::-1])
+                # cp_val_lez = np.interp(x_lez, x[:78], cp_validation[:78])
+                # x_sim = np.concatenate((x_lez,x_gtz[::-1]))
+                # cp_sim = np.concatenate((cp_lez, cp_gtz[::-1]))
+                # cp_val = np.concatenate((cp_val_lez,cp_val_gtz[::-1]))
+                # error = (np.linalg.norm(cp_sim-cp_val)/np.linalg.norm(cp_val))
+
                 fig = plt.plot(x_fom, cp_fom, 's', markersize = 5.0, label = f'FOM-Validation e: {error:.2E}')
             else:
                 fig = plt.plot(x_fom, cp_fom, 's', markersize = 5.0, label = f'FOM')
@@ -359,13 +372,13 @@ if __name__ == "__main__":
     # constants  = [1, 0.1, 0.01, 1e-3, 1e-4, 1e-5]
     strategies = ['galerkin']
 
-    mu_train      = load_mu_parameters('train_final')
-    mu_test       = load_mu_parameters('test_final')
-    mu_validation = load_mu_parameters('validation')
+    mu_train      = load_mu_parameters('mu_train_final')
+    mu_test       = load_mu_parameters('mu_test_final')
+    mu_validation = load_mu_parameters('mu_validation')
 
     for strategy in strategies:
         # for constant in constants:
 
-        Plot_Cps(mu_train,      'Train_Captures', f'{strategy}', rbf_full=rbf_full)
-        Plot_Cps(mu_test,       'Test_Captures' , f'{strategy}', rbf_full=rbf_full)
         Plot_Cps(mu_validation, 'Validation'    , f'{strategy}', rbf_full=rbf_full)
+        Plot_Cps(mu_test,       'Test_Captures' , f'{strategy}', rbf_full=rbf_full)
+        Plot_Cps(mu_train,      'Train_Captures', f'{strategy}', rbf_full=rbf_full)

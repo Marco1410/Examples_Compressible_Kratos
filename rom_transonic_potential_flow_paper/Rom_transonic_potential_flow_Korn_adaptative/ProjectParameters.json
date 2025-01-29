@@ -23,10 +23,10 @@
         },
         "scheme_settings"          : {
             "is_transonic": true,
-            "initial_critical_mach"          : 0.40,
-            "initial_upwind_factor_constant" : 1.0,
-            "target_critical_mach"           : 0.50,
-            "target_upwind_factor_constant"  : 1.0,
+            "initial_critical_mach"          : 0.80,
+            "initial_upwind_factor_constant" : 2.0,
+            "target_critical_mach"           : 0.90,
+            "target_upwind_factor_constant"  : 1.5,
             "update_relative_residual_norm"  : 1e-2,
             "mach_number_squared_limit"      : 3.0
         },
@@ -47,9 +47,17 @@
         "relative_tolerance"               : 1e-8,
         "absolute_tolerance"               : 1e-8,
         "linear_solver_settings"  : {
-            "solver_type": "LinearSolversApplication.amgcl",
-            "max_iteration": 400,
-            "tolerance": 1e-9
+            "solver_type": "fallback_linear_solver",
+            "solvers"    : [
+                {
+                    "solver_type"  : "LinearSolversApplication.amgcl",
+                    "max_iteration": 400,
+                    "tolerance"    : 1e-9
+                },
+                {
+                    "solver_type": "LinearSolversApplication.pardiso_lu"
+                }
+            ]
         },
         "volume_model_part_name"   : "MainModelPart.Parts_Parts_Auto1",
         "skin_parts"               : ["MainModelPart.PotentialWallCondition2D_Far_field_Auto1","MainModelPart.Body2D_Body"],

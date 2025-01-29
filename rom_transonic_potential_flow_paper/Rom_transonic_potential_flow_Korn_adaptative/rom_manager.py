@@ -475,11 +475,11 @@ if __name__ == "__main__":
 
     ###############################
     # PARAMETERS SETTINGS
-    update_parameters  = True
+    update_parameters  = False
     update_mu_test     = True
     VALIDATION         = True
-    number_of_mu_train = 1
-    number_of_mu_test  = 1
+    number_of_mu_train = 25
+    number_of_mu_test  = 5
     alpha              = 0.75
     beta               = 0.75
     tolerances_error   = [0.5,0.2,0.1,0.01]

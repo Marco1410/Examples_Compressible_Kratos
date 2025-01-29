@@ -264,9 +264,9 @@ def Plot_Cps(mu_list, capture_directory, capture_subdirectory, plot=['CP']):
             if os.path.exists(rbf_data_filename) and RBF:
                 rbf = np.load(rbf_data_filename)
                 LaunchFakeSimulation(rbf, [mu[0], mu[1], 'RBF'])
-                x  = np.loadtxt(f"FOM_Skin_Data/{case_name}.dat", usecols=(0,))
-                y  = np.loadtxt(f"FOM_Skin_Data/{case_name}.dat", usecols=(1,))
-                z  = np.loadtxt(f"FOM_Skin_Data/{case_name}.dat", usecols=(2,))
+                x  = np.loadtxt(rbf_skin_data_filename, usecols=(0,))
+                y  = np.loadtxt(rbf_skin_data_filename, usecols=(1,))
+                z  = np.loadtxt(rbf_skin_data_filename, usecols=(2,))
                 cp_rb  = np.loadtxt(rbf_skin_data_filename, usecols=(3,))
 
                 indexes    = z > 0
@@ -285,7 +285,7 @@ def Plot_Cps(mu_list, capture_directory, capture_subdirectory, plot=['CP']):
             if os.path.exists(fom_skin_data_filename) and os.path.exists(hhrom_skin_data_filename):
                 error_hhrom_fom = np.linalg.norm(cp_f-cp_hh)/np.linalg.norm(cp_f)
             if os.path.exists(fom_skin_data_filename) and os.path.exists(rbf_skin_data_filename):
-                error_rbf_fom = np.linalg.norm(np.array(cp_f).reshape(-1,1)-cp_rb)/np.linalg.norm(np.array(cp_f).reshape(-1,1))
+                error_rbf_fom = np.linalg.norm(cp_f-cp_rb)/np.linalg.norm(cp_f)
 
             for idx, sub_ax in enumerate(axs.flat):   
                 # SET Y POSITION TO PLOT CP DISTRIBUTION

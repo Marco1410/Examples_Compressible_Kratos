@@ -41,6 +41,8 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import KratosMultiphysics
+import KratosMultiphysics.kratos_utilities
+import KratosMultiphysics.RomApplication
 import KratosMultiphysics.FluidDynamicsApplication 
 
 

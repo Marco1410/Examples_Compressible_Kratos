@@ -11,7 +11,7 @@ import os
 # load parameters
 #
 def load_mu_parameters(name):
-    filename = f'mu_{name}.npy'
+    filename = f'{name}.npy'
     if os.path.exists(filename):
         mu_npy = np.load(filename)
         mu =  [mu.tolist() for mu in mu_npy]
@@ -77,25 +77,26 @@ def RBF_error_estimation(mu_train, mu_test, full=False):
         training_approximation_error = np.linalg.norm(FOM_model - RBF_model)/np.linalg.norm(FOM_model)
         print(f'RBF training approximation error: {training_approximation_error:.2E}')
 
-    if full:
-        path = f"RBF_Snapshots/{mu_test[0][0]}, {mu_test[0][1]}.npy"
-    else:
-        path = f'RBF_Skin_Data/{mu_test[0][0]}, {mu_test[0][1]}.npy'
+    if len(mu_test) > 0:
+        if full:
+            path = f"RBF_Snapshots/{mu_test[0][0]}, {mu_test[0][1]}.npy"
+        else:
+            path = f'RBF_Skin_Data/{mu_test[0][0]}, {mu_test[0][1]}.npy'
 
-    if len(mu_test)>0 and os.path.exists(path):
-        approximation_error = 0.0
-        FOM_model = []; RBF_model_interpolation = []
-        for mu in mu_test:
-            if full:
-                FOM_model.append(np.array(np.load(f'FOM_Snapshots/{mu[0]}, {mu[1]}.npy')).reshape(-1,1))
-                RBF_model_interpolation.append(np.array(np.load(f"RBF_Snapshots/{mu[0]}, {mu[1]}.npy")).reshape(-1,1))
-            else:
-                FOM_model.append(np.array(np.loadtxt(f'FOM_Skin_Data/{mu[0]}, {mu[1]}.dat', usecols=(3,))).reshape(-1,1))
-                RBF_model_interpolation.append(np.array(np.load(f"RBF_Skin_Data/{mu[0]}, {mu[1]}.npy")).reshape(-1,1))
-        FOM_model = np.block(FOM_model)
-        RBF_model_interpolation = np.block(RBF_model_interpolation)
-        approximation_error = np.linalg.norm(FOM_model - RBF_model_interpolation)/np.linalg.norm(FOM_model)
-        print(f'RBF interpolation approximation error: {approximation_error:.2E}')
+        if len(mu_test)>0 and os.path.exists(path):
+            approximation_error = 0.0
+            FOM_model = []; RBF_model_interpolation = []
+            for mu in mu_test:
+                if full:
+                    FOM_model.append(np.array(np.load(f'FOM_Snapshots/{mu[0]}, {mu[1]}.npy')).reshape(-1,1))
+                    RBF_model_interpolation.append(np.array(np.load(f"RBF_Snapshots/{mu[0]}, {mu[1]}.npy")).reshape(-1,1))
+                else:
+                    FOM_model.append(np.array(np.loadtxt(f'FOM_Skin_Data/{mu[0]}, {mu[1]}.dat', usecols=(3,))).reshape(-1,1))
+                    RBF_model_interpolation.append(np.array(np.load(f"RBF_Skin_Data/{mu[0]}, {mu[1]}.npy")).reshape(-1,1))
+            FOM_model = np.block(FOM_model)
+            RBF_model_interpolation = np.block(RBF_model_interpolation)
+            approximation_error = np.linalg.norm(FOM_model - RBF_model_interpolation)/np.linalg.norm(FOM_model)
+            print(f'RBF interpolation approximation error: {approximation_error:.2E}')
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -105,12 +106,12 @@ if __name__ == "__main__":
 
     full = True
 
-    mu_train = load_mu_parameters('train_final')
-    mu_train_not_scaled = load_mu_parameters('train_not_scaled_final')
-    mu_test = load_mu_parameters('test_final')
-    mu_test_not_scaled = load_mu_parameters('test_not_scaled_final')
-    mu_validation = load_mu_parameters('validation')
-    mu_validation_not_scaled = load_mu_parameters('validation_not_scaled')
+    mu_train = load_mu_parameters('mu_train_final')
+    mu_train_not_scaled = load_mu_parameters('mu_train_not_scaled_final')
+    mu_test = load_mu_parameters('mu_test_final')
+    mu_test_not_scaled = load_mu_parameters('mu_test_not_scaled_final')
+    mu_validation = load_mu_parameters('mu_validation')
+    mu_validation_not_scaled = load_mu_parameters('mu_validation_not_scaled')
 
     if len(mu_train) >= 3:
         RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 

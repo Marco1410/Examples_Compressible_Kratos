@@ -5,7 +5,7 @@
         "parallel_type" : "OpenMP",
         "echo_level"    : 0,
         "start_time"    : 0.0,
-        "end_time"      : 4.0
+        "end_time"      : 1.0
     },
     "solver_settings"  : {
         "model_part_name"          : "MainModelPart",
@@ -13,7 +13,7 @@
         "solver_type"              : "potential_flow",
         "model_import_settings"    : {
             "input_type"     : "mdpa",
-            "input_filename" : "../Rom_transonic_potential_flow_Onera_M6/Mesh/Fluid"
+            "input_filename" : "../Rom_transonic_potential_flow_Onera_M6_adaptative/Mesh/Fluid"
         },
         "material_import_settings" : {
             "materials_filename" : ""
@@ -24,12 +24,11 @@
         "scheme_settings"          : {
             "is_transonic": true,
             "initial_critical_mach"          : 0.80,
-            "initial_upwind_factor_constant" : 4.0,
-            "target_critical_mach"           : 0.95,
-            "target_upwind_factor_constant"  : 1.2,
-            "update_relative_residual_norm"  : 1e-3,
-            "mach_number_squared_limit"      : 3.0,
-            "steps_strategy"                 : 4
+            "initial_upwind_factor_constant" : 5.0,
+            "target_critical_mach"           : 0.92,
+            "target_upwind_factor_constant"  : 2.0,
+            "update_relative_residual_norm"  : 1e-2,
+            "mach_number_squared_limit"      : 3.0
         },
         "maximum_iterations"       : 50,
         "echo_level"               : 1,
@@ -48,9 +47,17 @@
         "relative_tolerance"               : 1e-8,
         "absolute_tolerance"               : 1e-8,
         "linear_solver_settings"  : {
-            "solver_type": "LinearSolversApplication.amgcl",
-            "max_iteration": 400,
-            "tolerance": 1e-9
+            "solver_type": "fallback_linear_solver",
+            "solvers"    : [
+                {
+                    "solver_type"  : "LinearSolversApplication.amgcl",
+                    "max_iteration": 400,
+                    "tolerance"    : 1e-9
+                },
+                {
+                    "solver_type": "LinearSolversApplication.pardiso_lu"
+                }
+            ]
         },
         "reference_chord"          : 0.7532,
         "volume_model_part_name"   : "MainModelPart.Fluid",
@@ -89,8 +96,9 @@
                     "count_elements_number"         : false,
                     "write_elements_ids_to_file"    : false,
                     "shed_wake_from_trailing_edge"  : true,
-                    "shedded_wake_distance"         : 17.0,
+                    "shedded_wake_distance"         : 12.0,
                     "shedded_wake_element_size"     : 0.01,
+                    "shedded_grow_factor"           : 1.1,
                     "echo_level": 1
                 }
              }
