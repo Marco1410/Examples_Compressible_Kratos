@@ -383,13 +383,13 @@ def evaluate_constant_lspg(constant):
                             relaunch_FOM=False, relaunch_ROM=True, 
                             rebuild_phi=True, constant=[strategy,constant])
     
-    rom_manager.Fit(mu_train=load_mu_parameters('4_lspg_mu_train'))
-    rom_manager.Test(load_mu_parameters('4_lspg_mu_test'))
+    rom_manager.Fit(mu_train=load_mu_parameters(f'0_{strategy}_mu_train'))
+    rom_manager.Test(load_mu_parameters(f'0_{strategy}_mu_test'))
     
     resume = []
     resume.append([strategy, case, constant, 
-                   len(load_mu_parameters('4_lspg_mu_train')), rom_manager.ROMvsFOM['Fit'],
-                   len(load_mu_parameters('4_lspg_mu_test')), rom_manager.ROMvsFOM['Test']])
+                   len(load_mu_parameters(f'0_{strategy}_mu_train')), rom_manager.ROMvsFOM['Fit'],
+                   len(load_mu_parameters(f'0_{strategy}_mu_test')), rom_manager.ROMvsFOM['Test']])
 
     if os.path.exists('resume.xlsx'):
         wb = openpyxl.load_workbook('resume.xlsx')
@@ -408,8 +408,10 @@ def evaluate_constant_lspg(constant):
             hoja.append(item)
         wb.save('resume.xlsx')
         
-        
-    return rom_manager.ROMvsFOM['Fit']
+    if rom_manager.ROMvsFOM['Fit'] < 1e-9:
+        return rom_manager.ROMvsFOM['Test']
+    else:
+        return rom_manager.ROMvsFOM['Fit']
 
 def evaluate_constant_galerkin(constant):
     strategy = 'galerkin'
@@ -423,13 +425,13 @@ def evaluate_constant_galerkin(constant):
                             relaunch_FOM=False, relaunch_ROM=True, 
                             rebuild_phi=True, constant=[strategy,constant])
 
-    rom_manager.Fit(mu_train=load_mu_parameters('2_galerkin_mu_train'))
-    rom_manager.Test(load_mu_parameters('2_galerkin_mu_test'))
+    rom_manager.Fit(mu_train=load_mu_parameters(f'0_{strategy}_mu_train'))
+    rom_manager.Test(load_mu_parameters(f'0_{strategy}_mu_test'))
 
     resume = []
     resume.append([strategy, case, constant, 
-                   len(load_mu_parameters('2_galerkin_mu_train')), rom_manager.ROMvsFOM['Fit'],
-                   len(load_mu_parameters('2_galerkin_mu_test')), rom_manager.ROMvsFOM['Test']])
+                   len(load_mu_parameters(f'0_{strategy}_mu_train')), rom_manager.ROMvsFOM['Fit'],
+                   len(load_mu_parameters(f'0_{strategy}_mu_test')), rom_manager.ROMvsFOM['Test']])
 
     if os.path.exists('resume.xlsx'):
         wb = openpyxl.load_workbook('resume.xlsx')
@@ -448,7 +450,10 @@ def evaluate_constant_galerkin(constant):
             hoja.append(item)
         wb.save('resume.xlsx')
         
-    return rom_manager.ROMvsFOM['Fit']
+    if rom_manager.ROMvsFOM['Fit'] < 1e-9:
+        return rom_manager.ROMvsFOM['Test']
+    else:
+        return rom_manager.ROMvsFOM['Fit']
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -467,27 +472,27 @@ if __name__ == "__main__":
     #################################
     # PARAMETERS SETTINGS
     clean_data         = False
-    update_parameters  = False
+    update_parameters  = True
     update_mu_test     = True
     VALIDATION         = True
-    number_of_mu_train = 3
-    number_of_mu_test  = 1
+    number_of_mu_train = 25
+    number_of_mu_test  = 50
     alpha              = 0.75
     beta               = 0.75
     strategies         = ['galerkin']
     # ADAPTIVE SAMPLING #############
-    adapt              = False
+    adapt              = True
     initial_fit        = True
     tolerances_error   = [0.8,0.5,0.2,0.1,0.01]
     # OPTIMIZATION ##################
-    optimize           = True
+    optimize           = False
     optimal_constants  = [-1]
     constant_range     = [1e-6, 10]
     tolerance          = 1e-9
     iterations         = 15
-    mu_prefix          = '2_galerkin_'
+    mu_prefix          = f'0_{strategies[0]}_'
     #################################
-    angle_range        = [ 2.80, 3.15]
+    angle_range        = [ 2.50, 3.50]
     mach_range         = [ 0.82, 0.85]
     relaunch_FOM       = True 
     relaunch_ROM       = True

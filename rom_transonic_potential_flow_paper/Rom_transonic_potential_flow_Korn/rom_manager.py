@@ -406,8 +406,10 @@ def evaluate_constant_lspg(constant):
             hoja.append(item)
         wb.save('resume.xlsx')
         
-        
-    return rom_manager.ROMvsFOM['Fit']
+    if rom_manager.ROMvsFOM['Fit'] < 1e-9:
+        return rom_manager.ROMvsFOM['Test']
+    else:
+        return rom_manager.ROMvsFOM['Fit']
 
 def evaluate_constant_galerkin(constant):
     strategy = 'galerkin'
@@ -446,7 +448,10 @@ def evaluate_constant_galerkin(constant):
             hoja.append(item)
         wb.save('resume.xlsx')
         
-    return rom_manager.ROMvsFOM['Fit']
+    if rom_manager.ROMvsFOM['Fit'] < 1e-9:
+        return rom_manager.ROMvsFOM['Test']
+    else:
+        return rom_manager.ROMvsFOM['Fit']
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 

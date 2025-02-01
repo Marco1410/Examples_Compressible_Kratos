@@ -105,12 +105,17 @@ if __name__ == "__main__":
 
     full = True
 
-    mu_train = load_mu_parameters('Mu_history/4_galerkin_mu_train')
-    mu_train_not_scaled = load_mu_parameters('Mu_history/4_galerkin_mu_train_not_scaled')
-    mu_test = load_mu_parameters('Mu_history/4_galerkin_mu_test')
-    mu_test_not_scaled = load_mu_parameters('Mu_history/4_galerkin_mu_test_not_scaled')
-    mu_validation = load_mu_parameters('mu_validation')
-    mu_validation_not_scaled = load_mu_parameters('mu_validation_not_scaled')
+    strategies = ['galerkin']
+    n = 0
+
+    mu_train      = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_train')
+    mu_train_not_scaled = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_train_not_scaled')
+
+    mu_test       = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_test')
+    mu_test_not_scaled = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_test_not_scaled')
+
+    mu_validation = load_mu_parameters(f'Mu_history/mu_validation')
+    mu_validation_not_scaled = load_mu_parameters(f'Mu_history/mu_validation_not_scaled')
 
     if len(mu_train) >= 3:
         RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 

@@ -381,13 +381,13 @@ def evaluate_constant_lspg(constant):
                             relaunch_FOM=False, relaunch_ROM=True, 
                             rebuild_phi=True, constant=[strategy,constant])
     
-    rom_manager.Fit(mu_train=load_mu_parameters('4_lspg_mu_train'))
-    rom_manager.Test(load_mu_parameters('4_lspg_mu_test'))
+    rom_manager.Fit(mu_train=load_mu_parameters(f'0_{strategy}_mu_train'))
+    rom_manager.Test(load_mu_parameters(f'0_{strategy}_mu_test'))
     
     resume = []
     resume.append([strategy, case, constant, 
-                   len(load_mu_parameters('4_lspg_mu_train')), rom_manager.ROMvsFOM['Fit'],
-                   len(load_mu_parameters('4_lspg_mu_test')), rom_manager.ROMvsFOM['Test']])
+                   len(load_mu_parameters(f'0_{strategy}_mu_train')), rom_manager.ROMvsFOM['Fit'],
+                   len(load_mu_parameters(f'0_{strategy}_mu_test')), rom_manager.ROMvsFOM['Test']])
 
     if os.path.exists('resume.xlsx'):
         wb = openpyxl.load_workbook('resume.xlsx')
@@ -406,8 +406,10 @@ def evaluate_constant_lspg(constant):
             hoja.append(item)
         wb.save('resume.xlsx')
         
-        
-    return rom_manager.ROMvsFOM['Fit']
+    if rom_manager.ROMvsFOM['Fit'] < 1e-9:
+        return rom_manager.ROMvsFOM['Test']
+    else:
+        return rom_manager.ROMvsFOM['Fit']
 
 def evaluate_constant_galerkin(constant):
     strategy = 'galerkin'
@@ -421,13 +423,13 @@ def evaluate_constant_galerkin(constant):
                             relaunch_FOM=False, relaunch_ROM=True, 
                             rebuild_phi=True, constant=[strategy,constant])
 
-    rom_manager.Fit(mu_train=load_mu_parameters('4_galerkin_mu_train'))
-    rom_manager.Test(load_mu_parameters('4_galerkin_mu_test'))
+    rom_manager.Fit(mu_train=load_mu_parameters(f'0_{strategy}_mu_train'))
+    rom_manager.Test(load_mu_parameters(f'0_{strategy}_mu_test'))
 
     resume = []
     resume.append([strategy, case, constant, 
-                   len(load_mu_parameters('4_galerkin_mu_train')), rom_manager.ROMvsFOM['Fit'],
-                   len(load_mu_parameters('4_galerkin_mu_test')), rom_manager.ROMvsFOM['Test']])
+                   len(load_mu_parameters(f'0_{strategy}_mu_train')), rom_manager.ROMvsFOM['Fit'],
+                   len(load_mu_parameters(f'0_{strategy}_mu_test')), rom_manager.ROMvsFOM['Test']])
 
     if os.path.exists('resume.xlsx'):
         wb = openpyxl.load_workbook('resume.xlsx')
@@ -446,7 +448,10 @@ def evaluate_constant_galerkin(constant):
             hoja.append(item)
         wb.save('resume.xlsx')
         
-    return rom_manager.ROMvsFOM['Fit']
+    if rom_manager.ROMvsFOM['Fit'] < 1e-9:
+        return rom_manager.ROMvsFOM['Test']
+    else:
+        return rom_manager.ROMvsFOM['Fit']
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -483,7 +488,7 @@ if __name__ == "__main__":
     constant_range     = [1e-6, 10]
     tolerance          = 1e-9
     iterations         = 15
-    mu_prefix          = '4_lspg_'
+    mu_prefix          = f'0_{strategies[0]}_'
     #################################
     mach_range         = [0.70, 0.75]
     angle_range        = [0.00, 1.25]
