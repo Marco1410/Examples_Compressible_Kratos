@@ -13,7 +13,7 @@
         "solver_type"              : "potential_flow",
         "model_import_settings"    : {
             "input_type"     : "mdpa",
-            "input_filename" : "../Rom_transonic_potential_flow_Naca0012_adaptative/Mesh/model_mesh_0"
+            "input_filename" : "../Rom_transonic_potential_flow_Naca0012/Mesh/model_mesh_0"
         },
         "material_import_settings" : {
             "materials_filename" : ""
@@ -47,9 +47,17 @@
         "relative_tolerance"               : 1e-8,
         "absolute_tolerance"               : 1e-8,
         "linear_solver_settings"  : {
-            "solver_type": "LinearSolversApplication.amgcl",
-            "max_iteration": 400,
-            "tolerance": 1e-9
+            "solver_type": "fallback_linear_solver",
+            "solvers"    : [
+                {
+                    "solver_type"  : "LinearSolversApplication.amgcl",
+                    "max_iteration": 400,
+                    "tolerance"    : 1e-9
+                },
+                {
+                    "solver_type": "LinearSolversApplication.pardiso_lu"
+                }
+            ]
         },
         "volume_model_part_name"   : "MainModelPart.Parts_Parts_Auto1",
         "skin_parts"               : ["MainModelPart.PotentialWallCondition2D_Far_field_Auto1","MainModelPart.Body2D_Body"],
@@ -136,28 +144,6 @@
                    },
                    "point_data_configuration"  : []
                }
-           }
-       }],
-       "vtk_output" : [{
-           "python_module" : "vtk_output_process",
-           "kratos_module" : "KratosMultiphysics",
-           "process_name"  : "VtkOutputProcess",
-           "help"          : "This process writes postprocessing files for Paraview",
-           "Parameters"    : {
-               "model_part_name"                    : "MainModelPart",
-               "output_control_type"                : "step",
-               "output_interval"                    : 1,
-               "file_format"                        : "binary",
-               "output_precision"                   : 7,
-               "output_sub_model_parts"             : true,
-               "output_path"                        : "vtk_output",
-               "save_output_files_in_folder"        : true,
-               "nodal_solution_step_data_variables" : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
-               "nodal_data_value_variables"         : ["PRESSURE_COEFFICIENT","VELOCITY","DENSITY",
-                                                       "MACH","POTENTIAL_JUMP","TRAILING_EDGE","WAKE_DISTANCE","WING_TIP"],
-               "element_data_value_variables"       : ["WAKE","KUTTA"],
-               "gauss_point_variables_in_elements"  : ["PRESSURE_COEFFICIENT","VELOCITY","MACH"],
-               "condition_data_value_variables"     : []
            }
        }]
    }

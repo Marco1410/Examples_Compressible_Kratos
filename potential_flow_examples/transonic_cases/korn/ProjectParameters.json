@@ -35,7 +35,7 @@
                     },
                     "point_data_configuration"  : []
                 },
-                "output_name"            : "gid_output/korn"
+                "output_name"            : "korn"
             }
         }]
     },
@@ -52,13 +52,13 @@
         },
         "convergence_criterion": "residual_criterion",
         "scheme_settings"          : {
-            "model_part_name" : "Body2D_Body",
-            "critical_mach"                 : 0.85,
-            "upwind_factor_constant"        : 1.5,
-            "update_critical_mach"          : 0.85,
-            "update_upwind_factor_constant" : 1.0,
-            "update_transonic_tolerance"    : 1e-3,
-            "mach_number_squared_limit"     : 3.0
+            "is_transonic": true,
+            "initial_critical_mach"          : 0.80,
+            "initial_upwind_factor_constant" : 2.0,
+            "target_critical_mach"           : 0.85,
+            "target_upwind_factor_constant"  : 1.0,
+            "update_relative_residual_norm"  : 1e-2,
+            "mach_number_squared_limit"      : 3.0
         },
         "maximum_iterations"       : 30,
         "echo_level"               : 1,
@@ -91,6 +91,7 @@
             "process_name"  : "FarFieldProcess",
             "Parameters"    : {
                 "model_part_name" : "FluidModelPart.PotentialWallCondition2D_Far_field_Auto1",
+                "angle_of_attack_units" : "degrees",
                 "free_stream_density"   : 1.225,
                 "angle_of_attack"       : 0.7,
                 "mach_infinity"         : 0.75,

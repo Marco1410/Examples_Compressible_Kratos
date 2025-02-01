@@ -16,7 +16,7 @@ import time
 import importlib
 import numpy as np
 import matplotlib.pyplot as plt
-import KratosMultiphysics.FluidDynamicsApplication 
+import KratosMultiphysics.RomApplication 
 
 
 def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
@@ -82,40 +82,38 @@ if __name__ == "__main__":
         parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(angle_of_attack)
         parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach_infinity)
         parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString(f'Results_Korn/{angle_of_attack}, {mach_infinity}')
-        parameters["output_processes"]["vtk_output"][0]["Parameters"]["output_path"].SetString(f'Results_Korn/{angle_of_attack}, {mach_infinity}')
 
+        if (mach_infinity == 0.75 and angle_of_attack == 0.2):
+            # input('0')
+            parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.85)
+            parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(1.5)
+            parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-2)
+            parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.99)
+            parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.0)
 
-        # if (mach_infinity == 0.75 and angle_of_attack == 0.2):
-        #     # input('0')
-        #     parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-        #     parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(2.0)
-        #     parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        #     parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.9)
-        #     parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.5)
+        if (mach_infinity == 0.75 and angle_of_attack == 0.7):
+            # input('1')
+            parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.60)
+            parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(1.8)
+            parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-2)
+            parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.65)
+            parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.0)
 
-        # if (mach_infinity == 0.75 and angle_of_attack == 0.7):
-        #     # input('1')
-        #     parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-        #     parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(2.0)
-        #     parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        #     parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.9)
-        #     parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.5)
+        if (mach_infinity == 0.7 and angle_of_attack == 1.00):
+            # input('2')
+            parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.85)
+            parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(1.5)
+            parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-2)
+            parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.99)
+            parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.0)
 
-        # if (mach_infinity == 0.7 and angle_of_attack == 1.00):
-        #     # input('2')
-        #     parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-        #     parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(2.0)
-        #     parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        #     parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.9)
-        #     parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.5)
-
-        # if (mach_infinity >= 0.7 and angle_of_attack >= 2.00):
-        #     # input('3')
-        #     parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
-        #     parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(2.0)
-        #     parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-3)
-        #     parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.9)
-        #     parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.5)
+        if (mach_infinity >= 0.7 and angle_of_attack >= 2.00):
+            # input('3')
+            parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.85)
+            parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(1.5)
+            parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-2)
+            parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.94)
+            parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.0)
 
         global_model = KratosMultiphysics.Model()
         simulation = CreateAnalysisStageWithFlushInstance(analysis_stage_class, global_model, parameters)
@@ -157,7 +155,7 @@ if __name__ == "__main__":
         cp_val = np.concatenate((cp_val_lez,cp_val_gtz[::-1]))
         error = (np.linalg.norm(cp_sim+cp_val)/np.linalg.norm(cp_val))
         sub_ax.text(0.28, -1.0, f'Difference: {error:.2E}', size=12, bbox=dict(boxstyle="round", facecolor='red', alpha=0.5))
-        sub_ax.plot( x, -cp, '.', markersize = 3.0, label=f'Kratos')
+        sub_ax.plot( x, -cp, '.', markersize = 10.0, label=f'Kratos')
 
         sub_ax.set_title(f'Angle={angle_of_attack}, Mach={mach_infinity}')
         sub_ax.set_xlabel('x')

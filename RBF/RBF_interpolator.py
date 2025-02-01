@@ -170,25 +170,24 @@ if '__main__':
 
     x = np.linspace(0,1,100)
 
-    linear_interp = RBF_Interpolator(eps=0, dim=1, function='linear')
+    linear_interp = RBF_Interpolator(eps=1, dim=1, function='linear')
     linear_interp.fit(xk, yk)
 
-    gauss_interp = RBF_Interpolator(eps=2, dim=1, function='gauss')
+    gauss_interp = RBF_Interpolator(eps=15, dim=1, function='gauss')
     gauss_interp.fit(xk, yk)
 
-    inverse_quadratic_interp = RBF_Interpolator(eps=7, dim=1, function='inverse_quadratic')
-    inverse_quadratic_interp.fit(xk, yk)
+    # inverse_quadratic_interp = RBF_Interpolator(eps=7, dim=1, function='inverse_quadratic')
+    # inverse_quadratic_interp.fit(xk, yk)
 
-    multiquadratic_interp = RBF_Interpolator(eps=7, dim=1, function='multiquadratic')
-    multiquadratic_interp.fit(xk, yk)
+    # multiquadratic_interp = RBF_Interpolator(eps=7, dim=1, function='multiquadratic')
+    # multiquadratic_interp.fit(xk, yk)
 
     plt.figure(figsize=(9,6))
-    # plt.plot(x , linear_interp(x)            , '--', label='Linear interpolation')
-    plt.plot(x , gauss_interp(x)             , '--', label='Gaussian interpolation')
+    plt.plot(x , linear_interp(x)            , '--', label='Linear interpolation e=1')
+    plt.plot(x , gauss_interp(x)             , '--', label='Gaussian interpolation e=15')
     # plt.plot(x , inverse_quadratic_interp(x) , '--', label='Inverse quadratic interpolation')
     # plt.plot(x , multiquadratic_interp(x)    , '--', label='Multiquadratic interpolation')
     plt.plot(xk, yk                          , 'x' , label='Original points')
-
     plt.legend()
     plt.title('1D RBF Interpolator')
     plt.show()
@@ -199,18 +198,18 @@ if '__main__':
     ###########  2D RBF Interpolator
     ########################################################
     ########################################################
-    data, ytest = generate_data()
+    # data, ytest = generate_data()
 
-    plt.figure(figsize=(12,8))
-    plot_real_function(func)
-    plt.scatter(data[:,0], data[:,1])
+    # plt.figure(figsize=(12,8))
+    # plot_real_function(func)
+    # plt.scatter(data[:,0], data[:,1])
 
-    interp = RBF_Interpolator(eps=3, dim=2)
-    interp.fit(data, ytest)
+    # interp = RBF_Interpolator(eps=3, dim=2)
+    # interp.fit(data, ytest)
 
-    plot_interp(interp)
-    plt.title('2D RBF Gaussian Interpolator')
-    plt.show()
+    # plot_interp(interp)
+    # plt.title('2D RBF Gaussian Interpolator')
+    # plt.show()
 
 
     ########################################################
