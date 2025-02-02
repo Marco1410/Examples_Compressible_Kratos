@@ -10,6 +10,7 @@ from scipy.interpolate import griddata
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from KratosMultiphysics.gid_output_process import GiDOutputProcess
 import KratosMultiphysics.CompressiblePotentialFlowApplication as CPFApp
+import KratosMultiphysics.RomApplication
 from KratosMultiphysics.vtk_output_process import VtkOutputProcess
 
 
@@ -521,7 +522,7 @@ if __name__ == "__main__":
 
     # constants  = [1, 0.1, 0.01, 1e-3, 1e-4, 1e-5]
     strategies = ['galerkin']
-    n = 0
+    n = 2
 
     mu_train      = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_train')
     mu_test       = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_test')

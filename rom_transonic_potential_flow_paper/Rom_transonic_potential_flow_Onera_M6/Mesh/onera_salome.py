@@ -152,7 +152,7 @@ geompy.addToStudyInFather( Domain, TE_Points, 'TE_Points' )
 import  SMESH # type: ignore
 from salome.smesh import smeshBuilder # type: ignore
 
-sys.path.append("../../../../KratosSalomePlugin") # adding root folder of plugin to path
+sys.path.append("../../../../../KratosSalomePlugin") # adding root folder of plugin to path
 import create_kratos_input_tui # type: ignore
 
 mesh_description_domain  = { "elements"   : {"Tetra"    : {"Element3D4N"       : 0}}}

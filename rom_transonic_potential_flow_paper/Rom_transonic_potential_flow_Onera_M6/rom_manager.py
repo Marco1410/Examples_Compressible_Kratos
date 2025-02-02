@@ -383,13 +383,13 @@ def evaluate_constant_lspg(constant):
                             relaunch_FOM=False, relaunch_ROM=True, 
                             rebuild_phi=True, constant=[strategy,constant])
     
-    rom_manager.Fit(mu_train=load_mu_parameters(f'0_{strategy}_mu_train'))
-    rom_manager.Test(load_mu_parameters(f'0_{strategy}_mu_test'))
+    rom_manager.Fit(mu_train=load_mu_parameters(f'2_{strategy}_mu_train'))
+    rom_manager.Test(load_mu_parameters(f'2_{strategy}_mu_test'))
     
     resume = []
     resume.append([strategy, case, constant, 
-                   len(load_mu_parameters(f'0_{strategy}_mu_train')), rom_manager.ROMvsFOM['Fit'],
-                   len(load_mu_parameters(f'0_{strategy}_mu_test')), rom_manager.ROMvsFOM['Test']])
+                   len(load_mu_parameters(f'2_{strategy}_mu_train')), rom_manager.ROMvsFOM['Fit'],
+                   len(load_mu_parameters(f'2_{strategy}_mu_test')), rom_manager.ROMvsFOM['Test']])
 
     if os.path.exists('resume.xlsx'):
         wb = openpyxl.load_workbook('resume.xlsx')
@@ -425,13 +425,13 @@ def evaluate_constant_galerkin(constant):
                             relaunch_FOM=False, relaunch_ROM=True, 
                             rebuild_phi=True, constant=[strategy,constant])
 
-    rom_manager.Fit(mu_train=load_mu_parameters(f'0_{strategy}_mu_train'))
-    rom_manager.Test(load_mu_parameters(f'0_{strategy}_mu_test'))
+    rom_manager.Fit(mu_train=load_mu_parameters(f'2_{strategy}_mu_train'))
+    rom_manager.Test(load_mu_parameters(f'2_{strategy}_mu_test'))
 
     resume = []
     resume.append([strategy, case, constant, 
-                   len(load_mu_parameters(f'0_{strategy}_mu_train')), rom_manager.ROMvsFOM['Fit'],
-                   len(load_mu_parameters(f'0_{strategy}_mu_test')), rom_manager.ROMvsFOM['Test']])
+                   len(load_mu_parameters(f'2_{strategy}_mu_train')), rom_manager.ROMvsFOM['Fit'],
+                   len(load_mu_parameters(f'2_{strategy}_mu_test')), rom_manager.ROMvsFOM['Test']])
 
     if os.path.exists('resume.xlsx'):
         wb = openpyxl.load_workbook('resume.xlsx')
@@ -475,8 +475,8 @@ if __name__ == "__main__":
     update_parameters  = True
     update_mu_test     = True
     VALIDATION         = True
-    number_of_mu_train = 25
-    number_of_mu_test  = 50
+    number_of_mu_train = 3
+    number_of_mu_test  = 1
     alpha              = 0.75
     beta               = 0.75
     strategies         = ['galerkin']
@@ -490,10 +490,10 @@ if __name__ == "__main__":
     constant_range     = [1e-6, 10]
     tolerance          = 1e-9
     iterations         = 15
-    mu_prefix          = f'0_{strategies[0]}_'
+    mu_prefix          = f'2_{strategies[0]}_'
     #################################
-    angle_range        = [ 2.50, 3.50]
-    mach_range         = [ 0.82, 0.85]
+    angle_range        = [ 2.95, 3.15]
+    mach_range         = [ 0.83, 0.85]
     relaunch_FOM       = True 
     relaunch_ROM       = True
     rebuild_phi        = True 

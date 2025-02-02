@@ -93,11 +93,11 @@ if __name__ == "__main__":
 
         if (mach_infinity == 0.75 and angle_of_attack == 0.7):
             # input('1')
-            parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.60)
+            parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.80)
             parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(1.8)
             parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-2)
-            parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.65)
-            parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.0)
+            parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.85)
+            parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.5)
 
         if (mach_infinity == 0.7 and angle_of_attack == 1.00):
             # input('2')
@@ -112,8 +112,8 @@ if __name__ == "__main__":
             parameters["solver_settings"]["scheme_settings"]["initial_critical_mach"].SetDouble(0.85)
             parameters["solver_settings"]["scheme_settings"]["initial_upwind_factor_constant"].SetDouble(1.5)
             parameters["solver_settings"]["scheme_settings"]["update_relative_residual_norm"].SetDouble(1e-2)
-            parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.94)
-            parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.0)
+            parameters["solver_settings"]["scheme_settings"]["target_critical_mach"].SetDouble(0.99)
+            parameters["solver_settings"]["scheme_settings"]["target_upwind_factor_constant"].SetDouble(1.5)
 
         global_model = KratosMultiphysics.Model()
         simulation = CreateAnalysisStageWithFlushInstance(analysis_stage_class, global_model, parameters)

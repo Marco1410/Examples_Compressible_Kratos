@@ -107,7 +107,7 @@ if __name__ == "__main__":
     full = True
 
     strategies = ['galerkin']
-    n = 0
+    n = 2
 
     mu_train      = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_train')
     mu_train_not_scaled = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_train_not_scaled')
