@@ -8,10 +8,10 @@ import matplotlib.tri as tri
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-from KratosMultiphysics.gid_output_process import GiDOutputProcess
 import KratosMultiphysics.CompressiblePotentialFlowApplication as CPFApp
 import KratosMultiphysics.RomApplication
 from KratosMultiphysics.vtk_output_process import VtkOutputProcess
+from KratosMultiphysics.gid_output_process import GiDOutputProcess
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -520,17 +520,14 @@ def Plot_Cps(mu_list, capture_directory, capture_subdirectory, plot=['CP']):
 
 if __name__ == "__main__":
 
-    # constants  = [1, 0.1, 0.01, 1e-3, 1e-4, 1e-5]
-    strategies = ['galerkin']
-    n = 2
+    strategies = ['galerkin','lspg']
+    n = [4, 4]
 
-    mu_train      = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_train')
-    mu_test       = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_test')
-    mu_validation = load_mu_parameters('Mu_history/mu_validation')
-
-    for strategy in strategies:
-        # for constant in constants:
-
+    for id, strategy in zip(n, strategies):
+        mu_train      = load_mu_parameters(f'Mu_history/{id}_{strategy}_mu_train')
+        mu_test       = load_mu_parameters(f'Mu_history/{id}_{strategy}_mu_test')
+        mu_validation = load_mu_parameters(f'Mu_history/mu_validation')
+        
         Plot_Cps(mu_validation, 'Validation'    , f'{strategy}', plot=['CP','3D','2D'])
         Plot_Cps(mu_test      , 'Test_Captures' , f'{strategy}', plot=['CP','3D','2D'])
         Plot_Cps(mu_train     , 'Train_Captures', f'{strategy}', plot=['CP','3D','2D'])

@@ -1,20 +1,17 @@
 import os
-import re
 import importlib
 import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-matplotlib.use('Agg')
 import pyvista as pv 
 import KratosMultiphysics
 import matplotlib.cm as cm
 import matplotlib.tri as tri
-import KratosMultiphysics.kratos_utilities
+import matplotlib.pyplot as plt
+from scipy.interpolate import griddata
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import KratosMultiphysics.CompressiblePotentialFlowApplication as CPFApp
-import KratosMultiphysics.FluidDynamicsApplication 
 import KratosMultiphysics.RomApplication
-from KratosMultiphysics.gid_output_process import GiDOutputProcess
 from KratosMultiphysics.vtk_output_process import VtkOutputProcess
+from KratosMultiphysics.gid_output_process import GiDOutputProcess
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -96,7 +93,7 @@ def FakeSimulation(cls, global_model, parameters, data_set, mu):
                 skin_data_filename = f"RBF_Skin_Data/{simulation_name}.dat"
 
             fout = open(skin_data_filename,'w')
-            modelpart = self.model["MainModelPart.Body2D_Body"]
+            modelpart = self.model["MainModelPart.Wing"]
             for node in modelpart.Nodes:
                 x = node.X ; y = node.Y ; z = node.Z
                 cp = node.GetValue(KratosMultiphysics.PRESSURE_COEFFICIENT)
@@ -104,19 +101,6 @@ def FakeSimulation(cls, global_model, parameters, data_set, mu):
             fout.close()
 
     return CustomSimulation(global_model, parameters)
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#
-# load parameters
-#
-def load_mu_parameters(name):
-    filename = f'{name}.npy'
-    if os.path.exists(filename):
-        mu_npy = np.load(filename)
-        mu =  [mu.tolist() for mu in mu_npy]
-    else:
-        mu = []
-    return mu
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
@@ -150,151 +134,30 @@ def _GetAnalysisStageClass(parameters):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-# Plot Cps 
+# load parameters
 #
-def Plot_Cps(mu_list, capture_directory, capture_subdirectory, rbf_full=False):
+def load_mu_parameters(name):
+    filename = f'{name}.npy'
+    if os.path.exists(filename):
+        mu_npy = np.load(filename)
+        mu =  [mu.tolist() for mu in mu_npy]
+    else:
+        mu = []
+    return mu
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#
+# save parameters
+#
+def Plot_Cps(mu_list, capture_directory, capture_subdirectory, plot=['CP']):
     #Disable logs
     KratosMultiphysics.Logger.GetDefaultOutput().SetSeverity(KratosMultiphysics.Logger.Severity.WARNING)
-
-    for id, mu in enumerate(mu_list):
+    for id, mu in enumerate(mu_list):        
         if not os.path.exists(f'{capture_directory}/{capture_subdirectory}'):
             os.mkdir(f'{capture_directory}/{capture_subdirectory}')
 
         case_name = f'{mu[0]}, {mu[1]}'
-        capture_filename   = f"{capture_directory}/{capture_subdirectory}/{case_name}.png"
-
-        #### CP PLOT
-        ######################################################################
-        cp_min = cp_max = cp_hrom = cp_hhrom = cp_fom = cp_rom = cp_rbf = cp_validation = cp_xfoil = 0
-        fig = plt.figure()
-        fig.set_figwidth(12.0)
-        fig.set_figheight(8.0)
-
-        if capture_directory == 'Validation':
-            #### VALIDATION ######
-            validation_skin_data_filename = f"../reference_data/flo36/{case_name}.dat"
-            if os.path.exists(validation_skin_data_filename):
-                x  = np.loadtxt(validation_skin_data_filename, usecols=(0,))
-                cp_validation = np.loadtxt(validation_skin_data_filename, usecols=(1,))
-                fig = plt.plot(x, -cp_validation, 'r*-', markersize = 5.0, label = 'flo36')
-            #### XFLR5 ######
-            # validation_skin_data_filename = f"../reference_data/Naca0012_Xfoil_Xflr5/xflr5_polars/{case_name}.dat"
-            # if os.path.exists(validation_skin_data_filename):
-            #     x_xfoil  = np.loadtxt(validation_skin_data_filename, usecols=(0,))
-            #     cp_xfoil = np.loadtxt(validation_skin_data_filename, usecols=(1,))
-            #     fig = plt.plot(x_xfoil, cp_xfoil, '*', markersize = 5.0, label = 'XFLR5')
-        #### FOM ######
-        fom_skin_data_filename = f"FOM_Skin_Data/{case_name}.dat"
-        if os.path.exists(fom_skin_data_filename):
-            x_fom  = np.loadtxt(fom_skin_data_filename, usecols=(0,))
-            y_fom  = np.loadtxt(fom_skin_data_filename, usecols=(1,))
-            cp_fom = np.loadtxt(fom_skin_data_filename, usecols=(3,))
-            if capture_directory == 'Validation':
-                data_file_line = {'0.2, 0.75': 59,'0.7, 0.75': 55,'1.0, 0.7': 61,'2.0, 0.7': 57}
-                y_gtz = y_fom > 0
-                y_lez = y_fom <= 0
-                x_gtz  = x_fom[y_gtz] 
-                cp_gtz = cp_fom[y_gtz]
-                indices_ordenados = sorted(range(len(x_gtz)), key=lambda i: x_gtz[i])
-                x_gtz = [x_gtz[i] for i in indices_ordenados]
-                cp_gtz = [cp_gtz[i] for i in indices_ordenados]
-                x_lez  = x_fom[y_lez] 
-                cp_lez = cp_fom[y_lez]
-                indices_ordenados = sorted(range(len(x_lez)), key=lambda i: x_lez[i])
-                x_lez = [x_lez[i] for i in indices_ordenados]
-                cp_lez = [cp_lez[i] for i in indices_ordenados]
-
-                cp_val_gtz = np.interp(x_gtz, x[:data_file_line[case_name]], cp_validation[:data_file_line[case_name]])
-                cp_val_lez = np.interp(x_lez, x[data_file_line[case_name]+1:][::-1], cp_validation[data_file_line[case_name]+1:][::-1])
-                x_sim = np.concatenate((x_lez,x_gtz[::-1]))
-                cp_sim = np.concatenate((cp_lez, cp_gtz[::-1]))
-                cp_val = np.concatenate((cp_val_lez,cp_val_gtz[::-1]))
-                error = (np.linalg.norm(cp_sim+cp_val)/np.linalg.norm(cp_val))
-
-                fig = plt.plot(x_fom, cp_fom, 's', markersize = 5.0, label = f'FOM-Validation e: {error:.2E}')
-            else:
-                fig = plt.plot(x_fom, cp_fom, 's', markersize = 5.0, label = f'FOM')
-        #### ROM ######
-        rom_skin_data_filename = f"ROM_Skin_Data/{capture_subdirectory}/{case_name}.dat"
-        if os.path.exists(rom_skin_data_filename):
-            x_rom  = np.loadtxt(rom_skin_data_filename, usecols=(0,))
-            cp_rom = np.loadtxt(rom_skin_data_filename, usecols=(3,))
-            fig = plt.plot(x_rom, cp_rom, 'o', markersize = 3.0, label = f'ROM-FOM e: {(np.linalg.norm(cp_fom-cp_rom)/np.linalg.norm(cp_fom)):.2E}')
-        #### HROM ######
-        hrom_skin_data_filename = f"HROM_Skin_Data/{capture_subdirectory}/{case_name}.dat"
-        if os.path.exists(hrom_skin_data_filename):
-            x_hrom  = np.loadtxt(hrom_skin_data_filename, usecols=(0,))
-            cp_hrom = np.loadtxt(hrom_skin_data_filename, usecols=(3,))
-            fig = plt.plot(x_hrom, cp_hrom, '+', markersize = 6.0, label = f'HROM-FOM e: {(np.linalg.norm(cp_fom-cp_hrom)/np.linalg.norm(cp_fom)):.2E}')
-        #### HHROM ######
-        hhrom_name = f"HHROM_Snapshots/{capture_subdirectory}/{case_name}.npy"
-        if os.path.exists(hhrom_name):
-            hhrom = np.load(hhrom_name)
-            LaunchFakeSimulation(hhrom, [mu[0], mu[1], 'HHROM', capture_subdirectory])
-            hhrom_skin_data_filename = f"HHROM_Skin_Data/{capture_subdirectory}/{case_name}.dat"
-            x_hhrom  = np.loadtxt(hhrom_skin_data_filename, usecols=(0,))
-            cp_hhrom = np.loadtxt(hhrom_skin_data_filename, usecols=(3,))
-            fig = plt.plot(x_hhrom, cp_hhrom, 'x', markersize = 6.0, label = f'HROM-FOM e: {(np.linalg.norm(cp_fom-cp_hhrom)/np.linalg.norm(cp_fom)):.2E}')
-        #### RBF ####
-        if rbf_full:
-            rbf_name = f"RBF_Snapshots/{case_name}.npy"
-            if os.path.exists(rbf_name):
-                rbf = np.load(rbf_name)
-                LaunchFakeSimulation(rbf, [mu[0], mu[1], 'RBF'])
-            rbf_skin_data_filename = f"RBF_Skin_Data/{case_name}.dat"
-        else:
-            rbf_skin_data_filename = f"RBF_Skin_Data/{case_name}.npy"
-        if os.path.exists(rbf_skin_data_filename):
-            cp_fom = np.array(np.loadtxt(fom_skin_data_filename, usecols=(3,))).reshape(-1,1)
-            x_rbf  = np.loadtxt(f"FOM_Skin_Data/{case_name}.dat", usecols=(0,))
-            if rbf_full:
-                cp_rbf = np.array(np.loadtxt(rbf_skin_data_filename, usecols=(3,))).reshape(-1,1)
-            else:
-                cp_rbf = np.load(rbf_skin_data_filename)
-            
-            fig = plt.plot(x_rbf, cp_rbf, '.', markersize = 2.0, label = f'RBF-FOM e: {(np.linalg.norm(cp_fom-cp_rbf)/np.linalg.norm(cp_fom)):.2E}')
-        
-        cp_min = np.nanmin([np.min(cp_hhrom), np.min(cp_hrom), np.min(cp_fom), np.min(cp_rom), np.min(cp_rbf), np.min(cp_validation), np.min(cp_xfoil)])
-        cp_max = np.nanmax([np.max(cp_hhrom), np.max(cp_hrom), np.max(cp_fom), np.max(cp_rom), np.max(cp_rbf), np.max(cp_validation), np.max(cp_xfoil)])
-
-        fig = plt.title('Cp vs x')
-        fig = plt.axis([-0.05,1.05,cp_max+0.1,cp_min-0.1])
-        fig = plt.axis()
-        fig = plt.ylabel('Cp')
-        fig = plt.xlabel('x')
-        fig = plt.grid()
-        fig = plt.legend()
-        fig = plt.tight_layout()
-        # plt.show()
-        fig = plt.savefig(capture_filename, dpi=400)
-        fig = plt.close('all')
-
-        plot_Cps_2d([mu], capture_directory, capture_subdirectory, i=id)
-
-def get_latest_vtk_file(directory):
-    vtk_files = []
-    base_filename_pattern = re.compile(r"MainModelPart_0(?:_(\d+))?\.vtk")
-    
-    for filename in os.listdir(directory):
-        match = base_filename_pattern.match(filename)
-        if match:
-            step = int(match.group(1)) if match.group(1) else -1  
-            vtk_files.append((step, filename))
-    
-    if not vtk_files:
-        raise FileNotFoundError("No se encontraron archivos que coincidan con el patrón en el directorio.")
-    
-    vtk_files.sort(reverse=True, key=lambda x: x[0])
-    
-    return os.path.join(directory, vtk_files[0][1])
-
-def plot_Cps_2d(mu_list, capture_directory, capture_subdirectory, i=-1):
-    # Disable logs
-    KratosMultiphysics.Logger.GetDefaultOutput().SetSeverity(KratosMultiphysics.Logger.Severity.WARNING)
-
-    for id, mu in enumerate(mu_list):
-        if i > 0: id = i
-        case_name = f'{mu[0]}, {mu[1]}.png'
+        capture_filename   = f"{case_name}.png"
         case_type = ['FOM','ROM','HROM', 'HHROM','RBF']
         if 'Train' in capture_directory:
             simulation_type = 'Fit'
@@ -302,16 +165,237 @@ def plot_Cps_2d(mu_list, capture_directory, capture_subdirectory, i=-1):
             simulation_type = 'Test'
         elif 'Validation' in capture_directory:
             simulation_type = 'Run'
-        ########## 2D PLOT #####################################################################
-        for case in case_type:
-            if case == 'FOM':
-                path = f'Results/vtk_output_{case}_{simulation_type}{id}'
-            elif case == 'RBF' or case == 'HHROM':
-                path = f'Results/vtk_output_{case}_{mu[0]}, {mu[1]}'
-            else:
-                path = f'Results/{capture_subdirectory}/vtk_output_{case}_{simulation_type}{id}'
-            if os.path.exists(path):
-                vtk_filename = get_latest_vtk_file(f"{path}/")
+
+        ########## CP PLOT #####################################################################
+        if 'CP' in plot:
+            fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(13, 7))
+            labels = [95, 90, 80, 65, 44, 20] 
+            fv_potential_lines_in_data_files = [117, 116, 116, 116, 119, 122]
+
+            # selecciona que modelos mostrar
+            #########################################################
+            show_all     = True
+            #########################################################
+            VALIDATION   = True
+            EXPERIMENTAL = True
+            POTENTIAL    = False
+            FOM          = False
+            ROM          = False
+            HROM         = False
+            HHROM        = False
+            RBF          = False
+            #########################################################
+            if show_all:
+                VALIDATION=FOM=ROM=HROM=HHROM=RBF=True
+
+            #### FOM ######
+            fom_skin_data_filename = f"FOM_Skin_Data/{case_name}.dat"
+            if os.path.exists(fom_skin_data_filename) and FOM:
+                x  = np.loadtxt(fom_skin_data_filename, usecols=(0,))
+                y  = np.loadtxt(fom_skin_data_filename, usecols=(1,))
+                z  = np.loadtxt(fom_skin_data_filename, usecols=(2,))
+                cp_f = np.loadtxt(fom_skin_data_filename, usecols=(3,))
+
+                indexes    = z > 0
+                x_fom      = x[indexes]
+                y_fom      = y[indexes]
+                cp_fom     = cp_f[indexes]
+                indexes    = z <= 0
+                x_fom_inf  = x[indexes]
+                y_fom_inf  = y[indexes]
+                cp_fom_inf = cp_f[indexes]
+
+            #### ROM ######
+            rom_skin_data_filename = f"ROM_Skin_Data/{capture_subdirectory}/{case_name}.dat"
+            if os.path.exists(rom_skin_data_filename) and ROM:
+                x  = np.loadtxt(rom_skin_data_filename, usecols=(0,))
+                y  = np.loadtxt(rom_skin_data_filename, usecols=(1,))
+                z  = np.loadtxt(rom_skin_data_filename, usecols=(2,))
+                cp_r = np.loadtxt(rom_skin_data_filename, usecols=(3,))
+
+                indexes    = z > 0
+                x_rom      = x[indexes]
+                y_rom      = y[indexes]
+                cp_rom     = cp_r[indexes]
+                indexes    = z <= 0
+                x_rom_inf  = x[indexes]
+                y_rom_inf  = y[indexes]
+                cp_rom_inf = cp_r[indexes]
+
+            #### HROM ######
+            hrom_skin_data_filename = f"HROM_Skin_Data/{capture_subdirectory}/{case_name}.dat"
+            if os.path.exists(hrom_skin_data_filename) and HROM:
+                x  = np.loadtxt(hrom_skin_data_filename, usecols=(0,))
+                y  = np.loadtxt(hrom_skin_data_filename, usecols=(1,))
+                z  = np.loadtxt(hrom_skin_data_filename, usecols=(2,))
+                cp_h = np.loadtxt(hrom_skin_data_filename, usecols=(3,))
+
+                indexes    = z > 0
+                x_hrom      = x[indexes]
+                y_hrom      = y[indexes]
+                cp_hrom     = cp_h[indexes]
+                indexes    = z <= 0
+                x_hrom_inf  = x[indexes]
+                y_hrom_inf  = y[indexes]
+                cp_hrom_inf = cp_h[indexes]
+
+            #### HHROM ######
+            hhrom_name = f"HHROM_Snapshots/{capture_subdirectory}/{case_name}.npy"
+            hhrom_skin_data_filename = f"HHROM_Skin_Data/{capture_subdirectory}/{case_name}.dat"
+            if os.path.exists(hhrom_name) and HHROM:
+                hhrom = np.load(hhrom_name)
+                LaunchFakeSimulation(hhrom, [mu[0], mu[1], 'HHROM'])
+                x  = np.loadtxt(hhrom_skin_data_filename, usecols=(0,))
+                y  = np.loadtxt(hhrom_skin_data_filename, usecols=(1,))
+                z  = np.loadtxt(hhrom_skin_data_filename, usecols=(2,))
+                cp_hh = np.loadtxt(hhrom_skin_data_filename, usecols=(3,))
+
+                indexes    = z > 0
+                x_hhrom      = x[indexes]
+                y_hhrom      = y[indexes]
+                cp_hhrom     = cp_hh[indexes]
+                indexes    = z <= 0
+                x_hhrom_inf  = x[indexes]
+                y_hhrom_inf  = y[indexes]
+                cp_hhrom_inf = cp_hh[indexes]
+
+            #### RBF ######
+            rbf_data_filename = f"RBF_Snapshots/{case_name}.npy"
+            rbf_skin_data_filename = f"RBF_Skin_Data/{case_name}.dat"
+            if os.path.exists(rbf_data_filename) and RBF:
+                rbf = np.load(rbf_data_filename)
+                LaunchFakeSimulation(rbf, [mu[0], mu[1], 'RBF'])
+                x  = np.loadtxt(rbf_skin_data_filename, usecols=(0,))
+                y  = np.loadtxt(rbf_skin_data_filename, usecols=(1,))
+                z  = np.loadtxt(rbf_skin_data_filename, usecols=(2,))
+                cp_rb  = np.loadtxt(rbf_skin_data_filename, usecols=(3,))
+
+                indexes    = z > 0
+                x_rbf      = x[indexes]
+                y_rbf      = y[indexes]
+                cp_rbf     = cp_rb[indexes]
+                indexes    = z <= 0
+                x_rbf_inf  = x[indexes]
+                y_rbf_inf  = y[indexes]
+                cp_rbf_inf = cp_rb[indexes]
+            
+            if os.path.exists(fom_skin_data_filename) and os.path.exists(rom_skin_data_filename):
+                error_rom_fom = np.linalg.norm(cp_f-cp_r)/np.linalg.norm(cp_f)
+            if os.path.exists(fom_skin_data_filename) and os.path.exists(hrom_skin_data_filename):
+                error_hrom_fom = np.linalg.norm(cp_f-cp_h)/np.linalg.norm(cp_f)
+            if os.path.exists(fom_skin_data_filename) and os.path.exists(hhrom_skin_data_filename):
+                error_hhrom_fom = np.linalg.norm(cp_f-cp_hh)/np.linalg.norm(cp_f)
+            if os.path.exists(fom_skin_data_filename) and os.path.exists(rbf_skin_data_filename):
+                error_rbf_fom = np.linalg.norm(cp_f-cp_rb)/np.linalg.norm(cp_f)
+
+            for idx, sub_ax in enumerate(axs.flat):   
+                # SET Y POSITION TO PLOT CP DISTRIBUTION
+                b = 1.1963
+                y_target = labels[idx]*b/100 # y_target = y/b
+
+                # CREATE X LINEAR SPACE
+                x_min = (y_target)*np.tan(30*np.pi/180)
+                x_max = (y_target)*np.tan(15.8*np.pi/180)+0.8059
+                x_grid = np.linspace(x_min, x_max, 150)
+                # SET X BETWEEN 0 and 1
+                x_airfoil_normalized = (x_grid - x_min) / (x_max - x_min)
+                x_airfoil_normalized_full = np.concatenate((x_airfoil_normalized, x_airfoil_normalized))
+                
+                #### VALIDATION ######
+                if capture_directory == 'Validation' and VALIDATION:
+                    experimental_skin_data_filename = f'../reference_data/onera/experiment/cp_{labels[idx]}.dat'
+                    if os.path.exists(experimental_skin_data_filename) and EXPERIMENTAL:
+                        x_validation_exp  = np.loadtxt(experimental_skin_data_filename, usecols=(0,))
+                        cp_validation_exp = np.loadtxt(experimental_skin_data_filename, usecols=(1,))
+                        # ORIGINAL
+                        # sub_ax.scatter(x_validation_exp, cp_validation_exp, marker="+", label="Experimental orig", s=7)
+                        ####################################################################################################################
+                        # INTERPOLATED
+                        cp_interpolated_exp = np.interp(x_airfoil_normalized, x_validation_exp[13:], cp_validation_exp[13:])
+                        cp_interpolated_exp_inf = np.interp(x_airfoil_normalized, x_validation_exp[:12][::-1], cp_validation_exp[:12][::-1])
+                        cp_validation_exp_interpolated = np.concatenate((cp_interpolated_exp_inf, cp_interpolated_exp))
+                        sub_ax.scatter(x_airfoil_normalized_full, cp_validation_exp_interpolated, marker="+", label="Experimental", s=7)
+
+                    #### POTENTIAL ######
+                    potential_skin_data_filename = f'../reference_data/onera/potential_solver/cp_{labels[idx]}_new.dat'
+                    if os.path.exists(potential_skin_data_filename) and POTENTIAL:
+                        x_validation_pot  = np.loadtxt(potential_skin_data_filename, usecols=(0,))
+                        cp_validation_pot = np.loadtxt(potential_skin_data_filename, usecols=(1,))
+                        # ORIGINAL
+                        # sub_ax.scatter(x_validation_pot, cp_validation_pot, marker="*", label="Validation potential solver orig", s=4)
+                        ####################################################################################################################
+                        # INTERPOLATED
+                        cp_interpolated_pot = np.interp(x_airfoil_normalized, x_validation_pot[fv_potential_lines_in_data_files[idx]+1:], cp_validation_pot[fv_potential_lines_in_data_files[idx]+1:])
+                        cp_interpolated_pot_inf = np.interp(x_airfoil_normalized, x_validation_pot[:fv_potential_lines_in_data_files[idx]], cp_validation_pot[:fv_potential_lines_in_data_files[idx]])
+                        cp_validation_pot_interpolated = np.concatenate((cp_interpolated_pot_inf, cp_interpolated_pot))
+                        sub_ax.scatter(x_airfoil_normalized_full, cp_validation_pot_interpolated, marker="*", label="FV Potential solver", s=4)
+
+                #### FOM ######
+                if os.path.exists(fom_skin_data_filename) and FOM:
+                    # INTERPOLATED
+                    cp_interpolated_fom = griddata((x_fom, y_fom), cp_fom, (x_grid, y_target), method='linear', fill_value=0.25)
+                    cp_interpolated_fom_inf = griddata((x_fom_inf, y_fom_inf), cp_fom_inf, (x_grid, y_target), method='linear')
+                    cp_interpolated_fom_full = np.concatenate((cp_interpolated_fom_inf, cp_interpolated_fom))
+                    if capture_directory == 'Validation' and VALIDATION and POTENTIAL:
+                        error_pot_fom = np.linalg.norm(-cp_interpolated_fom_full-cp_validation_pot_interpolated)/np.linalg.norm(cp_validation_pot_interpolated)
+                        sub_ax.scatter(x_airfoil_normalized_full, -cp_interpolated_fom_full, marker="s", label=f"FOM-FV solver e: {error_pot_fom:.2E}", s=4)
+                    else:
+                        sub_ax.scatter(x_airfoil_normalized_full, -cp_interpolated_fom_full, marker="s", label=f"FOM", s=4)
+
+                #### ROM ######
+                if os.path.exists(rom_skin_data_filename) and ROM:
+                    cp_interpolated_rom = griddata((x_rom, y_rom), cp_rom, (x_grid, y_target), method='linear')
+                    cp_interpolated_rom_inf = griddata((x_rom_inf, y_rom_inf), cp_rom_inf, (x_grid, y_target), method='linear')
+                    cp_interpolated_rom_full = np.concatenate((cp_interpolated_rom_inf, cp_interpolated_rom))
+                    sub_ax.scatter(x_airfoil_normalized_full, -cp_interpolated_rom_full, marker="o", label=f"ROM-FOM e: {error_rom_fom:.2E}", s=3)
+
+                #### HROM ######
+                if os.path.exists(hrom_skin_data_filename) and HROM:
+                    cp_interpolated_hrom = griddata((x_hrom, y_hrom), cp_hrom, (x_grid, y_target), method='linear')
+                    cp_interpolated_hrom_inf = griddata((x_hrom_inf, y_hrom_inf), cp_hrom_inf, (x_grid, y_target), method='linear')
+                    cp_interpolated_hrom_full = np.concatenate((cp_interpolated_hrom_inf, cp_interpolated_hrom))
+                    sub_ax.scatter(x_airfoil_normalized_full, -cp_interpolated_hrom_full, marker="d", label=f"HROM-FOM e: {error_hrom_fom:.2E}", s=6)
+
+                #### HHROM ######
+                if os.path.exists(hhrom_name) and HHROM:
+                    cp_interpolated_hhrom = griddata((x_hhrom, y_hhrom), cp_hhrom, (x_grid, y_target), method='linear')
+                    cp_interpolated_hhrom_inf = griddata((x_hhrom_inf, y_hhrom_inf), cp_hhrom_inf, (x_grid, y_target), method='linear')
+                    cp_interpolated_hhrom_full = np.concatenate((cp_interpolated_hhrom_inf, cp_interpolated_hhrom))
+                    sub_ax.scatter(x_airfoil_normalized_full, -cp_interpolated_hhrom_full, marker="X", label=f"HHROM-FOM e: {error_hhrom_fom:.2E}", s=6)
+
+                #### RBF ######
+                if os.path.exists(rbf_skin_data_filename) and RBF:
+                    cp_interpolated_rbf = griddata((x_rbf, y_rbf), cp_rbf, (x_grid, y_target), method='linear')
+                    cp_interpolated_rbf_inf = griddata((x_rbf_inf, y_rbf_inf), cp_rbf_inf, (x_grid, y_target), method='linear')
+                    cp_interpolated_rbf_full = np.concatenate((cp_interpolated_rbf_inf, cp_interpolated_rbf))
+                    sub_ax.scatter(x_airfoil_normalized_full, -cp_interpolated_rbf_full, marker="P", label=f"RBF-FOM e: {error_rbf_fom:.2E}", s=2)
+
+                sub_ax.set_title(f'Section y/b = {np.round(y_target/b,2)}')
+                sub_ax.set_xlabel('x')
+                sub_ax.set_ylabel('-Cp')
+
+                if idx == 2:
+                    sub_ax.legend(bbox_to_anchor=(1.04, 1), loc='upper left', borderaxespad=0.0)
+                sub_ax.set_title(f'Section y/b = {np.round(y_target/b,2)}')
+                if idx == 3 or idx == 4 or idx == 5:
+                    sub_ax.set_xlabel('x')
+                if idx == 0 or idx == 3:
+                    sub_ax.set_ylabel('-Cp')
+
+            plt.tight_layout()
+            # plt.show()
+            plt.savefig(f'{capture_directory}/{capture_subdirectory}/2D_CP_{capture_filename}', dpi=200)
+            plt.close('all')
+
+        ########## 3D PLOT #####################################################################
+        if '3D' in plot:        
+            for case in case_type:
+                if case == 'FOM':
+                    vtk_filename = f'Results/vtk_output_{case}_{simulation_type}{id}/MainModelPart_Wing_0_1.vtk'
+                elif case == 'RBF' or case == 'HHROM':
+                    vtk_filename = f'Results/vtk_output_{case}_{mu[0]}, {mu[1]}/MainModelPart_Wing_0_0.vtk'
+                else:
+                    vtk_filename = f'Results/{capture_subdirectory}/vtk_output_{case}_{simulation_type}{id}/MainModelPart_Wing_0_1.vtk'
                 if os.path.exists(vtk_filename):
                     ######################################################################
                     # Cargar el archivo .vtk
@@ -328,15 +412,31 @@ def plot_Cps_2d(mu_list, capture_directory, capture_subdirectory, i=-1):
                     pressure_coeff = surface_mesh.point_data['PRESSURE_COEFFICIENT']
 
                     # Normalizar los valores del coeficiente de presión para mapearlos a la escala de colores
-                    norm = matplotlib.colors.Normalize(vmin=pressure_coeff.min(), vmax=pressure_coeff.max())
-                    cmap = cm.get_cmap('viridis')  # viridis coolwarm
+                    norm = plt.Normalize(vmin=pressure_coeff.min(), vmax=pressure_coeff.max())
+                    cmap = cm.get_cmap('viridis') # viridis coolwarm
 
-                    fig, ax = plt.subplots(figsize=(10, 8))
+                    ax = plt.figure(figsize=(10, 7)).add_subplot(projection='3d')
 
-                    # Crear la triangulación y el mapa de color
-                    triang = tri.Triangulation(points[:, 0], points[:, 1], cells)
-                    contour = ax.tricontour(triang, pressure_coeff, levels=15, cmap='coolwarm', linewidths=0.8)
-                    ax.tricontourf(triang, pressure_coeff, levels=100, cmap=cmap)
+                    triangles = [points[cell] for cell in cells]
+                    facecolors = []
+
+                    for cell in cells:
+                        vertex_colors = cmap(norm(pressure_coeff[cell]))
+                        facecolors.append(np.mean(vertex_colors, axis=0))
+
+                    tri_collection = Poly3DCollection(triangles,
+                                                    facecolors=facecolors, 
+                                                    linewidth=0.2, 
+                                                    edgecolor=facecolors,
+                                                    antialiased=True, 
+                                                    alpha=1.0)
+
+                    ax.add_collection3d(tri_collection)
+                    ax.view_init(elev=30, azim=135) 
+
+                    ax.set_xlim(points[:, 0].min(), points[:, 0].max())
+                    ax.set_ylim(points[:, 1].min(), points[:, 1].max())
+                    ax.set_zlim([-0.25, 0.25])
 
                     # Agregar barra de color y etiquetas
                     mappable = cm.ScalarMappable(norm=norm, cmap='viridis')
@@ -344,34 +444,90 @@ def plot_Cps_2d(mu_list, capture_directory, capture_subdirectory, i=-1):
                     cbar = plt.colorbar(mappable, ax=ax, label='PRESSURE COEFFICIENT', location='right')
                     cbar.ax.tick_params(labelsize=10)
 
-                    # Agregar etiquetas y título
                     ax.set_xlabel('X')
                     ax.set_ylabel('Y')
-                    ax.set_title(f'{case} Pressure distribution - Angle={np.round(mu[0], 3)}, Mach={np.round(mu[1], 3)}', size=13, pad=10)
-                    ax.set_xlim(-0.5, 1.5)  # Ajustar límites si es necesario
-                    ax.set_ylim(-0.75, 1.0)
-
-                    # Guardar la figura
-                    plt.savefig(f'{capture_directory}/{capture_subdirectory}/2D_{case}_{case_name}', dpi=200)
+                    ax.set_zlabel('Z')
+                    ax.set_title(f'{case} Pressure distribution - Angle={np.round(mu[0],3)}, Mach={np.round(mu[1],3)}', size=13, pad=8, y=-0.15)
+                    # plt.show()
+                    plt.savefig(f'{capture_directory}/{capture_subdirectory}/3D_{case}_{capture_filename}', dpi=150)
                     plt.close('all')
+
+        ########## 2D PLOT #####################################################################
+        if '2D' in plot:
+            for case in case_type:
+                if case == 'FOM':
+                    vtk_filename = f'Results/vtk_output_{case}_{simulation_type}{id}/MainModelPart_Wing_0_1.vtk'
+                elif case == 'RBF' or case == 'HHROM':
+                    vtk_filename = f'Results/vtk_output_{case}_{mu[0]}, {mu[1]}/MainModelPart_Wing_0_0.vtk'
+                else:
+                    vtk_filename = f'Results/{capture_subdirectory}/vtk_output_{case}_{simulation_type}{id}/MainModelPart_Wing_0_1.vtk'
+                if os.path.exists(vtk_filename):
+                    ######################################################################
+                    # Cargar el archivo .vtk
+                    mesh = pv.read(vtk_filename)
+
+                    # Extraer la geometría superficial
+                    surface_mesh = mesh.extract_geometry()
+
+                    # Extraer los puntos y las celdas
+                    points = surface_mesh.points
+                    cells = surface_mesh.faces.reshape(-1, 4)[:, 1:4]
+
+                    # Extraer los valores de la variable 'PRESSURE_COEFFICIENT'
+                    pressure_coeff = surface_mesh.point_data['PRESSURE_COEFFICIENT']
+
+                    # Normalizar los valores del coeficiente de presión para mapearlos a la escala de colores
+                    norm = plt.Normalize(vmin=pressure_coeff.min(), vmax=pressure_coeff.max())
+                    cmap = cm.get_cmap('viridis') # viridis coolwarm
+
+                    ax = plt.figure(figsize=(10, 10)).add_subplot()
+                    # EXTRACT Y > 0 POINTS
+                    mask = points[:, 2] > 0
+                    filtered_points = points[mask]
+                    filtered_pressure_coeff = pressure_coeff[mask]
+
+                    index_map = {old_idx: new_idx for new_idx, old_idx in enumerate(np.where(mask)[0])}
+
+                    filtered_cells = []
+                    for cell in cells:
+                        if all(mask[cell]):  
+                            filtered_cells.append([index_map[idx] for idx in cell])
+
+                    triang = tri.Triangulation(filtered_points[:, 0], filtered_points[:, 1], filtered_cells)
+                    
+                    # Gráfico principal
+                    ax.tripcolor(triang, filtered_pressure_coeff, cmap=cmap, linewidth=0.8)
+                    # Gráfico de contorno relleno
+                    # ax.tricontourf(triang, filtered_pressure_coeff, levels=15, cmap=cmap)
+                    # Líneas de contorno negras
+                    ax.tricontour(triang, filtered_pressure_coeff, levels=15, colors='k', linewidths=0.35)
+
+
+                    # Agregar barra de color y etiquetas
+                    mappable = cm.ScalarMappable(norm=norm, cmap='viridis')
+                    mappable.set_array(pressure_coeff)
+                    plt.colorbar(mappable, ax=ax, label='PRESSURE COEFFICIENT', location='right')
+                    ax.set_xlabel('X')
+                    ax.set_ylabel('Y')
+                    ax.set_title(f'{case} Pressure distribution - Angle={np.round(mu[0],3)}, Mach={np.round(mu[1],3)}', size=13, pad=8, y=-0.15)
+                    # plt.show()
+                    plt.savefig(f'{capture_directory}/{capture_subdirectory}/2D_{case}_{capture_filename}', dpi=150)
+                    plt.close('all')
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 if __name__ == "__main__":
 
-    rbf_full = True
-    # constants  = [1, 0.1, 0.01, 1e-3, 1e-4, 1e-5]
-    strategies = ['galerkin']
-    n = 0
+    strategies = ['galerkin','lspg']
+    n = [0, 0]
 
-    mu_train      = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_train')
-    mu_test       = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_test')
-    mu_validation = load_mu_parameters('Mu_history/mu_validation')
-
-    for strategy in strategies:
-        # for constant in constants:
-
-        Plot_Cps(mu_validation, 'Validation'    , f'{strategy}', rbf_full=rbf_full)
-        Plot_Cps(mu_test,       'Test_Captures' , f'{strategy}', rbf_full=rbf_full)
-        Plot_Cps(mu_train,      'Train_Captures', f'{strategy}', rbf_full=rbf_full)
+    for id, strategy in zip(n, strategies):
+        mu_train      = load_mu_parameters(f'Mu_history/{id}_{strategy}_mu_train')
+        mu_test       = load_mu_parameters(f'Mu_history/{id}_{strategy}_mu_test')
+        mu_validation = load_mu_parameters(f'Mu_history/mu_validation')
+        
+        Plot_Cps(mu_validation, 'Validation'    , f'{strategy}', plot=['CP','3D','2D'])
+        Plot_Cps(mu_test      , 'Test_Captures' , f'{strategy}', plot=['CP','3D','2D'])
+        Plot_Cps(mu_train     , 'Train_Captures', f'{strategy}', plot=['CP','3D','2D'])

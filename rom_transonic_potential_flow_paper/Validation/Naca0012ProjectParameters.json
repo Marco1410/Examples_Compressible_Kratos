@@ -24,10 +24,10 @@
         "scheme_settings"          : {
             "is_transonic": true,
             "initial_critical_mach"          : 0.80,
-            "initial_upwind_factor_constant" : 4.0,
-            "target_critical_mach"           : 0.95,
-            "target_upwind_factor_constant"  : 1.2,
-            "update_relative_residual_norm"  : 1e-3,
+            "initial_upwind_factor_constant" : 3.0,
+            "target_critical_mach"           : 0.90,
+            "target_upwind_factor_constant"  : 1.5,
+            "update_relative_residual_norm"  : 1e-2,
             "mach_number_squared_limit"      : 3.0
         },
         "maximum_iterations"       : 50,
@@ -144,6 +144,29 @@
                    },
                    "point_data_configuration"  : []
                }
+           }
+       }]
+       ,
+       "vtk_output" : [{
+           "python_module" : "vtk_output_process",
+           "kratos_module" : "KratosMultiphysics",
+           "process_name"  : "VtkOutputProcess",
+           "help"          : "This process writes postprocessing files for Paraview",
+           "Parameters"    : {
+               "model_part_name"                    : "MainModelPart",
+               "output_control_type"                : "step",
+               "output_interval"                    : 1,
+               "file_format"                        : "binary",
+               "output_precision"                   : 7,
+               "output_sub_model_parts"             : true,
+               "output_path"                        : "vtk_output",
+               "save_output_files_in_folder"        : true,
+               "nodal_solution_step_data_variables" : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL","DISTANCE_GRADIENT"],
+               "nodal_data_value_variables"         : ["PRESSURE_COEFFICIENT","VELOCITY","DENSITY",
+                                                       "MACH","POTENTIAL_JUMP","TRAILING_EDGE","WAKE_DISTANCE","WING_TIP"],
+               "element_data_value_variables"       : ["WAKE","KUTTA"],
+               "gauss_point_variables_in_elements"  : ["PRESSURE_COEFFICIENT","VELOCITY","MACH","ACTIVATION_LEVEL"],
+               "condition_data_value_variables"     : []
            }
        }]
    }

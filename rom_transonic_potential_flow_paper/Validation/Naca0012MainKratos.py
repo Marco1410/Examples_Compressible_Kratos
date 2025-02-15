@@ -16,9 +16,9 @@ import time
 import importlib
 import numpy as np
 import matplotlib.pyplot as plt
-import KratosMultiphysics.FluidDynamicsApplication 
+import KratosMultiphysics.FluidDynamicsApplication
 
-import KratosMultiphysics
+import KratosMultiphysics.RomApplication
 
 def CreateAnalysisStageWithFlushInstance(cls, global_model, parameters):
     class AnalysisStageWithFlush(cls):

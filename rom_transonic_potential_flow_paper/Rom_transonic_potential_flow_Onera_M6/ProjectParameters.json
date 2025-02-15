@@ -24,9 +24,9 @@
         "scheme_settings" :{
             "is_transonic": true,
             "initial_critical_mach"          : 0.80,
-            "initial_upwind_factor_constant" : 5.0,
-            "target_critical_mach"           : 0.92,
-            "target_upwind_factor_constant"  : 2.0,
+            "initial_upwind_factor_constant" : 3.0,
+            "target_critical_mach"           : 0.95,
+            "target_upwind_factor_constant"  : 1.6,
             "update_relative_residual_norm"  : 1e-2,
             "mach_number_squared_limit"      : 3.0
         }, 
@@ -36,12 +36,12 @@
             "solver_type": "fallback_linear_solver",
             "solvers"    : [
                 {
+                    "solver_type": "LinearSolversApplication.pardiso_lu"
+                },
+                {
                     "solver_type"  : "LinearSolversApplication.amgcl",
                     "max_iteration": 400,
                     "tolerance"    : 1e-9
-                },
-                {
-                    "solver_type": "LinearSolversApplication.pardiso_lu"
                 }
             ]
         },

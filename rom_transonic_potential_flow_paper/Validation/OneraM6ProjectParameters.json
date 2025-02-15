@@ -24,9 +24,9 @@
         "scheme_settings"          : {
             "is_transonic": true,
             "initial_critical_mach"          : 0.80,
-            "initial_upwind_factor_constant" : 5.0,
-            "target_critical_mach"           : 0.92,
-            "target_upwind_factor_constant"  : 2.0,
+            "initial_upwind_factor_constant" : 3.0,
+            "target_critical_mach"           : 0.95,
+            "target_upwind_factor_constant"  : 1.6,
             "update_relative_residual_norm"  : 1e-2,
             "mach_number_squared_limit"      : 3.0
         },
@@ -90,15 +90,15 @@
                 "body_model_part_name" : "MainModelPart.Wing",
                 "wake_stl_file_name" : "",   
                 "wake_process_cpp_parameters":    {
-                    "tolerance"                     : 1e-9,
-                    "wake_normal"                   : [0.0,0.0,1.0],
-                    "switch_wake_normal"            : false,
-                    "count_elements_number"         : false,
-                    "write_elements_ids_to_file"    : false,
-                    "shed_wake_from_trailing_edge"  : true,
-                    "shedded_wake_distance"         : 12.0,
-                    "shedded_wake_element_size"     : 0.01,
-                    "shedded_grow_factor"           : 1.1,
+                    "tolerance"                    : 1e-9,
+                    "wake_normal"                  : [0.0,0.0,1.0],
+                    "switch_wake_normal"           : false,
+                    "count_elements_number"        : false,
+                    "write_elements_ids_to_file"   : false,
+                    "shed_wake_from_trailing_edge" : true,
+                    "shedded_wake_distance"        : 12.0,
+                    "shedded_wake_element_size"    : 0.01,
+                    "shedded_grow_factor"          : 1.1,
                     "echo_level": 1
                 }
              }
@@ -155,6 +155,29 @@
                    },
                    "point_data_configuration"  : []
                }
+           }
+       }]
+       ,
+       "vtk_output" : [{
+           "python_module" : "vtk_output_process",
+           "kratos_module" : "KratosMultiphysics",
+           "process_name"  : "VtkOutputProcess",
+           "help"          : "This process writes postprocessing files for Paraview",
+           "Parameters"    : {
+               "model_part_name"                    : "MainModelPart",
+               "output_control_type"                : "step",
+               "output_interval"                    : 1,
+               "file_format"                        : "binary",
+               "output_precision"                   : 7,
+               "output_sub_model_parts"             : true,
+               "output_path"                        : "vtk_output",
+               "save_output_files_in_folder"        : true,
+               "nodal_solution_step_data_variables" : ["VELOCITY_POTENTIAL","AUXILIARY_VELOCITY_POTENTIAL"],
+               "nodal_data_value_variables"         : ["PRESSURE_COEFFICIENT","VELOCITY","DENSITY",
+                                                       "MACH","POTENTIAL_JUMP","TRAILING_EDGE","WAKE_DISTANCE","WING_TIP"],
+               "element_data_value_variables"       : ["WAKE","KUTTA"],
+               "gauss_point_variables_in_elements"  : ["PRESSURE_COEFFICIENT","VELOCITY","MACH"],
+               "condition_data_value_variables"     : []
            }
        }]
    }

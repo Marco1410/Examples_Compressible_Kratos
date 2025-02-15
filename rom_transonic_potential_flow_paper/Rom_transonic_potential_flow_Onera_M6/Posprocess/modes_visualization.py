@@ -1,8 +1,10 @@
 import os
 import importlib
 import numpy as np
+import matplotlib.pyplot as plt
 import KratosMultiphysics
 import KratosMultiphysics.kratos_utilities
+from KratosMultiphysics.RomApplication.rom_database import RomDatabase
 import KratosMultiphysics.CompressiblePotentialFlowApplication as CPFApp
 from KratosMultiphysics.gid_output_process import GiDOutputProcess
 from KratosMultiphysics.vtk_output_process import VtkOutputProcess
@@ -104,26 +106,139 @@ def _GetAnalysisStageClass(parameters):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-# save parameters
+# load parameters
 #
-def Plot_Modes(modes_to_plot):
-    #Disable logs
-    KratosMultiphysics.Logger.GetDefaultOutput().SetSeverity(KratosMultiphysics.Logger.Severity.WARNING)
+def load_mu_parameters(name):
+    filename = f'{name}.npy'
+    if os.path.exists(filename):
+        mu_npy = np.load(filename)
+        mu =  [mu.tolist() for mu in mu_npy]
+    else:
+        mu = []
+    return mu
 
-    for mode in modes_to_plot:
-        case_name = f'{mode}'
-        phi_path = f"rom_data/RightBasisMatrix.npy"
-        if os.path.exists(phi_path):
-            mode_values = np.load(phi_path)[:,mode]
-            LaunchFakeSimulation(mode_values, mode)
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+def GetRomManagerParameters():
+    general_rom_manager_parameters = KratosMultiphysics.Parameters("""{
+            "rom_stages_to_train" : ["ROM"],            // ["ROM","HROM"]
+            "rom_stages_to_test"  : ["ROM"],            // ["ROM","HROM"]
+            "paralellism" : null,                       // null, TODO: add "compss"
+            "projection_strategy": "galerkin",          // "lspg", "galerkin", "petrov_galerkin"
+            "type_of_decoder" : "linear",               // "linear" "ann_enhanced",  TODO: add "quadratic"
+            "assembling_strategy": "global",            // "global", "elemental"
+            "save_gid_output": true,                    // false, true #if true, it must exits previously in the ProjectParameters.json
+            "save_vtk_output": true,                   // false, true #if true, it must exits previously in the ProjectParameters.json
+            "output_name": "id",                        // "id" , "mu"
+            "store_nonconverged_fom_solutions": true,
+            "ROM":{
+                "svd_truncation_tolerance": 1e-12,
+                "print_singular_values": true,
+                "use_non_converged_sols" : false,
+                "model_part_name": "MainModelPart",                         // This changes depending on the simulation: Structure, FluidModelPart, ThermalPart #TODO: Idenfity it automatically
+                "nodal_unknowns": ["VELOCITY_POTENTIAL", "AUXILIARY_VELOCITY_POTENTIAL"],     // Main unknowns. Snapshots are taken from these
+                "rom_basis_output_format": "numpy",
+                "rom_basis_output_name": "RomParameters",
+                "rom_basis_output_folder": "rom_data",
+                "snapshots_control_type": "step",                          // "step", "time"
+                "snapshots_interval": 1,
+                "galerkin_rom_bns_settings": {
+                    "monotonicity_preserving": false
+                },
+                "lspg_rom_bns_settings": {
+                    "train_petrov_galerkin": false,
+                    "basis_strategy": "reactions",                        // 'residuals', 'jacobian', 'reactions'
+                    "include_phi": false,
+                    "svd_truncation_tolerance": 0,
+                    "solving_technique": "normal_equations",              // 'normal_equations', 'qr_decomposition'
+                    "monotonicity_preserving": false
+                },
+                "petrov_galerkin_rom_bns_settings": {
+                    "monotonicity_preserving": false
+                },
+                "ann_enhanced_settings": {
+                    "modes":[5,50],
+                    "layers_size":[200,200],
+                    "batch_size":2,
+                    "epochs":800,
+                    "NN_gradient_regularisation_weight": 0.0,
+                    "lr_strategy":{
+                        "scheduler": "sgdr",
+                        "base_lr": 0.001,
+                        "additional_params": [1e-4, 10, 400]
+                    },
+                    "training":{
+                        "retrain_if_exists" : false  // If false only one model will be trained for each the mu_train and NN hyperparameters combination
+                    },
+                    "online":{
+                        "model_number": 0   // out of the models existing for the same parameters, this is the model that will be lauched
+                    }
+                }
+            },
+            "HROM":{
+                "element_selection_type": "empirical_cubature",
+                "element_selection_svd_truncation_tolerance": 1e-12,
+                "create_hrom_visualization_model_part" : true,
+                "echo_level" : 1,                                       
+                "hrom_format": "numpy",
+                "initial_candidate_elements_model_part_list" : [],
+                "initial_candidate_conditions_model_part_list" : [],
+                "include_nodal_neighbouring_elements_model_parts_list":[],
+                "include_minimum_condition": false,
+                "include_condition_parents": true
+            }
+        }""")
 
+    return general_rom_manager_parameters
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 if __name__ == "__main__":
 
-    modes_to_plot = [0,1,2,3]
+    modes_to_plot = [0, 1, 2, 3]
+    strategies = ['galerkin','lspg']
+    n = [0, 0]
 
-    Plot_Modes(modes_to_plot)
+    #Disable logs
+    KratosMultiphysics.Logger.GetDefaultOutput().SetSeverity(KratosMultiphysics.Logger.Severity.WARNING)
+    
+    for id, strategy in zip(n, strategies):
+
+        prefix = f'{id}_{strategy}'
+        mu_train = load_mu_parameters(f'Mu_history/{prefix}_mu_train')
+        
+        general_rom_manager_parameters = GetRomManagerParameters()
+        general_rom_manager_parameters["projection_strategy"].SetString(strategy)
+        data_base = RomDatabase(general_rom_manager_parameters, mu_names=None)
+
+        is_sigma_in_database, hash_sigma = data_base.check_if_in_database("SingularValues_Solution", mu_train)
+        if is_sigma_in_database:
+            s = data_base.get_single_numpy_from_database(hash_sigma)
+
+            valores_singulares = np.sort(s)[::-1]
+
+            suma_acumulada = np.cumsum(valores_singulares)
+
+            suma_acumulada_normalizada = suma_acumulada / suma_acumulada[-1]
+
+            decaimiento = 1 - suma_acumulada_normalizada
+
+            plt.figure(figsize=(10, 6))
+            plt.semilogy(range(len(valores_singulares)), decaimiento, marker='x', markersize=5, linestyle='', color='b')
+            plt.title('Singular values decay')
+            plt.xlabel('Singular value index')
+            plt.ylabel('Decay')
+            plt.grid(True, which="both", ls="--")
+            plt.savefig(f'Singular_values_decay_{prefix}.pdf', bbox_inches='tight')
+            # plt.show()
+            plt.close()
+
+        is_basis_in_database, hash_basis = data_base.check_if_in_database("RightBasis", mu_train)
+        if is_basis_in_database:
+            
+            phi = data_base.get_single_numpy_from_database(hash_basis)
+
+            for mode in modes_to_plot:
+                mode_values = phi[:,mode]
+                LaunchFakeSimulation(mode_values, mode, prefix)

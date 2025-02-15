@@ -9,13 +9,13 @@
 ######################  doi:10.2514/3.9910
 #####################################################################################################
 
-import KratosMultiphysics
 import sys
 import os
 import time
 import importlib
 import numpy as np
 import matplotlib.pyplot as plt
+import KratosMultiphysics
 import KratosMultiphysics.RomApplication 
 
 
@@ -82,6 +82,7 @@ if __name__ == "__main__":
         parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["angle_of_attack"].SetDouble(angle_of_attack)
         parameters["processes"]["boundary_conditions_process_list"][0]["Parameters"]["mach_infinity"].SetDouble(mach_infinity)
         parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].SetString(f'Results_Korn/{angle_of_attack}, {mach_infinity}')
+        parameters["output_processes"]["vtk_output"][0]["Parameters"]["output_path"].SetString(f'Results_Korn/{angle_of_attack}, {mach_infinity}')
 
         if (mach_infinity == 0.75 and angle_of_attack == 0.2):
             # input('0')

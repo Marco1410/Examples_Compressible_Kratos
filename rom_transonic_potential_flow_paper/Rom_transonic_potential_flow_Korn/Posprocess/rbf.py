@@ -106,30 +106,31 @@ if __name__ == "__main__":
 
     full = True
 
-    strategies = ['galerkin']
-    n = 0
+    strategies = ['galerkin','lspg']
+    n = [0, 0]
 
-    mu_train      = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_train')
-    mu_train_not_scaled = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_train_not_scaled')
+    for id, strategy in zip(n, strategies):
+        mu_train      = load_mu_parameters(f'Mu_history/{id}_{strategy}_mu_train')
+        mu_train_not_scaled = load_mu_parameters(f'Mu_history/{id}_{strategy}_mu_train_not_scaled')
 
-    mu_test       = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_test')
-    mu_test_not_scaled = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_test_not_scaled')
+        mu_test       = load_mu_parameters(f'Mu_history/{id}_{strategy}_mu_test')
+        mu_test_not_scaled = load_mu_parameters(f'Mu_history/{id}_{strategy}_mu_test_not_scaled')
 
-    mu_validation = load_mu_parameters(f'Mu_history/mu_validation')
-    mu_validation_not_scaled = load_mu_parameters(f'Mu_history/mu_validation_not_scaled')
+        mu_validation = load_mu_parameters(f'Mu_history/mu_validation')
+        mu_validation_not_scaled = load_mu_parameters(f'Mu_history/mu_validation_not_scaled')
 
-    if len(mu_train) >= 3:
-        RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 
-                    mu_test = mu_train + mu_test, mu_test_not_scaled  = mu_train_not_scaled + mu_test_not_scaled, full=full)
-        RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 
-                    mu_test = mu_validation, mu_test_not_scaled  = mu_validation_not_scaled, full=full)
+        if len(mu_train) >= 3:
+            RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 
+                        mu_test = mu_train + mu_test, mu_test_not_scaled  = mu_train_not_scaled + mu_test_not_scaled, full=full)
+            RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 
+                        mu_test = mu_validation, mu_test_not_scaled  = mu_validation_not_scaled, full=full)
 
 
-    if len(mu_train) >= 3:
-        print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
-        RBF_error_estimation(mu_train, mu_test, full=full)
-        print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
-        print('Validation Error::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
-        print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
-        RBF_error_estimation(mu_train, mu_validation, full=full)
-        print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
+        if len(mu_train) >= 3:
+            print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
+            RBF_error_estimation(mu_train, mu_test, full=full)
+            print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
+            print('Validation Error::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
+            print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
+            RBF_error_estimation(mu_train, mu_validation, full=full)
+            print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')

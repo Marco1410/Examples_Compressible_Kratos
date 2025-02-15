@@ -475,11 +475,11 @@ if __name__ == "__main__":
     update_parameters  = True
     update_mu_test     = True
     VALIDATION         = True
-    number_of_mu_train = 3
-    number_of_mu_test  = 1
+    number_of_mu_train = 30
+    number_of_mu_test  = 50
     alpha              = 0.75
     beta               = 0.75
-    strategies         = ['galerkin']
+    strategies         = ['galerkin','lspg']
     # ADAPTIVE SAMPLING #############
     adapt              = True
     initial_fit        = True
@@ -490,11 +490,12 @@ if __name__ == "__main__":
     constant_range     = [1e-6, 10]
     tolerance          = 1e-9
     iterations         = 15
-    mu_prefix          = f'2_{strategies[0]}_'
+    # mu_prefix          = f'2_{strategies[0]}_'
+    mu_prefix          = ''
     #################################
     angle_range        = [ 2.95, 3.15]
     mach_range         = [ 0.83, 0.85]
-    relaunch_FOM       = True 
+    relaunch_FOM       = False 
     relaunch_ROM       = True
     rebuild_phi        = True 
     ###############################
@@ -531,22 +532,21 @@ if __name__ == "__main__":
         for name in folder_names:
             if not os.path.exists(name):
                 os.mkdir(name)
-        if mu_prefix == '':
-            mu_train = load_mu_parameters('mu_train')
-            mu_train_not_scaled = load_mu_parameters('mu_train_not_scaled')
-            mu_test = load_mu_parameters('mu_test')
-            mu_test_not_scaled = load_mu_parameters('mu_test_not_scaled')
-        else:
-            mu_train = load_mu_parameters(f'{mu_prefix}mu_train')
-            mu_train_not_scaled = load_mu_parameters(f'{mu_prefix}mu_train_not_scaled')
-            mu_test = load_mu_parameters(f'{mu_prefix}mu_test')
-            mu_test_not_scaled = load_mu_parameters(f'{mu_prefix}mu_test_not_scaled')
-        mu_validation = load_mu_parameters('mu_validation')
-        mu_validation_not_scaled = load_mu_parameters('mu_validation_not_scaled')
-        plot_mu_values(mu_train, mu_test, mu_validation, 'MuValues')
 
     if adapt:
         for strategy in strategies:
+            if mu_prefix == '':
+                mu_train = load_mu_parameters('mu_train')
+                mu_train_not_scaled = load_mu_parameters('mu_train_not_scaled')
+                mu_test = load_mu_parameters('mu_test')
+                mu_test_not_scaled = load_mu_parameters('mu_test_not_scaled')
+            else:
+                mu_train = load_mu_parameters(f'{mu_prefix}mu_train')
+                mu_train_not_scaled = load_mu_parameters(f'{mu_prefix}mu_train_not_scaled')
+                mu_test = load_mu_parameters(f'{mu_prefix}mu_test')
+                mu_test_not_scaled = load_mu_parameters(f'{mu_prefix}mu_test_not_scaled')
+            mu_validation = load_mu_parameters('mu_validation')
+            mu_validation_not_scaled = load_mu_parameters('mu_validation_not_scaled')
 
             resume = []; run_error = 0.0; case = 'ROMvsFOM'
 
@@ -612,9 +612,6 @@ if __name__ == "__main__":
                 run_fom = np.block(run_fom)
                 if any(item == "ROM" for item in training_stages):
                     run_rom = np.block(run_rom)
-
-            if VALIDATION:
-                if any(item == "ROM" for item in training_stages):
                     run_error = np.linalg.norm(run_fom-run_rom)/np.linalg.norm(run_fom)
             
             resume.append([strategy, case, len(mu_train), rom_manager.ROMvsFOM['Fit'], len(mu_test), rom_manager.ROMvsFOM['Test'], len(mu_validation), run_error])
@@ -635,9 +632,24 @@ if __name__ == "__main__":
                 for item in resume:
                     hoja.append(item)
                 wb.save('resume.xlsx')
+                 
+            initial_fit = True #RESET STRATEGY
 
     if optimize:
         for strategy, optimal_constant in zip(strategies, optimal_constants):
+            if mu_prefix == '':
+                mu_train = load_mu_parameters('mu_train')
+                mu_train_not_scaled = load_mu_parameters('mu_train_not_scaled')
+                mu_test = load_mu_parameters('mu_test')
+                mu_test_not_scaled = load_mu_parameters('mu_test_not_scaled')
+            else:
+                mu_train = load_mu_parameters(f'{mu_prefix}mu_train')
+                mu_train_not_scaled = load_mu_parameters(f'{mu_prefix}mu_train_not_scaled')
+                mu_test = load_mu_parameters(f'{mu_prefix}mu_test')
+                mu_test_not_scaled = load_mu_parameters(f'{mu_prefix}mu_test_not_scaled')
+            mu_validation = load_mu_parameters('mu_validation')
+            mu_validation_not_scaled = load_mu_parameters('mu_validation_not_scaled')
+
             if optimal_constant < 0:
                 # Error minimization
                 if strategy=='galerkin':

@@ -148,6 +148,7 @@ def CustomizeSimulation(cls, global_model, parameters, mu, constant):
             if len(mu) > 0:
                 self.case_name = f'{mu[0]}, {mu[1]}'
                 self.case_subname = f'{constant[0]}_{constant[1]}' if constant[1] > 0 else f'{constant[0]}'
+                self.simulation_name = []
 
             if parameters["output_processes"].Has("gid_output"):
                 self.simulation_name = parameters["output_processes"]["gid_output"][0]["Parameters"]["output_name"].GetString().removeprefix('Results/')
@@ -157,8 +158,8 @@ def CustomizeSimulation(cls, global_model, parameters, mu, constant):
                     vtk_output_name = parameters["output_processes"]["vtk_output"][0]["Parameters"]["output_path"].GetString().removeprefix('Results/')
                     parameters["output_processes"]["vtk_output"][0]["Parameters"]["output_path"].SetString(f'Results/{self.case_subname}/{vtk_output_name}')
 
-                # if 'ROM' in self.simulation_name: # Use Neton Raphson for rom simulations
-                #     parameters["solver_settings"]["solving_strategy_settings"]["type"].SetString("newton_raphson")
+                if 'ROM' in self.simulation_name: # Use Line Search or Newton Raphson for rom simulations
+                    parameters["solver_settings"]["solving_strategy_settings"]["type"].SetString(constant[2])
             
         def InitializeSolutionStep(self):
             super().InitializeSolutionStep()
@@ -219,13 +220,20 @@ def CustomizeSimulation(cls, global_model, parameters, mu, constant):
 
                     np.save(f'{case}_Snapshots/{self.case_name}',fom)
 
-                    if case_type == 'train_fom': #Only for train FOM
-                        modelpart = self.model["MainModelPart"]
-                        fout = open("selected_elements_list.txt",'a') #Elements list for rom approximation
-                        for elem in modelpart.Elements:
-                            if elem.GetValue(KratosMultiphysics.ACTIVATION_LEVEL):
-                                fout.write("%s\n" %(elem.Id))
-                        fout.close()
+                    modelpart = self.model["MainModelPart"]
+                    fout = open(f"Selected_elements_lists/{self.case_name}.txt",'a') #Elements list for rom approximation
+                    for elem in modelpart.Elements:
+                        if elem.GetValue(KratosMultiphysics.ACTIVATION_LEVEL):
+                            fout.write("%s\n" %(elem.Id))
+                    fout.close()
+
+                    if not os.path.exists('rom_data/NodeIds.npy'):
+                        # Storing modes in Numpy format
+                        node_ids = []
+                        for node in modelpart.Nodes:
+                            node_ids.append(node.Id)
+                        node_ids = np.array(node_ids)
+                        np.save('rom_data/NodeIds.npy',node_ids)
                     
                 elif 'ROM' in self.simulation_name:
                     case = 'ROM'
@@ -326,7 +334,7 @@ def GetRomManagerParameters():
             "output_name": "id",                        // "id" , "mu"
             "store_nonconverged_fom_solutions": true,
             "ROM":{
-                "svd_truncation_tolerance": 1e-12,
+                "svd_truncation_tolerance": 1e-4,
                 "print_singular_values": true,
                 "use_non_converged_sols" : false,
                 "model_part_name": "MainModelPart",                         // This changes depending on the simulation: Structure, FluidModelPart, ThermalPart #TODO: Idenfity it automatically
@@ -369,9 +377,44 @@ def GetRomManagerParameters():
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+def extract_unique_elements(mu_train, folder='Selected_elements_lists', output_file='selected_elements_list.txt'):
+    unique_elements = set()
+    
+    for mu in mu_train:
+        filename = f"{mu[0]}, {mu[1]}.txt"
+        filepath = os.path.join(folder, filename)
+        
+        if os.path.exists(filepath):
+            with open(filepath, 'r') as f:
+                for line in f:
+                    try:
+                        unique_elements.add(int(line.strip()))
+                    except ValueError:
+                        pass  # Ignorar líneas que no sean enteros
+        else:
+            print(f"Archivo no encontrado: {filepath}")
+    
+    # Guardar los valores únicos en el archivo de salida
+    with open(output_file, 'w') as f:
+        for elem in sorted(unique_elements):
+            f.write(f"{elem}\n")
+    
+    print(f"Lista única de elementos guardada en {output_file}")
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 def evaluate_constant_lspg(constant):
-    strategy = 'lspg'
     case = 'ROMvsFOM'
+    strategy = 'lspg'
+    mu_prefix, solver_strategy = Global_Settings(strategy)
+
+    if mu_prefix == '':
+        mu_train = load_mu_parameters('mu_train')
+        mu_test  = load_mu_parameters('mu_test')
+    else:
+        mu_train = load_mu_parameters(f'{mu_prefix}mu_train')
+        mu_test  = load_mu_parameters(f'{mu_prefix}mu_test')
+
     general_rom_manager_parameters = GetRomManagerParameters()
     project_parameters_name = "ProjectParameters.json"
     general_rom_manager_parameters["projection_strategy"].SetString(strategy)
@@ -379,15 +422,15 @@ def evaluate_constant_lspg(constant):
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
                             CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
                             relaunch_FOM=False, relaunch_ROM=True, 
-                            rebuild_phi=True, constant=[strategy,constant])
+                            rebuild_phi=True, constant=[strategy, constant, solver_strategy])
     
-    rom_manager.Fit(mu_train=load_mu_parameters(f'0_{strategy}_mu_train'))
-    rom_manager.Test(load_mu_parameters(f'0_{strategy}_mu_test'))
+    rom_manager.Fit(mu_train=mu_train)
+    rom_manager.Test(mu_test=mu_test)
     
     resume = []
     resume.append([strategy, case, constant, 
-                   len(load_mu_parameters(f'0_{strategy}_mu_train')), rom_manager.ROMvsFOM['Fit'],
-                   len(load_mu_parameters(f'0_{strategy}_mu_test')), rom_manager.ROMvsFOM['Test']])
+                   len(mu_train), rom_manager.ROMvsFOM['Fit'],
+                   len(mu_test), rom_manager.ROMvsFOM['Test']])
 
     if os.path.exists('resume.xlsx'):
         wb = openpyxl.load_workbook('resume.xlsx')
@@ -412,8 +455,17 @@ def evaluate_constant_lspg(constant):
         return rom_manager.ROMvsFOM['Fit']
 
 def evaluate_constant_galerkin(constant):
-    strategy = 'galerkin'
     case = 'ROMvsFOM'
+    strategy = 'galerkin'
+    mu_prefix, solver_strategy = Global_Settings(strategy)
+
+    if mu_prefix == '':
+        mu_train = load_mu_parameters('mu_train')
+        mu_test  = load_mu_parameters('mu_test')
+    else:
+        mu_train = load_mu_parameters(f'{mu_prefix}mu_train')
+        mu_test  = load_mu_parameters(f'{mu_prefix}mu_test')
+
     general_rom_manager_parameters = GetRomManagerParameters()
     project_parameters_name = "ProjectParameters.json"
     general_rom_manager_parameters["projection_strategy"].SetString(strategy)
@@ -421,15 +473,15 @@ def evaluate_constant_galerkin(constant):
     rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
                             CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
                             relaunch_FOM=False, relaunch_ROM=True, 
-                            rebuild_phi=True, constant=[strategy,constant])
+                            rebuild_phi=True, constant=[strategy, constant, solver_strategy])
 
-    rom_manager.Fit(mu_train=load_mu_parameters(f'0_{strategy}_mu_train'))
-    rom_manager.Test(load_mu_parameters(f'0_{strategy}_mu_test'))
+    rom_manager.Fit(mu_train=mu_train)
+    rom_manager.Test(mu_test=mu_test)
 
     resume = []
     resume.append([strategy, case, constant, 
-                   len(load_mu_parameters(f'0_{strategy}_mu_train')), rom_manager.ROMvsFOM['Fit'],
-                   len(load_mu_parameters(f'0_{strategy}_mu_test')), rom_manager.ROMvsFOM['Test']])
+                   len(mu_train), rom_manager.ROMvsFOM['Fit'],
+                   len(mu_test=mu_test), rom_manager.ROMvsFOM['Test']])
 
     if os.path.exists('resume.xlsx'):
         wb = openpyxl.load_workbook('resume.xlsx')
@@ -455,14 +507,29 @@ def evaluate_constant_galerkin(constant):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+def Global_Settings(strategy):
+    if strategy == 'galerkin':
+        n = 0
+        mu_prefix = f'{n}_{strategy}_'
+
+    elif strategy == 'lspg':
+        n = 0
+        mu_prefix = f'{n}_{strategy}_'
+
+    # solver_strategy = 'line_search'
+    solver_strategy = 'newton_raphson'
+    mu_prefix = ''
+
+    return mu_prefix, solver_strategy
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 
 if __name__ == "__main__":
 
-    folder_names = ["FOM_Snapshots"  , "FOM_Skin_Data", 
-                    "ROM_Snapshots"  , "ROM_Skin_Data", 
-                    "RBF_Snapshots"  , "RBF_Skin_Data", 
-                    "Train_Captures" , "Test_Captures", "Validation", "Mu_history"]
+    folder_names = ["FOM_Snapshots", "FOM_Skin_Data", "ROM_Snapshots"  , "ROM_Skin_Data",
+                    "Mu_history"   , "Selected_elements_lists"]
     for name in folder_names:
         if not os.path.exists(name):
             os.mkdir(name)
@@ -472,26 +539,28 @@ if __name__ == "__main__":
     clean_data         = False
     update_parameters  = False
     update_mu_test     = True
-    VALIDATION         = True
-    number_of_mu_train = 35
-    number_of_mu_test  = 150
-    alpha              = 0.75
-    beta               = 0.75
+    VALIDATION         = False
+    number_of_mu_train = 50
+    number_of_mu_test  = 0
+    alpha              = 0.70
+    beta               = 0.70
+    # strategies         = ['galerkin','lspg','petrov_galerkin']
     strategies         = ['lspg']
     # ADAPTIVE SAMPLING #############
     adapt              = False
     initial_fit        = True
-    tolerances_error   = [0.8,0.5,0.2,0.1,0.01]
+    # tolerances_error   = [0.8,0.5,0.2,0.1,0.01]
+    tolerances_error   = []
     # OPTIMIZATION ##################
     optimize           = True
-    optimal_constants  = [-1]
+    # optimal_constants  = [50,0.01]
+    optimal_constants  = [1e-2]
     constant_range     = [1e-6, 10]
     tolerance          = 1e-9
     iterations         = 15
-    mu_prefix          = f'0_{strategies[0]}_'
     #################################
     mach_range         = [0.70, 0.75]
-    angle_range        = [0.00, 1.25]
+    angle_range        = [0.00, 2.00]
     relaunch_FOM       = False 
     relaunch_ROM       = True
     rebuild_phi        = True 
@@ -531,28 +600,28 @@ if __name__ == "__main__":
         if clean_data:
             KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('ROM_data.xlsx')
             KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('resume.xlsx')
-            KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Train_Captures')
-            KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Test_Captures')
-            KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Validation')
         for name in folder_names:
             if not os.path.exists(name):
                 os.mkdir(name)
-        if mu_prefix == '':
-            mu_train = load_mu_parameters('mu_train')
-            mu_train_not_scaled = load_mu_parameters('mu_train_not_scaled')
-            mu_test = load_mu_parameters('mu_test')
-            mu_test_not_scaled = load_mu_parameters('mu_test_not_scaled')
-        else:
-            mu_train = load_mu_parameters(f'{mu_prefix}mu_train')
-            mu_train_not_scaled = load_mu_parameters(f'{mu_prefix}mu_train_not_scaled')
-            mu_test = load_mu_parameters(f'{mu_prefix}mu_test')
-            mu_test_not_scaled = load_mu_parameters(f'{mu_prefix}mu_test_not_scaled')
-        mu_validation = load_mu_parameters('mu_validation')
-        mu_validation_not_scaled = load_mu_parameters('mu_validation_not_scaled')
-        plot_mu_values(mu_train, mu_test, mu_validation, 'MuValues')
 
     if adapt:
+
         for strategy in strategies:
+            mu_prefix, solver_strategy = Global_Settings(strategy)
+            if mu_prefix == '':
+                mu_train = load_mu_parameters('mu_train')
+                mu_train_not_scaled = load_mu_parameters('mu_train_not_scaled')
+                mu_test = load_mu_parameters('mu_test')
+                mu_test_not_scaled = load_mu_parameters('mu_test_not_scaled')
+            else:
+                mu_train = load_mu_parameters(f'{mu_prefix}mu_train')
+                mu_train_not_scaled = load_mu_parameters(f'{mu_prefix}mu_train_not_scaled')
+                mu_test = load_mu_parameters(f'{mu_prefix}mu_test')
+                mu_test_not_scaled = load_mu_parameters(f'{mu_prefix}mu_test_not_scaled')
+            mu_validation = load_mu_parameters('mu_validation')
+
+            KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('selected_elements_list.txt')
+            extract_unique_elements(mu_train)
 
             resume = []; run_error = 0.0; case = 'ROMvsFOM'
 
@@ -563,7 +632,7 @@ if __name__ == "__main__":
             rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
                                     CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
                                     relaunch_FOM=relaunch_FOM, relaunch_ROM=relaunch_ROM, 
-                                    rebuild_phi=rebuild_phi, constant=[strategy, 0])
+                                    rebuild_phi=rebuild_phi, constant=[strategy, 0, solver_strategy])
             
             for i_tol, tolerance in enumerate(tolerances_error):
                 if mu_test==[]: break
@@ -618,9 +687,6 @@ if __name__ == "__main__":
                 run_fom = np.block(run_fom)
                 if any(item == "ROM" for item in training_stages):
                     run_rom = np.block(run_rom)
-
-            if VALIDATION:
-                if any(item == "ROM" for item in training_stages):
                     run_error = np.linalg.norm(run_fom-run_rom)/np.linalg.norm(run_fom)
             
             resume.append([strategy, case, len(mu_train), rom_manager.ROMvsFOM['Fit'], len(mu_test), rom_manager.ROMvsFOM['Test'], len(mu_validation), run_error])
@@ -628,8 +694,6 @@ if __name__ == "__main__":
             if os.path.exists('resume.xlsx'):
                 wb = openpyxl.load_workbook('resume.xlsx')
                 hoja = wb.active
-                hoja.append(('Adaptive sampling','Run case'))
-                hoja.append(('Strategy', 'Case', 'Fit cases', 'Error', 'Test cases', 'Error', 'Validation cases', 'Error'))
                 for item in resume:
                     hoja.append(item)
                 wb.save('resume.xlsx')
@@ -641,9 +705,27 @@ if __name__ == "__main__":
                 for item in resume:
                     hoja.append(item)
                 wb.save('resume.xlsx')
+                 
+            initial_fit = True #RESET STRATEGY
 
     if optimize:
+
         for strategy, optimal_constant in zip(strategies, optimal_constants):
+            mu_prefix, solver_strategy = Global_Settings(strategy)
+            if mu_prefix == '':
+                mu_train = load_mu_parameters('mu_train')
+                mu_test = load_mu_parameters('mu_test')
+            else:
+                mu_train = load_mu_parameters(f'{mu_prefix}mu_train')
+                mu_test = load_mu_parameters(f'{mu_prefix}mu_test')
+            mu_validation = load_mu_parameters('mu_validation')
+
+            # KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting(f'Results/{strategy}_{optimal_constant}')
+            # KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting(f'ROM_Skin_Data/{strategy}_{optimal_constant}')
+            # KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting(f'ROM_Snapshots/{strategy}_{optimal_constant}')
+            KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('selected_elements_list.txt')
+            extract_unique_elements(mu_train)
+
             if optimal_constant < 0:
                 # Error minimization
                 if strategy=='galerkin':
@@ -665,7 +747,7 @@ if __name__ == "__main__":
             rom_manager = RomManager(project_parameters_name,general_rom_manager_parameters,
                                     CustomizeSimulation,UpdateProjectParameters,UpdateMaterialParametersFile,
                                     relaunch_FOM=relaunch_FOM, relaunch_ROM=relaunch_ROM, 
-                                    rebuild_phi=rebuild_phi, constant=[strategy,optimal_constant])
+                                    rebuild_phi=rebuild_phi, constant=[strategy, optimal_constant, solver_strategy])
 
             rom_manager.Fit(mu_train=mu_train)
             rom_manager.Test(mu_test)

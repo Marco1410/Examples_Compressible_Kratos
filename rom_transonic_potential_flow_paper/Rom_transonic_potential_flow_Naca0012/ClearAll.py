@@ -16,6 +16,7 @@ def ClearAll():
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Results')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Modes')
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Mu_history')
+    KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('Selected_elements_lists')
 
     KratosMultiphysics.kratos_utilities.DeleteDirectoryIfExisting('rom_data')
     
@@ -27,6 +28,8 @@ def ClearAll():
 
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('Mu_parameters_cp.pdf')
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('Singular_values_decay.pdf')
+    KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('EnergíaAcumuladaSnapshotsConvergidos.png')
+    KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('EnergíaAcumuladaSnapshotsNoConvergidos.png')
 
     KratosMultiphysics.kratos_utilities.DeleteFileIfExisting('Rom_transonic_potential_flow_Naca0012.post.lst')
 

@@ -77,25 +77,26 @@ def RBF_error_estimation(mu_train, mu_test, full=False):
         training_approximation_error = np.linalg.norm(FOM_model - RBF_model)/np.linalg.norm(FOM_model)
         print(f'RBF training approximation error: {training_approximation_error:.2E}')
 
-    if full:
-        path = f"RBF_Snapshots/{mu_test[0][0]}, {mu_test[0][1]}.npy"
-    else:
-        path = f'RBF_Skin_Data/{mu_test[0][0]}, {mu_test[0][1]}.npy'
+    if len(mu_test) > 0:
+        if full:
+            path = f"RBF_Snapshots/{mu_test[0][0]}, {mu_test[0][1]}.npy"
+        else:
+            path = f'RBF_Skin_Data/{mu_test[0][0]}, {mu_test[0][1]}.npy'
 
-    if len(mu_test)>0 and os.path.exists(path):
-        approximation_error = 0.0
-        FOM_model = []; RBF_model_interpolation = []
-        for mu in mu_test:
-            if full:
-                FOM_model.append(np.array(np.load(f'FOM_Snapshots/{mu[0]}, {mu[1]}.npy')).reshape(-1,1))
-                RBF_model_interpolation.append(np.array(np.load(f"RBF_Snapshots/{mu[0]}, {mu[1]}.npy")).reshape(-1,1))
-            else:
-                FOM_model.append(np.array(np.loadtxt(f'FOM_Skin_Data/{mu[0]}, {mu[1]}.dat', usecols=(3,))).reshape(-1,1))
-                RBF_model_interpolation.append(np.array(np.load(f"RBF_Skin_Data/{mu[0]}, {mu[1]}.npy")).reshape(-1,1))
-        FOM_model = np.block(FOM_model)
-        RBF_model_interpolation = np.block(RBF_model_interpolation)
-        approximation_error = np.linalg.norm(FOM_model - RBF_model_interpolation)/np.linalg.norm(FOM_model)
-        print(f'RBF interpolation approximation error: {approximation_error:.2E}')
+        if len(mu_test)>0 and os.path.exists(path):
+            approximation_error = 0.0
+            FOM_model = []; RBF_model_interpolation = []
+            for mu in mu_test:
+                if full:
+                    FOM_model.append(np.array(np.load(f'FOM_Snapshots/{mu[0]}, {mu[1]}.npy')).reshape(-1,1))
+                    RBF_model_interpolation.append(np.array(np.load(f"RBF_Snapshots/{mu[0]}, {mu[1]}.npy")).reshape(-1,1))
+                else:
+                    FOM_model.append(np.array(np.loadtxt(f'FOM_Skin_Data/{mu[0]}, {mu[1]}.dat', usecols=(3,))).reshape(-1,1))
+                    RBF_model_interpolation.append(np.array(np.load(f"RBF_Skin_Data/{mu[0]}, {mu[1]}.npy")).reshape(-1,1))
+            FOM_model = np.block(FOM_model)
+            RBF_model_interpolation = np.block(RBF_model_interpolation)
+            approximation_error = np.linalg.norm(FOM_model - RBF_model_interpolation)/np.linalg.norm(FOM_model)
+            print(f'RBF interpolation approximation error: {approximation_error:.2E}')
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -103,32 +104,42 @@ def RBF_error_estimation(mu_train, mu_test, full=False):
 
 if __name__ == "__main__":
 
+    folder_names = ["RBF_Snapshots", "RBF_Skin_Data"]
+    for name in folder_names:
+        if not os.path.exists(name):
+            os.mkdir(name)
+
     full = True
 
-    strategies = ['galerkin']
-    n = 0
+    strategies = ['lspg']
+    n = [4, 4]
 
-    mu_train      = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_train')
-    mu_train_not_scaled = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_train_not_scaled')
+    for id, strategy in zip(n, strategies):
+        # mu_train      = load_mu_parameters(f'Mu_history/{id}_{strategy}_mu_train')
+        # mu_train_not_scaled = load_mu_parameters(f'Mu_history/{id}_{strategy}_mu_train_not_scaled')
+        # mu_test       = load_mu_parameters(f'Mu_history/{id}_{strategy}_mu_test')
+        # mu_test_not_scaled = load_mu_parameters(f'Mu_history/{id}_{strategy}_mu_test_not_scaled')
 
-    mu_test       = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_test')
-    mu_test_not_scaled = load_mu_parameters(f'Mu_history/{n}_{strategies[0]}_mu_test_not_scaled')
+        mu_train            = load_mu_parameters('Mu_history/mu_train')
+        mu_train_not_scaled = load_mu_parameters('Mu_history/mu_train_not_scaled')
+        mu_test             = load_mu_parameters('Mu_history/mu_test')
+        mu_test_not_scaled  = load_mu_parameters('Mu_history/mu_test_not_scaled')
 
-    mu_validation = load_mu_parameters(f'Mu_history/mu_validation')
-    mu_validation_not_scaled = load_mu_parameters(f'Mu_history/mu_validation_not_scaled')
+        mu_validation = load_mu_parameters('Mu_history/mu_validation')
+        mu_validation_not_scaled = load_mu_parameters('Mu_history/mu_validation_not_scaled')
 
-    if len(mu_train) >= 3:
-        RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 
-                    mu_test = mu_train + mu_test, mu_test_not_scaled  = mu_train_not_scaled + mu_test_not_scaled, full=full)
-        RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 
-                    mu_test = mu_validation, mu_test_not_scaled  = mu_validation_not_scaled, full=full)
+        if len(mu_train) >= 3:
+            RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 
+                        mu_test = mu_train + mu_test, mu_test_not_scaled  = mu_train_not_scaled + mu_test_not_scaled, full=full)
+            RBF_prediction(mu_train = mu_train, mu_train_not_scaled = mu_train_not_scaled, 
+                        mu_test = mu_validation, mu_test_not_scaled  = mu_validation_not_scaled, full=full)
 
 
-    if len(mu_train) >= 3:
-        print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
-        RBF_error_estimation(mu_train, mu_test, full=full)
-        print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
-        print('Validation Error::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
-        print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
-        RBF_error_estimation(mu_train, mu_validation, full=full)
-        print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
+        if len(mu_train) >= 3:
+            print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
+            RBF_error_estimation(mu_train, mu_test, full=full)
+            print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
+            print('Validation Error::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
+            print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
+            RBF_error_estimation(mu_train, mu_validation, full=full)
+            print('::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')

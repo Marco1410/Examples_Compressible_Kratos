@@ -32,6 +32,7 @@
         },
         "maximum_iterations"       : 50,
         "echo_level"               : 1,
+        "compute_reactions"        : false,
         "solving_strategy_settings": {
             "type": "line_search",
             "advanced_settings" : {
@@ -64,7 +65,7 @@
         "assign_neighbour_elements_to_conditions": true,
         "no_skin_parts"            : [],
         "reform_dofs_at_each_step" : false,
-        "auxiliary_variables_list" : ["DISTANCE_GRADIENT"]
+        "auxiliary_variables_list" : ["DISTANCE_GRADIENT","TEMPERATURE"]
     },
     "processes"        : {
         "initial_conditions_process_list"  : [],
@@ -139,7 +140,7 @@
                        "plane_output"        : [],
                        "nodal_nonhistorical_results": ["VELOCITY","PRESSURE_COEFFICIENT","DENSITY","NODAL_AREA",
                                                         "POTENTIAL_JUMP","TRAILING_EDGE","WAKE_DISTANCE","WING_TIP"],
-                       "nodal_results"       : ["VELOCITY_POTENTIAL", "AUXILIARY_VELOCITY_POTENTIAL","DISTANCE_GRADIENT"],
+                       "nodal_results"       : ["VELOCITY_POTENTIAL", "AUXILIARY_VELOCITY_POTENTIAL","DISTANCE_GRADIENT","TEMPERATURE"],
                        "gauss_point_results" : ["WAKE","KUTTA","MACH","DENSITY","ACTIVATION_LEVEL"]
                    },
                    "point_data_configuration"  : []
