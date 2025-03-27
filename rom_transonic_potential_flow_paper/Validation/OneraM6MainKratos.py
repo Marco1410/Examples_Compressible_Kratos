@@ -80,7 +80,7 @@ if __name__ == "__main__":
     ##########################
     # SELECT WHICH MODEL TO SHOW
     FE_KRATOS       = True
-    FE_KRATOS_INIGO = False
+    FE_KRATOS_INIGO = True
     EXPERIMENTAL    = True
     FV_POTENTIAL    = True
     ##########################

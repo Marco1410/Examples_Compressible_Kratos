@@ -13,7 +13,8 @@
         "solver_type"              : "potential_flow",
         "model_import_settings"    : {
             "input_type"     : "mdpa",
-            "input_filename" : "../Rom_transonic_potential_flow_Onera_M6/Mesh/Fluid"
+            // "input_filename" : "../Rom_transonic_potential_flow_Onera_M6/Mesh/Fluid"
+            "input_filename" : "../Rom_transonic_potential_flow_Onera_M6/Mesh/OneraM6"
         },
         "material_import_settings" : {
             "materials_filename" : ""
@@ -50,12 +51,12 @@
             "solver_type": "fallback_linear_solver",
             "solvers"    : [
                 {
+                    "solver_type": "LinearSolversApplication.pardiso_lu"
+                },
+                {
                     "solver_type"  : "LinearSolversApplication.amgcl",
                     "max_iteration": 400,
                     "tolerance"    : 1e-9
-                },
-                {
-                    "solver_type": "LinearSolversApplication.pardiso_lu"
                 }
             ]
         },

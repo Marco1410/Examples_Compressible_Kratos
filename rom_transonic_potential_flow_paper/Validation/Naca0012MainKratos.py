@@ -164,6 +164,6 @@ if __name__ == "__main__":
         sub_ax.grid()
         sub_ax.legend(loc='upper right')
         
-    plt.savefig("Naca0012 Validation.pdf", dpi=400)
+    plt.savefig("Naca0012 Validation.png", dpi=400)
     # plt.show()
     plt.close()

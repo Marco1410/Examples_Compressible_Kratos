@@ -13,7 +13,7 @@
         "solver_type"              : "potential_flow",
         "model_import_settings"    : {
             "input_type"     : "mdpa",
-            "input_filename" : "Mesh/model_mesh_0"
+            "input_filename" : "model_mesh_0"
         },
         "material_import_settings" : {
             "materials_filename" : ""

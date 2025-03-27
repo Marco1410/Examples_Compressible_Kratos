@@ -25,13 +25,13 @@ DomainLength     = 25.0 #Z
 MeshGrowthRate   = 0.2
 ########################
 MeshMaxSize      = 2.0
-MeshMinSize      = 0.007
+MeshMinSize      = 0.002
 ########################
-MeshWingSize     = 0.009
-MeshTEWingSize   = 0.007
-MeshLEWingSize   = 0.007
-MeshTipWingSize  = 0.007
-MeshRootFoilSize = 0.009
+MeshWingSize     = 0.004
+MeshTEWingSize   = 0.002
+MeshLEWingSize   = 0.002
+MeshTipWingSize  = 0.002
+MeshRootFoilSize = 0.004
 ########################
 # Wake_angle         = 3.06
 # Wake_length        = DomainWidth
@@ -42,6 +42,7 @@ MeshRootFoilSize = 0.009
 # Dir                     = os.getcwd()
 onera_geometry_igs_path = "onera_m6_geometry/Onera_M6_geometry.igs"
 MeshOutPutName          = "Fluid.med"
+MeshName                = "OneraM6"
 # Wake_output_name        = "Wake.stl"
 
 # if not os.path.exists(f'{Dir}/SalomeFiles'):
@@ -152,7 +153,7 @@ geompy.addToStudyInFather( Domain, TE_Points, 'TE_Points' )
 import  SMESH # type: ignore
 from salome.smesh import smeshBuilder # type: ignore
 
-sys.path.append("../../../../../KratosSalomePlugin") # adding root folder of plugin to path
+sys.path.append("../../../../KratosSalomePlugin") # adding root folder of plugin to path
 import create_kratos_input_tui # type: ignore
 
 mesh_description_domain  = { "elements"   : {"Tetra"    : {"Element3D4N"       : 0}}}
@@ -271,7 +272,7 @@ meshes = [
           create_kratos_input_tui.SalomeMesh(Wing_1, mesh_description_surface, "Wing"),
           ]
 
-create_kratos_input_tui.CreateMdpaFile(meshes, f"Fluid")
+create_kratos_input_tui.CreateMdpaFile(meshes, MeshName)
 
 ##########################################################################
 

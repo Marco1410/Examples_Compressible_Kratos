@@ -336,7 +336,7 @@ def GetRomManagerParameters():
             "ROM":{
                 "svd_truncation_tolerance": 1e-12,
                 "print_singular_values": true,
-                "use_non_converged_sols" : false,
+                "use_non_converged_sols" : true,
                 "model_part_name": "MainModelPart",                         // This changes depending on the simulation: Structure, FluidModelPart, ThermalPart #TODO: Idenfity it automatically
                 "nodal_unknowns": ["VELOCITY_POTENTIAL", "AUXILIARY_VELOCITY_POTENTIAL"],     // Main unknowns. Snapshots are taken from these
                 "rom_basis_output_format": "numpy",
@@ -539,22 +539,19 @@ if __name__ == "__main__":
     clean_data         = False
     update_parameters  = True
     update_mu_test     = True
-    VALIDATION         = True
-    number_of_mu_train = 150
-    number_of_mu_test  = 150
+    VALIDATION         = False
+    number_of_mu_train = 15
+    number_of_mu_test  = 0
     alpha              = 0.85
     beta               = 0.85
-    # strategies         = ['galerkin','lspg','petrov_galerkin']
-    strategies         = ['lspg', 'lspg', 'lspg', 'lspg', 'lspg', 'lspg', 'lspg', 'lspg', 'lspg', 'lspg']
+    strategies         = ['lspg']
     # ADAPTIVE SAMPLING #############
     adapt              = False
     initial_fit        = True
-    # tolerances_error   = [0.8,0.5,0.2,0.1,0.01]
     tolerances_error   = []
     # OPTIMIZATION ##################
     optimize           = True
-    # optimal_constants  = [50,0.01]
-    optimal_constants  = [1.0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]
+    optimal_constants  = [1.0]
     constant_range     = [1e-6, 10]
     tolerance          = 1e-9
     iterations         = 15

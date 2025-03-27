@@ -475,18 +475,18 @@ if __name__ == "__main__":
     update_parameters  = True
     update_mu_test     = True
     VALIDATION         = True
-    number_of_mu_train = 30
+    number_of_mu_train = 75
     number_of_mu_test  = 50
-    alpha              = 0.75
-    beta               = 0.75
-    strategies         = ['galerkin','lspg']
+    alpha              = 0.70
+    beta               = 0.70
+    strategies         = ['lspg']
     # ADAPTIVE SAMPLING #############
-    adapt              = True
+    adapt              = False
     initial_fit        = True
     tolerances_error   = [0.8,0.5,0.2,0.1,0.01]
     # OPTIMIZATION ##################
-    optimize           = False
-    optimal_constants  = [-1]
+    optimize           = True
+    optimal_constants  = [0.01]
     constant_range     = [1e-6, 10]
     tolerance          = 1e-9
     iterations         = 15
